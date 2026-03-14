@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PLANİGO - Akıllı Seyahat Planlayıcı</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts — Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Leaflet.js Map Library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none !important;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+    </style>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0F172A',
+                            800: '#1E293B',
+                            700: '#334155',
+                            600: '#475569',
+                        },
+                        accent: {
+                            orange: '#F97316',
+                            purple: '#8B5CF6',
+                            blue: '#3B82F6',
+                            green: '#10B981',
+                            pink: '#EC4899',
+                        },
+                        sage:  '#9CAF88',
+                        cream: '#FDFCF8',
+                        main:  '#1a1a1a',
+                        muted: '#9ca3af',
+                    },
+                    fontFamily: {
+                        sans:  ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Map Fullscreen Transition */
+        #world-map-container {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .map-fullscreen {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999;
+            border-radius: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* Hide Expand Button in Fullscreen */
+        .map-fullscreen #btn-expand-world-map {
+            display: none;
+        }
+
+        /* Close Button for Fullscreen */
+        #btn-close-fullscreen {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+
+        .map-fullscreen #btn-close-fullscreen {
+            display: flex;
+        }
+
+
+        /* Neon / Zınk Effect */
+        @keyframes pulse-neon {
+            0% {
+                fill-opacity: 0.6;
+                stroke-width: 1;
+            }
+
+            50% {
+                fill-opacity: 0.9;
+                stroke-width: 3;
+            }
+
+            100% {
+                fill-opacity: 0.6;
+                stroke-width: 1;
+            }
+        }
+
+        .country-new-visit {
+            animation: pulse-neon 1.5s infinite;
+            fill: #F97316 !important;
+            /* Accent Orange */
+            stroke: #fff !important;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 font-sans text-slate-900 min-h-screen">
+
+    <!-- App Container (Mobile First) -->
+    <div id="app" class="max-w-md mx-auto bg-white min-h-screen relative pb-20 overflow-x-hidden">
+
+        <!-- ============================================ -->
+        <!-- DISCOVERY SCREEN -->
+        <!-- ============================================ -->
+        <section id="screen-discovery" class="screen hidden animate-fade-in">
+            <!-- Header -->
+            <header class="sticky top-0 bg-cream/95 backdrop-blur-sm z-40 px-4 py-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-main">Keşfet & Fırsatlar</h1>
+                    </div>
+                    <button
+                        class="w-10 h-10 rounded-full bg-white shadow-soft flex items-center justify-center relative">
+                        <i data-lucide="bell" class="w-5 h-5 text-main"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-accent-orange rounded-full"></span>
+                    </button>
+                </div>
+                <!-- Search -->
+                <div class="search-input-wrapper">
+                    <i data-lucide="search" class="search-icon w-5 h-5"></i>
+                    <input type="text" placeholder="Nereye gitmek istiyorsun?" class="search-input">
+                    <button class="disc-ist-btn">
+                        <i data-lucide="map-pin" class="w-3 h-3"></i>
+                        IST
+                        <i data-lucide="chevron-down" class="w-3 h-3"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="px-4 pb-24 space-y-8">
+                <!-- Category Pills — rendered by renderDiscoveryFilterPills() from DISCOVER_FILTER_CATEGORIES -->
+                <!-- Static HTML is the fallback; JS replaces inner content on screen load -->
+                <div id="discovery-filter-pills" class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                    <button class="filter-pill active" data-filter="all">
+                        <i data-lucide="zap" class="w-4 h-4"></i> Tüm Fırsatlar
+                    </button>
+                    <button class="filter-pill" data-filter="vizesiz">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i> Vizesiz
+                    </button>
+                    <button class="filter-pill" data-filter="bütçe-dostu">
+                        <i data-lucide="wallet" class="w-4 h-4"></i> Bütçe Dostu
+                    </button>
+                </div>
+
+                <!-- Günün Fırsatı -->
+                <div id="deal-of-day-section">
+                    <div class="flex items-center gap-2 mb-4">
+                        <h2 class="text-lg font-bold text-main">Günün Fırsatı</h2>
+                        <span
+                            class="bg-accent-orange/10 text-accent-orange text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Canlı</span>
+                    </div>
+
+                    <div class="deal-card-wide" id="deal-of-day-card">
+                        <img src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?q=80&w=2071&auto=format&fit=crop"
+                            alt="Istanbul">
+                        <div class="deal-card-overlay-gradient"></div>
+                        <!-- Top badges row -->
+                        <span class="deal-visa-badge">Vizesiz ✓</span>
+                        <div class="deal-card-badge">45% OFF</div>
+                        <div class="deal-card-content">
+                            <h3 class="text-2xl font-bold text-white mb-1">Istanbul ➝ London</h3>
+                            <p class="text-white/80 text-sm mb-3 flex items-center gap-1">
+                                <i data-lucide="plane" class="w-3 h-3"></i> Pegasus Airlines • IST ➝ LHR
+                            </p>
+                            <div class="deal-nights-row">
+                                🌙 3 Gece &nbsp;•&nbsp; ☀️ 4 Gün
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-white/50 text-xs line-through mb-1">₺2.200</p>
+                                    <div class="deal-price-pill">₺1.200</div>
+                                </div>
+                                <button class="btn-book-now">Rezervasyon ➝</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Viral Pin Hikayeleri -->
+                <div id="viral-stories-section">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold text-main">Viral Pin Hikayeleri</h2>
+                        <a href="#" class="text-xs font-bold text-sage">SOSYAL HARİTA</a>
+                    </div>
+                    <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" id="viral-stories">
+                        <div class="story-wrapper">
+                            <div class="story-circle">
+                                <img src="https://images.unsplash.com/photo-1512453979798-5ea904ac6605?w=500&auto=format&fit=crop&q=60"
+                                    alt="Dubai">
+                            </div>
+                            <span class="story-count-badge">615k</span>
+                            <span class="story-circle-label">Dubai</span>
+                        </div>
+                        <div class="story-wrapper">
+                            <div class="story-circle">
+                                <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=500&auto=format&fit=crop&q=60"
+                                    alt="Paris">
+                            </div>
+                            <span class="story-count-badge">420k</span>
+                            <span class="story-circle-label">Paris</span>
+                        </div>
+                        <div class="story-wrapper">
+                            <div class="story-circle">
+                                <img src="https://images.unsplash.com/photo-1641128324972-af3208f0ddfa?w=500&auto=format&fit=crop&q=60"
+                                    alt="Kapadokya">
+                            </div>
+                            <span class="story-count-badge">53k</span>
+                            <span class="story-circle-label">Kapadokya</span>
+                        </div>
+                        <div class="story-wrapper">
+                            <button
+                                class="w-[68px] h-[68px] rounded-full bg-sage/10 flex items-center justify-center border-2 border-sage border-dashed">
+                                <i data-lucide="plus" class="w-6 h-6 text-sage"></i>
+                            </button>
+                            <span class="story-circle-label">Ekle</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAX Öneriler — Vizesiz & Yaz Destinasyonları -->
+                <div id="pax-suggestions-section" class="mb-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-lg font-bold text-main">✨ PAX Önerileri</h2>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:#A3C14A22;color:#5a7a1a;">Vizesiz &amp; Yaz</span>
+                    </div>
+                    <div class="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x snap-mandatory" id="pax-suggestions-scroll">
+                        <!-- JS tarafından doldurulur -->
+                    </div>
+                </div>
+
+                <!-- Bütçe Dostu Kaçamaklar -->
+                <div id="budget-escapes-section">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold text-main">Bütçe Dostu Kaçamaklar</h2>
+                        <a href="#" class="text-xs font-bold text-sage">Tümünü Gör</a>
+                    </div>
+                    <div class="flex flex-col gap-3" id="budget-escapes">
+                        <!-- Atina -->
+                        <div class="escape-card escape-stagger" style="animation-delay:0ms">
+                            <div class="escape-card-img">
+                                <img src="https://images.unsplash.com/photo-1616489953121-042239c4ca94?w=500&auto=format&fit=crop&q=60" alt="Atina">
+                                <span class="escape-card-city">Atina</span>
+                                <span class="escape-card-duration">✈️ 1sa 20dk &nbsp;·&nbsp; 🌙 3 Gece</span>
+                            </div>
+                            <div class="escape-card-bottom">
+                                <span class="escape-status-visa">Vizesiz ✓</span>
+                                <div class="escape-price-box">
+                                    <span class="escape-price-label">Başlayan fiyatlarla</span>
+                                    <span class="escape-price-value">₺1.450</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tokyo -->
+                        <div class="escape-card escape-stagger" style="animation-delay:80ms">
+                            <div class="escape-card-img">
+                                <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=500&auto=format&fit=crop&q=60" alt="Tokyo">
+                                <span class="escape-card-city">Tokyo</span>
+                                <span class="escape-card-duration">✈️ 11sa 30dk &nbsp;·&nbsp; 🌙 7 Gece</span>
+                            </div>
+                            <div class="escape-card-bottom">
+                                <span class="escape-status-seats">Son 2 Koltuk 🔥</span>
+                                <div class="escape-price-box">
+                                    <span class="escape-price-label">Başlayan fiyatlarla</span>
+                                    <span class="escape-price-value">₺24.900</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vizesiz Rotalar — dedicated section, shown only when filter=vizesiz -->
+                <div id="vizesiz-section" class="hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold text-main">
+                            <span class="vz-section-title-badge">Vizesiz ✓</span>
+                            Rotalar
+                        </h2>
+                        <span class="text-xs text-sage font-bold">Türk Pasaportu</span>
+                    </div>
+                    <div class="flex flex-col gap-4" id="vizesiz-cards">
+                        <!-- Populated by renderVizesizSection() -->
+                    </div>
+                </div>
+
+                <!-- Bütçe Dostu Rotalar — dedicated section, shown only when filter=bütçe-dostu -->
+                <div id="budget-section" class="hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold text-main">
+                            <span class="bf-section-badge">💰 Bütçe Dostu</span>
+                            Kaçamaklar
+                        </h2>
+                        <a href="#" onclick="showAllBudgetRoutes(); return false;" class="text-xs font-bold text-sage">Tümünü Gör →</a>
+                    </div>
+                    <div class="flex flex-col gap-4" id="budget-cards">
+                        <!-- Populated by renderBudgetFriendlySection() -->
+                    </div>
+                </div>
+
+                <!-- Helper for dynamic content injection if needed -->
+                <div id="discovery-dynamic-content" class="hidden"></div>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- MAP SCREEN -->
+        <!-- ============================================ -->
+        <section id="screen-map" class="screen hidden animate-fade-in relative h-screen overflow-hidden">
+            <!-- Header (Floating Premium Panel) -->
+            <div class="absolute top-0 left-0 right-0 z-[400] px-3 pt-3 pointer-events-none">
+                <div
+                    class="pointer-events-auto bg-white/95 backdrop-blur-lg rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-3 flex flex-col gap-2.5 border border-white/60">
+                    <div class="flex items-center justify-between px-0.5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg bg-sage/10 flex items-center justify-center">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-sage"></i>
+                            </div>
+                            <h1 class="text-base font-bold text-main tracking-tight">Sosyal Harita</h1>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <!-- Notification Bell -->
+                            <button id="btn-notif-bell" onclick="toggleNotificationPanel()"
+                                class="relative w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                <i data-lucide="bell" class="w-4 h-4 text-main"></i>
+                                <span id="notif-badge"
+                                    class="hidden absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center">0</span>
+                            </button>
+                            <!-- Add button -->
+                            <button onclick="openMapAddChoice()"
+                                class="w-8 h-8 rounded-full bg-gradient-to-br from-sage to-[#7A8A2E] flex items-center justify-center hover:shadow-md transition-all active:scale-95">
+                                <i data-lucide="plus" class="w-4 h-4 text-white"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Search -->
+                    <div class="search-input-wrapper">
+                        <i data-lucide="search" class="search-icon w-3.5 h-3.5"></i>
+                        <input type="text" placeholder="Mekan, his, yer ara..."
+                            class="search-input">
+                        <button class="absolute right-3 top-1/2 -translate-y-1/2">
+                            <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-muted"></i>
+                        </button>
+                    </div>
+                    <!-- Map Category Pills -->
+                    <div class="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide px-0.5" id="map-pills-container">
+                        <button class="map-filter-pill active" data-filter="all">🌍 Tümü</button>
+                        <button class="map-filter-pill" data-filter="cheap-eats">🍜 Ucuz Yemek</button>
+                        <button class="map-filter-pill" data-filter="viewpoints">📸 Manzara</button>
+                        <button class="map-filter-pill" data-filter="hidden-gems">💎 Gizli Nokta</button>
+                        <button class="map-filter-pill" data-filter="nightlife">🌙 Gece Hayatı</button>
+                        <button class="map-filter-pill" data-filter="cafe">☕ Kafe</button>
+                        <button class="map-filter-pill" data-filter="restaurant">🍽️ Restoran</button>
+                        <button class="map-filter-pill" data-filter="events">🌟 Etkinlikler</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Container -->
+            <div id="leaflet-map" class="w-full h-full z-0 bg-cream"></div>
+
+            <!-- Bottom Sheet (Nearby Vibes + Pin Detail) -->
+            <div id="map-bottom-sheet"
+                class="absolute bottom-24 left-0 right-0 z-[400] px-4 pointer-events-none transition-all duration-300 ease-out">
+
+                <!-- DEFAULT: Nearby Vibes Scroll -->
+                <div id="nearby-vibes-default">
+                    <div class="flex items-center justify-between mb-2 px-2">
+                        <h2
+                            class="text-sm font-bold text-main shadow-sm bg-white/50 px-2 py-1 rounded-lg backdrop-blur pointer-events-auto">
+                            Yakındakiler</h2>
+                        <button
+                            class="text-xs font-bold text-sage bg-white/50 px-2 py-1 rounded-lg backdrop-blur pointer-events-auto">Tümünü
+                            Gör</button>
+                    </div>
+                    <div id="nearby-vibes-scroll"
+                        class="flex gap-3 overflow-x-auto pb-4 scrollbar-hide pointer-events-auto snap-x snap-mandatory">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- SELECTED: Pin Detail Card -->
+                <div id="pin-detail-card" class="hidden pointer-events-auto">
+                    <div class="bg-white rounded-2xl shadow-lg p-4 border border-gray-100">
+                        <!-- Close / Back -->
+                        <button onclick="deselectPin()"
+                            class="absolute top-3 right-3 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors z-10">
+                            <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
+                        </button>
+
+                        <!-- Pin Header -->
+                        <div class="flex gap-3 items-start">
+                            <div id="pin-detail-emoji"
+                                class="w-12 h-12 rounded-xl bg-sage/10 flex items-center justify-center text-2xl shrink-0">
+                                📍</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 id="pin-detail-title" class="font-bold text-main text-base truncate">Pin Adı
+                                    </h3>
+                                    <span id="pin-detail-badge"
+                                        class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sage/10 text-sage shrink-0">KAFE</span>
+                                </div>
+                                <p id="pin-detail-subtitle" class="text-xs text-muted mt-0.5">Tür • ⭐ 4.5 • $$</p>
+                                <p id="pin-detail-friends" class="text-[10px] text-muted mt-0.5">📍 0 arkadaş ziyaret etti
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Star Rating (shown only for other users' pins) -->
+                        <div id="pin-star-rating" class="hidden mt-3 flex items-center gap-1.5">
+                            <span class="text-[10px] text-muted font-medium">Puan ver:</span>
+                            <div class="flex gap-0.5" id="pin-stars">
+                                <button onclick="ratePin(1)" data-star="1" class="star-btn text-lg leading-none">☆</button>
+                                <button onclick="ratePin(2)" data-star="2" class="star-btn text-lg leading-none">☆</button>
+                                <button onclick="ratePin(3)" data-star="3" class="star-btn text-lg leading-none">☆</button>
+                                <button onclick="ratePin(4)" data-star="4" class="star-btn text-lg leading-none">☆</button>
+                                <button onclick="ratePin(5)" data-star="5" class="star-btn text-lg leading-none">☆</button>
+                            </div>
+                            <span id="pin-my-rating" class="text-[10px] text-sage font-bold hidden"></span>
+                        </div>
+
+                        <!-- Vibes / Tags -->
+                        <div id="pin-detail-vibes" class="flex gap-1.5 mt-3 flex-wrap">
+                            <!-- Dynamically filled -->
+                        </div>
+
+                        <!-- Description (collapsible) -->
+                        <div id="pin-detail-desc-section" class="hidden mt-3">
+                            <button onclick="togglePinDescription()"
+                                class="flex items-center gap-1 text-xs font-medium text-sage">
+                                <span>Açıklama</span>
+                                <i id="pin-desc-chevron" data-lucide="chevron-down"
+                                    class="w-3.5 h-3.5 transition-transform"></i>
+                            </button>
+                            <p id="pin-detail-description" class="text-xs text-muted mt-1 hidden leading-relaxed"></p>
+                        </div>
+
+                        <!-- User Tip -->
+                        <div id="pin-detail-tip-section" class="hidden mt-3 bg-cream rounded-xl p-2.5">
+                            <div class="flex items-center gap-2">
+                                <img id="pin-detail-tip-avatar" src="" class="w-6 h-6 rounded-full object-cover">
+                                <span id="pin-detail-tip-user" class="text-[11px] font-bold text-main">Kullanıcı İpucu</span>
+                            </div>
+                            <p id="pin-detail-tip-text" class="text-[11px] text-muted mt-1 italic">"..."</p>
+                        </div>
+
+                        <!-- Owner Actions (shown only for pin owner) -->
+                        <div id="pin-owner-actions" class="hidden flex gap-2 mt-3 mb-1">
+                            <button onclick="openEditPin()"
+                                class="flex-1 flex items-center justify-center gap-1.5 bg-sage/10 text-sage text-xs font-bold py-2.5 rounded-xl hover:bg-sage/20 transition-colors">
+                                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                                Düzenle
+                            </button>
+                            <button onclick="deleteCurrentPin()"
+                                class="flex-1 flex items-center justify-center gap-1.5 bg-red-50 text-red-500 text-xs font-bold py-2.5 rounded-xl hover:bg-red-100 transition-colors">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                Sil
+                            </button>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex gap-2 mt-3">
+                            <button onclick="viewPinFullDetail()"
+                                class="flex-1 bg-sage text-white text-xs font-bold py-2.5 rounded-xl hover:bg-sage/90 transition-colors">
+                                Detayları Gör
+                            </button>
+                            <button
+                                class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                <i data-lucide="bookmark" class="w-4 h-4 text-gray-500"></i>
+                            </button>
+                            <button
+                                class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                <i data-lucide="share-2" class="w-4 h-4 text-gray-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Location Error Banner -->
+            <div id="location-error"
+                class="hidden absolute top-24 left-4 right-4 bg-yellow-50 border border-yellow-400 text-yellow-800 px-4 py-2 rounded-xl text-sm z-[500]">
+                📍 Konum izni verilmedi. İstanbul merkezli gösteriliyor.
+            </div>
+
+            <!-- My Location FAB -->
+            <button id="btn-my-location"
+                class="absolute bottom-48 right-4 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center z-[400] text-sage hover:bg-gray-50 transition-colors">
+                <i data-lucide="crosshair" class="w-5 h-5"></i>
+            </button>
+
+            <!-- ========== ADD PIN MODAL ========== -->
+            <div id="modal-add-pin" class="hidden fixed inset-0 z-[600] flex items-end justify-center">
+                <!-- Backdrop -->
+                <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAddPinModal()"></div>
+
+                <!-- Modal Content -->
+                <div class="relative w-full max-w-md bg-white rounded-t-3xl p-6 pb-8 animate-slide-up shadow-2xl">
+                    <!-- Handle -->
+                    <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+
+                    <!-- Header -->
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-9 h-9 rounded-xl bg-sage/10 flex items-center justify-center">
+                                <i data-lucide="map-pin-plus" class="w-5 h-5 text-sage"></i>
+                            </div>
+                            <h2 class="text-lg font-bold text-main">Yeni Pin Ekle</h2>
+                        </div>
+                        <button onclick="closeAddPinModal()"
+                            class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200">
+                            <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
+                        </button>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="form-add-pin" onsubmit="handleAddPin(event)" class="space-y-4">
+                        <!-- Title -->
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 block mb-1">Mekan Adı *</label>
+                            <input type="text" name="title" required minlength="2" maxlength="200"
+                                placeholder="Örn: Gizli Çay Bahçesi"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:border-sage focus:ring-2 focus:ring-sage/20 outline-none transition-all">
+                        </div>
+
+                        <!-- Category -->
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 block mb-1">Kategori *</label>
+                            <select name="category" required
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:border-sage focus:ring-2 focus:ring-sage/20 outline-none transition-all bg-white">
+                                <option value="" disabled selected>Bir kategori seç...</option>
+                                <option value="cafe">☕ Kafe</option>
+                                <option value="cheap-eats">🍜 Ucuz Yemek</option>
+                                <option value="restaurant">🍽️ Restoran</option>
+                                <option value="viewpoints">📸 Manzara</option>
+                                <option value="hidden-gems">💎 Gizli Nokta</option>
+                                <option value="nightlife">🌙 Gece Hayatı</option>
+                                <option value="shopping">🛍️ Alışveriş</option>
+                                <option value="historical">🏛️ Tarihi</option>
+                                <option value="nature">🌿 Doğa</option>
+                                <option value="attraction">🎢 Turistik</option>
+                            </select>
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 block mb-1">Not / Açıklama</label>
+                            <textarea name="description" rows="2" maxlength="500"
+                                placeholder="Bu mekanla ilgili bir ipucu bırak..."
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:border-sage focus:ring-2 focus:ring-sage/20 outline-none transition-all resize-none"></textarea>
+                        </div>
+
+                        <!-- Image Upload -->
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 block mb-1">Görsel Ekle</label>
+                            <div class="relative">
+                                <input type="file" name="image" accept="image/*" id="pin-image-input"
+                                    onchange="previewPinImage(event)" class="hidden">
+                                <label for="pin-image-input"
+                                    class="flex items-center gap-3 w-full px-4 py-3 rounded-xl border-2 border-dashed border-gray-200 cursor-pointer hover:border-sage/50 hover:bg-sage/5 transition-all">
+                                    <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                                        <i data-lucide="image-plus" class="w-5 h-5 text-gray-400"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-600">Fotoğraf Yükle</p>
+                                        <p class="text-[10px] text-gray-400">JPG, PNG — Maks 5MB</p>
+                                    </div>
+                                </label>
+                                <!-- Preview -->
+                                <div id="image-preview-container" class="hidden mt-2 relative">
+                                    <img id="pin-image-preview" class="w-full h-32 object-cover rounded-xl">
+                                    <button type="button" onclick="clearPinImage()"
+                                        class="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/50 flex items-center justify-center">
+                                        <i data-lucide="x" class="w-3 h-3 text-white"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Secret Spot Toggle -->
+                        <div class="flex items-center justify-between bg-amber-50 rounded-xl px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">✨</span>
+                                <div>
+                                    <p class="text-xs font-bold text-amber-700">Gizli Mekan</p>
+                                    <p class="text-[10px] text-amber-500">Gizli mekan olarak işaretle</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_secret" class="sr-only peer">
+                                <div
+                                    class="w-9 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-amber-400 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all">
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Hidden coords -->
+                        <input type="hidden" name="lat" id="new-pin-lat">
+                        <input type="hidden" name="lng" id="new-pin-lng">
+
+                        <!-- Submit -->
+                        <button type="submit" id="btn-submit-pin"
+                            class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sage to-[#7A8A2E] text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all active:scale-[0.98]">
+                            📍 Pin'i Kaydet
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+
+            <!-- ========== EDIT PIN MODAL ========== -->
+            <div id="modal-edit-pin" class="hidden fixed inset-0 z-[600] flex items-end justify-center">
+                <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeEditPinModal()"></div>
+                <div class="relative w-full max-w-md bg-white rounded-t-3xl p-6 pb-8 animate-slide-up shadow-2xl">
+                    <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-9 h-9 rounded-xl bg-sage/10 flex items-center justify-center">
+                                <i data-lucide="pencil" class="w-5 h-5 text-sage"></i>
+                            </div>
+                            <h2 class="text-lg font-bold text-main">Pini Düzenle</h2>
+                        </div>
+                        <button onclick="closeEditPinModal()"
+                            class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200">
+                            <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
+                        </button>
+                    </div>
+                    <form id="form-edit-pin" onsubmit="handleEditPin(event)" class="space-y-4">
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 block mb-1">Mekan Adı *</label>
+                            <input type="text" name="title" id="edit-pin-title" required minlength="2" maxlength="200"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:border-sage focus:ring-2 focus:ring-sage/20 outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 block mb-1">Kategori *</label>
+                            <select name="category" id="edit-pin-category" required
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:border-sage focus:ring-2 focus:ring-sage/20 outline-none transition-all bg-white">
+                                <option value="cafe">☕ Kafe</option>
+                                <option value="cheap-eats">🍜 Ucuz Yemek</option>
+                                <option value="restaurant">🍽️ Restoran</option>
+                                <option value="viewpoints">📸 Manzara</option>
+                                <option value="hidden-gems">💎 Gizli Nokta</option>
+                                <option value="nightlife">🌙 Gece Hayatı</option>
+                                <option value="shopping">🛍️ Alışveriş</option>
+                                <option value="historical">🏛️ Tarihi</option>
+                                <option value="nature">🌿 Doğa</option>
+                                <option value="attraction">🎢 Turistik</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 block mb-1">Açıklama</label>
+                            <textarea name="description" id="edit-pin-description" rows="2" maxlength="500"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:border-sage focus:ring-2 focus:ring-sage/20 outline-none transition-all resize-none"></textarea>
+                        </div>
+                        <div class="flex items-center justify-between bg-amber-50 rounded-xl px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">✨</span>
+                                <div>
+                                    <p class="text-xs font-bold text-amber-700">Gizli Mekan</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_secret" id="edit-pin-secret" class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-amber-400 after:content-[' '] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                            </label>
+                        </div>
+                        <button type="submit" id="btn-submit-edit-pin"
+                            class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sage to-[#7A8A2E] text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all active:scale-[0.98]">
+                            ✅ Değişiklikleri Kaydet
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ========== PIN FULL DETAIL SHEET ========== -->
+            <div id="modal-pin-full-detail" class="hidden fixed inset-0 z-[650] flex items-end justify-center">
+                <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closePinFullDetail()"></div>
+                <div class="relative w-full max-w-md bg-white rounded-t-3xl shadow-2xl animate-slide-up flex flex-col" style="max-height:88vh; overflow:hidden;">
+                    <!-- Drag handle -->
+                    <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mt-3 mb-0 shrink-0"></div>
+                    <!-- Close -->
+                    <button onclick="closePinFullDetail()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center z-20">
+                        <i data-lucide="x" class="w-4 h-4 text-white"></i>
+                    </button>
+                    <!-- Hero Image (outside scroll so it stays at top) -->
+                    <div id="pfd-image-wrap" class="hidden relative w-full shrink-0 px-4 pt-2 pb-1">
+                        <img id="pfd-image" src="" alt="" class="w-full" style="height:220px; object-fit:cover; border-radius:16px;">
+                        <div class="absolute bottom-3 left-4">
+                            <span id="pfd-badge" class="text-[11px] font-bold px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white"></span>
+                        </div>
+                    </div>
+                    <!-- No image placeholder -->
+                    <div id="pfd-no-image" class="w-full flex items-center justify-center bg-sage/5 shrink-0" style="height:72px;">
+                        <span class="text-4xl" id="pfd-emoji-large">📍</span>
+                    </div>
+                    <!-- Scrollable content -->
+                    <div style="overflow-y:auto; flex:1; min-height:0; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;">
+                        <!-- Body -->
+                        <div class="px-5 py-4 space-y-4">
+                            <!-- Title row -->
+                            <div class="flex items-start justify-between gap-2">
+                                <h2 id="pfd-title" class="text-xl font-bold text-[#1a1a1a] leading-tight"></h2>
+                                <span id="pfd-badge-body" class="shrink-0 text-[10px] font-bold px-2 py-1 rounded-full bg-sage/10 text-sage mt-1"></span>
+                            </div>
+
+                            <!-- Meta row -->
+                            <div class="flex items-center gap-3 text-xs text-gray-500">
+                                <span id="pfd-rating">⭐ 4.5</span>
+                                <span>•</span>
+                                <span id="pfd-type"></span>
+                                <span id="pfd-price"></span>
+                            </div>
+
+                            <!-- Friends -->
+                            <p id="pfd-friends" class="text-xs text-gray-400">📍 0 arkadaş ziyaret etti</p>
+
+                            <!-- Description -->
+                            <div id="pfd-desc-wrap" class="hidden">
+                                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Açıklama</h3>
+                                <p id="pfd-description" class="text-sm text-gray-700 leading-relaxed"></p>
+                            </div>
+
+                            <!-- User Tip -->
+                            <div id="pfd-tip-wrap" class="hidden bg-[#F9F7F2] rounded-2xl p-4">
+                                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Kullanıcı İpucu</h3>
+                                <div class="flex items-start gap-2">
+                                    <img id="pfd-tip-avatar" src="" class="w-8 h-8 rounded-full object-cover shrink-0">
+                                    <div>
+                                        <p id="pfd-tip-user" class="text-xs font-bold text-[#1a1a1a]"></p>
+                                        <p id="pfd-tip-text" class="text-xs text-gray-600 italic mt-0.5"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+                        <!-- ========== NOTIFICATION PANEL ========== -->
+            <div id="notif-panel-backdrop" class="hidden fixed inset-0 z-[480]" onclick="closeNotificationPanel()"></div>
+            <div id="notification-panel"
+                class="hidden absolute top-16 right-3 z-[490] w-80 max-w-[calc(100vw-24px)] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                    <h3 class="text-sm font-bold text-main">Bildirimler</h3>
+                    <button onclick="markAllNotificationsRead()" class="text-[11px] font-bold text-[#A3C14A]">Tümünü Oku</button>
+                </div>
+                <div id="notif-list" class="overflow-y-auto" style="max-height: 340px;">
+                    <p class="text-sm text-muted text-center py-6">Henüz bildirim yok.</p>
+                </div>
+            </div>
+
+            <!-- ========== MAP ADD CHOICE CARD ========== -->
+            <div id="map-add-choice-backdrop" onclick="closeMapAddChoice()"></div>
+            <div id="map-add-choice-card">
+                <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+                <h3 class="text-base font-bold text-main text-center mb-4">Haritaya ne eklemek istiyorsun?</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button class="choice-btn" onclick="chooseAddPin()">
+                        <span class="text-3xl">📌</span>
+                        <p class="font-bold text-sm text-main">Normal Pin</p>
+                        <p class="text-[11px] text-muted">Mekan, kafe, manzara…</p>
+                    </button>
+                    <button class="choice-btn event" onclick="chooseAddEvent()">
+                        <span class="text-3xl">🌟</span>
+                        <p class="font-bold text-sm text-main">Etkinlik Pini</p>
+                        <p class="text-[11px] text-muted">Buluşma, aktivite…</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========== ADD EVENT MODAL ========== -->
+            <div id="modal-add-event" class="hidden fixed inset-0 z-[600] flex items-end justify-center">
+                <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAddEventModal()"></div>
+                <div class="relative w-full max-w-md bg-white rounded-t-3xl p-6 pb-8 animate-slide-up shadow-2xl overflow-y-auto max-h-[90vh]">
+                    <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-xl bg-[#A3C14A]/15 flex items-center justify-center">
+                                <span class="text-base">🌟</span>
+                            </div>
+                            <h2 class="text-base font-bold text-main">Etkinlik Oluştur</h2>
+                        </div>
+                        <button onclick="closeAddEventModal()" class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">
+                            <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
+                        </button>
+                    </div>
+                    <form id="form-add-event" onsubmit="handleAddEvent(event)" class="flex flex-col gap-4">
+                        <!-- Title -->
+                        <div>
+                            <label class="text-xs font-bold text-main mb-1.5 block">Etkinlik Adı *</label>
+                            <input name="title" type="text" required minlength="3" maxlength="150"
+                                placeholder="Örn: Kadıköy Kahve Buluşması"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:border-[#A3C14A] focus:outline-none">
+                        </div>
+                        <!-- Event Type -->
+                        <div>
+                            <label class="text-xs font-bold text-main mb-2 block">Etkinlik Türü *</label>
+                            <div class="evt-type-grid">
+                                <input type="radio" name="event_type" value="social" id="et-social" class="evt-type-radio sr-only" checked>
+                                <label for="et-social" class="evt-type-label"><span class="type-emoji">👥</span>Buluşma</label>
+
+                                <input type="radio" name="event_type" value="food" id="et-food" class="evt-type-radio sr-only">
+                                <label for="et-food" class="evt-type-label"><span class="type-emoji">🍽️</span>Yemek</label>
+
+                                <input type="radio" name="event_type" value="sport" id="et-sport" class="evt-type-radio sr-only">
+                                <label for="et-sport" class="evt-type-label"><span class="type-emoji">🏃</span>Spor</label>
+
+                                <input type="radio" name="event_type" value="culture" id="et-culture" class="evt-type-radio sr-only">
+                                <label for="et-culture" class="evt-type-label"><span class="type-emoji">🎨</span>Kültür</label>
+
+                                <input type="radio" name="event_type" value="music" id="et-music" class="evt-type-radio sr-only">
+                                <label for="et-music" class="evt-type-label"><span class="type-emoji">🎵</span>Müzik</label>
+
+                                <input type="radio" name="event_type" value="travel" id="et-travel" class="evt-type-radio sr-only">
+                                <label for="et-travel" class="evt-type-label"><span class="type-emoji">✈️</span>Seyahat</label>
+
+                                <input type="radio" name="event_type" value="adventure" id="et-adventure" class="evt-type-radio sr-only">
+                                <label for="et-adventure" class="evt-type-label"><span class="type-emoji">🧗</span>Macera</label>
+                            </div>
+                        </div>
+                        <!-- Description -->
+                        <div>
+                            <label class="text-xs font-bold text-main mb-1.5 block">Açıklama *</label>
+                            <textarea name="description" required minlength="5" maxlength="800" rows="3"
+                                placeholder="Etkinliği kısaca anlat…"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm resize-none focus:border-[#A3C14A] focus:outline-none"></textarea>
+                        </div>
+                        <!-- Date & participants row -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs font-bold text-main mb-1.5 block">Tarih & Saat *</label>
+                                <input name="event_date" type="datetime-local" required
+                                    class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#A3C14A] focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-main mb-1.5 block">Maks Katılımcı</label>
+                                <input name="max_participants" type="number" min="2" max="500" value="10"
+                                    class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#A3C14A] focus:outline-none">
+                            </div>
+                        </div>
+                        <!-- Address (optional) -->
+                        <div>
+                            <label class="text-xs font-bold text-main mb-1.5 block">Adres / Yer <span class="text-muted font-normal">(opsiyonel)</span></label>
+                            <input name="address" type="text" maxlength="200"
+                                placeholder="Örn: Moda Sahili, Kadıköy"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:border-[#A3C14A] focus:outline-none">
+                        </div>
+                        <!-- Creator name -->
+                        <div>
+                            <label class="text-xs font-bold text-main mb-1.5 block">Adınız <span class="text-muted font-normal">(opsiyonel)</span></label>
+                            <input name="creator_name" type="text" maxlength="80"
+                                placeholder="Görünen isminiz"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:border-[#A3C14A] focus:outline-none">
+                        </div>
+                        <!-- Hidden coords + creator_id -->
+                        <input type="hidden" name="lat" id="new-event-lat">
+                        <input type="hidden" name="lng" id="new-event-lng">
+                        <input type="hidden" name="creator_id" id="new-event-creator-id">
+                        <!-- Submit -->
+                        <button id="btn-submit-event" type="submit"
+                            class="w-full bg-[#A3C14A] text-white font-bold py-3.5 rounded-xl text-sm hover:bg-[#8fad3a] transition-colors active:scale-[.98] mt-1">
+                            Etkinlik Oluştur ✨
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ========== EVENT DETAIL MODAL ========== -->
+            <div id="modal-event-detail" class="hidden fixed inset-0 z-[620] flex items-end justify-center">
+                <!-- Backdrop -->
+                <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="deselectEvent()"></div>
+                <!-- Sheet -->
+                <div class="relative w-full max-w-md bg-white rounded-t-3xl shadow-2xl flex flex-col" style="max-height: 92vh;">
+                    <!-- Handle -->
+                    <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mt-3 mb-1 shrink-0"></div>
+
+                    <!-- Scrollable body -->
+                    <div class="overflow-y-auto">
+
+                        <!-- Hero section -->
+                        <div id="evd-hero" class="px-5 pt-3 pb-5" style="background: rgba(163,193,74,0.10);">
+                            <div class="flex items-start justify-between mb-2">
+                                <span id="evd-type-badge" class="evd-type-badge">🌟 Etkinlik</span>
+                                <button onclick="deselectEvent()"
+                                    class="w-7 h-7 rounded-full bg-white/80 flex items-center justify-center shrink-0">
+                                    <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
+                                </button>
+                            </div>
+                            <h2 id="evd-title" class="text-xl font-black text-main leading-snug mt-1">Etkinlik Adı</h2>
+                            <!-- Creator row -->
+                            <div class="flex items-center gap-2.5 mt-3">
+                                <div id="evd-avatar" class="evd-avatar">A</div>
+                                <div>
+                                    <p id="evd-creator-name" class="text-sm font-bold text-main">Anonim</p>
+                                    <p class="text-[11px] text-muted">Etkinlik Sahibi</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info grid -->
+                        <div class="grid grid-cols-2 gap-3 px-5 py-4 border-b border-gray-100">
+                            <div class="evd-info-cell">
+                                <i data-lucide="calendar" class="w-4 h-4 text-[#A3C14A] shrink-0"></i>
+                                <div>
+                                    <p class="evd-info-label">Tarih &amp; Saat</p>
+                                    <p id="evd-date" class="evd-info-value">—</p>
+                                </div>
+                            </div>
+                            <div class="evd-info-cell">
+                                <i data-lucide="users" class="w-4 h-4 text-[#A3C14A] shrink-0"></i>
+                                <div>
+                                    <p class="evd-info-label">Katılımcılar</p>
+                                    <p id="evd-participants" class="evd-info-value">0 / 10</p>
+                                </div>
+                            </div>
+                            <div id="evd-location-cell" class="evd-info-cell col-span-2 hidden">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-[#A3C14A] shrink-0"></i>
+                                <div>
+                                    <p class="evd-info-label">Konum</p>
+                                    <p id="evd-location" class="evd-info-value">—</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Capacity progress bar -->
+                        <div class="px-5 py-3 border-b border-gray-100">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-xs font-bold text-main">Doluluk Oranı</span>
+                                <span id="evd-fill-label" class="text-xs text-muted font-semibold">0%</span>
+                            </div>
+                            <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                <div id="evd-fill-bar"
+                                    class="h-full bg-[#A3C14A] rounded-full transition-all duration-700"
+                                    style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="px-5 py-4 border-b border-gray-100">
+                            <h4 class="text-xs font-bold text-main mb-2 uppercase tracking-wide">Etkinlik Hakkında</h4>
+                            <p id="evd-description" class="text-sm text-muted leading-relaxed">—</p>
+                        </div>
+
+                        <!-- CTA area -->
+                        <div class="px-5 py-5">
+
+                            <!-- NON-CREATOR: join flow -->
+                            <div id="evd-join-section">
+                                <button id="btn-want-join" onclick="showJoinForm()"
+                                    class="btn-join-event w-full">
+                                    Katılmak İste ✨
+                                </button>
+
+                                <!-- Inline join form (hidden by default) -->
+                                <div id="evd-join-form" class="hidden mt-3">
+                                    <div class="bg-[#A3C14A]/08 border border-[#A3C14A]/30 rounded-2xl p-4">
+                                        <label class="text-xs font-bold text-main block mb-2">
+                                            Neden katılmak istiyorsun?
+                                            <span class="font-normal text-muted ml-1">(opsiyonel, maks 300 karakter)</span>
+                                        </label>
+                                        <textarea id="join-message-text" maxlength="300" rows="3"
+                                            placeholder="Kısa bir not bırak — etkinlik sahibi okuyacak…"
+                                            class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm resize-none focus:border-[#A3C14A] focus:outline-none bg-white"></textarea>
+                                        <div class="flex gap-2 mt-3">
+                                            <button onclick="cancelJoinForm()"
+                                                class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors">
+                                                Vazgeç
+                                            </button>
+                                            <button id="btn-send-join-request" onclick="handleJoinEvent()"
+                                                class="flex-1 py-2.5 rounded-xl bg-[#A3C14A] text-white text-sm font-bold hover:bg-[#8fad3a] transition-colors active:scale-[.97]">
+                                                İsteği Gönder 🎉
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CREATOR: ownership card -->
+                            <div id="evd-creator-section" class="hidden">
+                                <div class="bg-[#A3C14A]/10 rounded-2xl p-4 text-center border border-[#A3C14A]/20">
+                                    <p class="text-sm font-bold text-main">Bu etkinliğin sahibisin ✨</p>
+                                    <p id="evd-pending-count" class="text-xs text-muted mt-1">Bekleyen istek yok</p>
+                                </div>
+                                <button id="btn-manage-event" onclick="openManageEvent()"
+                                    class="w-full mt-3 py-3 rounded-xl border-2 border-[#A3C14A] text-[#A3C14A] text-sm font-bold hover:bg-[#A3C14A]/10 transition-colors">
+                                    İstekleri Yönet →
+                                </button>
+                            </div>
+
+                        </div>
+                    </div><!-- /scrollable -->
+                </div><!-- /sheet -->
+            </div><!-- /#modal-event-detail -->
+
+            <!-- ========== MANAGE EVENT MODAL ========== -->
+            <div id="modal-manage-event" class="hidden fixed inset-0 z-[640] flex items-end justify-center">
+                <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeManageEvent()"></div>
+                <div class="relative w-full max-w-md bg-white rounded-t-3xl shadow-2xl flex flex-col" style="max-height: 88vh;">
+                    <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mt-3 mb-1 shrink-0"></div>
+                    <!-- Header -->
+                    <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 shrink-0">
+                        <div>
+                            <h3 class="text-base font-bold text-main">Katılma İstekleri</h3>
+                            <p id="manage-req-count" class="text-xs text-muted mt-0.5">0 istek</p>
+                        </div>
+                        <button onclick="closeManageEvent()"
+                            class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                            <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
+                        </button>
+                    </div>
+                    <!-- Award stamps footer (shown after event_date) -->
+                    <div id="manage-award-footer" class="hidden px-4 py-3 border-t border-gray-100 shrink-0">
+                        <button onclick="awardEventStamps()"
+                            class="w-full py-2.5 rounded-xl bg-[#A3C14A]/15 border border-[#A3C14A]/40 text-[#5a7a1e] text-sm font-bold hover:bg-[#A3C14A]/25 transition-colors">
+                            🌟 Etkinlik Bitti — Katılımcılara Damga Ver
+                        </button>
+                    </div>
+                    <!-- Request list -->
+                    <div id="manage-requests-list" class="overflow-y-auto flex-1 px-4 py-4 flex flex-col gap-3">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== PUBLIC PROFILE MODAL ========== -->
+            <div id="modal-public-profile" class="hidden fixed inset-0 z-[660] flex items-end justify-center">
+                <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closePublicProfile()"></div>
+                <div class="relative w-full max-w-md bg-white rounded-t-3xl shadow-2xl" style="max-height: 70vh; overflow-y: auto;">
+                    <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mt-3 mb-1"></div>
+                    <button onclick="closePublicProfile()"
+                        class="absolute top-4 right-4 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">
+                        <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
+                    </button>
+                    <!-- Profile content -->
+                    <div class="flex flex-col items-center px-6 pt-4 pb-6">
+                        <!-- Avatar -->
+                        <div id="pp-avatar"
+                            class="w-20 h-20 rounded-full bg-[#A3C14A] text-white flex items-center justify-center text-3xl font-black border-4 border-white shadow-lg mb-3">
+                            ?
+                        </div>
+                        <!-- Name + Level -->
+                        <h3 id="pp-name" class="text-xl font-black text-main">Kullanıcı</h3>
+                        <p id="pp-level" class="text-xs font-semibold text-[#A3C14A] mt-0.5"></p>
+                        <!-- Bio -->
+                        <p id="pp-bio" class="text-sm text-muted text-center mt-2 leading-relaxed"></p>
+                        <!-- Divider -->
+                        <div class="w-full border-t border-gray-100 my-4"></div>
+                        <!-- Visited -->
+                        <p id="pp-visited-count" class="text-sm font-bold text-main">🌍 — ülke gezdi</p>
+                        <p id="pp-flags" class="text-2xl mt-2 leading-loose tracking-widest text-center"></p>
+                        <!-- No profile notice -->
+                        <p id="pp-no-profile" class="hidden text-xs text-muted mt-4 text-center">
+                            Bu kullanıcı henüz profil oluşturmamış.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confetti Overlay -->
+            <div id="confetti-overlay"
+                class="hidden fixed inset-0 z-[700] pointer-events-none flex items-center justify-center">
+                <div class="confetti-burst"></div>
+                <div class="text-center animate-bounce-in">
+                    <p class="text-4xl mb-2">🎉</p>
+                    <p class="text-lg font-black text-white drop-shadow-lg">Yeni Fetih!</p>
+                    <p class="text-sm text-white/80 drop-shadow">Pin başarıyla eklendi</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ============================================ -->
+        <!-- PLANNER SCREEN (LIST) -->
+        <!-- ============================================ -->
+        <!-- ============================================ -->
+        <!-- PLANNER SCREEN (LIST) -->
+        <!-- ============================================ -->
+        <section id="screen-planner" class="screen hidden animate-fade-in">
+            <!-- Header -->
+            <header class="sticky top-0 bg-cream/95 backdrop-blur-sm z-40 px-4 py-4 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-main">Planlarım</h1>
+                        <p class="text-xs text-muted">Yaklaşan Seyahatler</p>
+                    </div>
+                    <button onclick="openAiItineraryModal()"
+                        class="flex items-center gap-1.5 bg-[#A3C14A] text-white text-xs font-bold px-3 py-2 rounded-xl shadow-sm active:scale-95 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        AI Plan
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="pb-24" id="planner-scroll-area">
+
+
+                <div class="px-4 py-3 space-y-8">
+                    <!-- PAX Upcoming Events -->
+                    <div id="pax-events-planner-section" class="hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="font-serif text-xl font-bold text-[#1a1a1a]">PAX Etkinlikleri</h2>
+                            <span class="text-xs text-[#A3C14A] font-semibold">Yaklaşan</span>
+                        </div>
+                        <div id="pax-events-planner" class="space-y-3">
+                            <!-- PAX event cards injected here by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Trips -->
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="font-serif text-xl font-bold text-[#1a1a1a]">Yaklaşan Seyahatler</h2>
+                            <button class="text-xs text-[#9ca3af] hover:text-[#7a8a2e] font-medium">Geçmişi
+                                Gör</button>
+                        </div>
+                        <div id="planner-upcoming" class="space-y-4">
+                            <!-- Active horizontal cards go here -->
+                            <div class="trip-card-skeleton"></div>
+                        </div>
+                    </div>
+
+                    <!-- Drafts & Ideas -->
+                    <div>
+                        <h2 class="font-serif text-xl font-bold text-[#1a1a1a] mb-4">Taslaklar & Fikirler</h2>
+                        <div id="planner-drafts" class="grid grid-cols-2 gap-3">
+                            <!-- Draft cards and Create New button go here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- PLANNER DETAIL SCREEN -->
+        <!-- ============================================ -->
+        <section id="screen-planner-detail" class="screen hidden pd-screen">
+
+            <!-- HEADER -->
+            <header class="pd-header">
+                <button id="btn-back-planner" class="pd-icon-btn">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </button>
+                <div class="pd-header-center">
+                    <span class="pd-header-route" id="pd-route">IST ✈ CDG</span>
+                    <h1 class="pd-header-title" id="pd-trip-name">Paris Trip</h1>
+                    <span class="pd-header-dates" id="pd-dates">14 - 20 Oct</span>
+                </div>
+                <div class="relative">
+                    <button id="btn-plan-settings" class="pd-icon-btn" onclick="togglePlanSettings()">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                    </button>
+                    <div id="plan-settings-dropdown" class="pd-settings-dropdown hidden">
+                        <button onclick="editPlan()" class="pd-settings-item">
+                            <i data-lucide="edit-2" class="w-4 h-4"></i> Planı Düzenle
+                        </button>
+                        <button onclick="duplicatePlan()" class="pd-settings-item">
+                            <i data-lucide="copy" class="w-4 h-4"></i> Planı Kopyala
+                        </button>
+                        <hr class="border-[var(--border)]">
+                        <button onclick="deletePlan()" class="pd-settings-item" style="color:#ef4444">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Planı İptal Et
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TRIP TYPE PILLS -->
+            <div class="pd-pills-row">
+                <button class="pd-pill active" id="pd-pill-bireysel" onclick="setPdTripType('bireysel')">Bireysel Seyahat</button>
+                <button class="pd-pill" id="pd-pill-tur" onclick="setPdTripType('tur')">Tur ile Seyahat</button>
+            </div>
+
+            <!-- SCROLLABLE BODY -->
+            <div class="pd-body">
+
+                <!-- GİDİŞ UÇUŞU -->
+                <div class="pd-section">
+                    <p class="pd-section-label">GİDİŞ UÇUŞU</p>
+                    <div class="pd-timeline">
+                        <div class="pd-tl-line-wrap">
+                            <div class="pd-tl-dot flight"></div>
+                            <div class="pd-tl-line"></div>
+                        </div>
+                        <div class="pd-tl-card" id="pd-outbound-card">
+                            <div class="pd-flight-skeleton">Yükleniyor...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KONAKLAMA -->
+                <div class="pd-section">
+                    <div class="pd-section-label-row">
+                        <p class="pd-section-label">KONAKLAMA</p>
+                        <button class="pd-section-chevron" id="pd-hotel-chevron" onclick="toggleHotelOptions()">
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div id="pd-hotel-card">
+                        <div class="pd-flight-skeleton">Yükleniyor...</div>
+                    </div>
+                    <div id="pd-hotel-options" class="pd-hotel-options hidden"></div>
+                </div>
+
+                <!-- GEMİNİ AI ÖNERİLERİ -->
+                <div class="pd-section">
+                    <div class="pd-section-label-row">
+                        <div class="pd-ai-label-wrap">
+                            <i data-lucide="sparkles" class="w-4 h-4" style="color:#A3C14A"></i>
+                            <p class="pd-section-label" style="margin-bottom:0;color:#1a1a1a">Gemini AI Önerileri</p>
+                        </div>
+                        <button class="pd-ai-add-btn" onclick="openAiDetailModal()">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div class="pd-ai-scroll" id="pd-ai-scroll">
+                        <div class="pd-flight-skeleton" style="width:150px;flex-shrink:0">Yükleniyor...</div>
+                    </div>
+                </div>
+
+                <!-- DÖNÜŞ UÇUŞU -->
+                <div class="pd-section" id="pd-return-section">
+                    <p class="pd-section-label">DÖNÜŞ UÇUŞU</p>
+                    <div class="pd-timeline">
+                        <div class="pd-tl-line-wrap">
+                            <div class="pd-tl-dot return-dot"></div>
+                            <div class="pd-tl-line" style="background:linear-gradient(to bottom,#60A5FA44,transparent)"></div>
+                        </div>
+                        <div class="pd-tl-card" id="pd-return-card">
+                            <div class="pd-flight-skeleton">Yükleniyor...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- spacer for floating widget -->
+                <div style="height:100px"></div>
+            </div>
+
+            <!-- COMBINED ACTION BAR: Budget + Confirm Button -->
+            <div id="pd-action-bar" class="pd-action-bar" style="display:none">
+                <div class="pd-action-budget-row">
+                    <div>
+                        <p class="pd-action-label">BELİRLENEN BÜTÇE</p>
+                        <p class="pd-budget-target" id="pd-target-budget">—</p>
+                    </div>
+                    <div class="pd-action-right">
+                        <div>
+                            <p class="pd-action-label">TOPLAM BÜTÇE</p>
+                            <p class="pd-budget-total" id="pd-total-budget">₺0</p>
+                        </div>
+                        <div id="pd-budget-badge" class="pd-budget-badge hidden"></div>
+                    </div>
+                </div>
+                <button id="pd-confirm-btn" class="pd-confirm-btn" onclick="openConfirmModal()">
+                    <span>✈️</span>
+                    <span>Planı Onayla</span>
+                </button>
+            </div>
+
+        </section>
+
+        <!-- PLAN ONAY MODALI -->
+        <div id="modal-plan-confirm" class="plan-confirm-overlay hidden" onclick="closeConfirmModal(event)">
+            <div class="plan-confirm-card">
+                <div class="plan-confirm-emoji">🌍</div>
+                <h2 class="plan-confirm-title">Bu maceraya hazır mısın?</h2>
+                <p class="plan-confirm-desc">Planını onayladığında veriler kilitlenir ve scraping durur.</p>
+                <div class="plan-confirm-actions">
+                    <button class="plan-confirm-cancel" onclick="closeConfirmModal()">Vazgeç</button>
+                    <button class="plan-confirm-ok" onclick="confirmPlan()">Onayla! 🎉</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KONFETI CANVAS -->
+        <canvas id="confetti-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;display:none"></canvas>
+
+        <!-- ============================================ -->
+        <!-- PROFILE SCREEN -->
+        <!-- ============================================ -->
+        <!-- PROFILE SCREEN -->
+        <!-- ============================================ -->
+        <section id="screen-profile" class="screen hidden animate-fade-in bg-[#F9F7F2]">
+            <!-- Header -->
+            <header class="sticky top-0 bg-[#F9F7F2]/95 backdrop-blur-sm z-40 px-4 py-4 border-b border-gray-100/50">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-serif font-bold text-[#1a1a1a]">Sosyal Profil</h1>
+                    <button onclick="openAccountSettings()"
+                        class="w-10 h-10 rounded-full bg-white shadow-sm border border-[#e8e6e1] flex items-center justify-center text-[#1a1a1a]">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="px-4 space-y-8 pb-32 pt-2">
+                <!-- 1. Profile Info -->
+                <div class="flex flex-col items-center text-center">
+                    <!-- Avatar + upload trigger -->
+                    <div class="relative mb-3 cursor-pointer" onclick="document.getElementById('avatar-file-input').click()">
+                        <img src="" alt="Profile"
+                            class="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover bg-[#e8e6e1]"
+                            id="profile-avatar"
+                            onerror="this.src=''; this.style.display='none'; document.getElementById('profile-avatar-initials').style.display='flex'">
+                        <!-- Initials fallback -->
+                        <div id="profile-avatar-initials"
+                            class="w-24 h-24 rounded-full border-4 border-white shadow-md bg-[#9CAF88] text-white text-2xl font-bold items-center justify-center hidden">
+                        </div>
+                        <!-- Camera overlay -->
+                        <div class="absolute inset-0 rounded-full bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                            <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <span id="profile-level-badge"
+                            class="absolute bottom-0 right-0 bg-[#9CAF88] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm border border-white">Lvl 1</span>
+                    </div>
+                    <!-- Hidden file input -->
+                    <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)">
+                    <h2 class="text-xl font-bold text-[#1a1a1a] mb-1" id="profile-username">@...</h2>
+                    <p class="text-xs text-[#6b7280]" id="profile-bio">—</p>
+                    <button onclick="logout()"
+                        class="text-[10px] text-red-400 font-medium mt-2 hover:text-red-500 flex items-center gap-1">
+                        <i data-lucide="log-out" class="w-3 h-3"></i> Çıkış Yap
+                    </button>
+                </div>
+
+                <!-- 2. XP Progress Bar -->
+                <div>
+                    <div
+                        class="flex justify-between text-[10px] font-bold text-[#9CAF88] uppercase tracking-wider mb-1.5">
+                        <span id="profile-level">Gezgin Seviyesi 1</span>
+                        <span id="profile-xp">LVL 2 için 0 XP</span>
+                    </div>
+                    <div class="h-2 w-full bg-[#e8e6e1] rounded-full overflow-hidden">
+                        <div class="h-full bg-[#9CAF88] rounded-full transition-all duration-700" id="profile-xp-bar" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <!-- 3. World Map -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="globe" class="w-5 h-5 text-[#9CAF88]"></i>
+                            <h3 class="font-serif font-bold text-xl text-[#1a1a1a]">Dünya Haritası</h3>
+                        </div>
+                        <span id="visited-country-badge"
+                            class="bg-[#9CAF88]/10 text-[#5F6F4C] text-xs font-bold px-3 py-1 rounded-full">5
+                            Ülke</span>
+                    </div>
+
+                    <div
+                        class="relative w-full aspect-[4/3] bg-[#F3F1EB] rounded-[32px] overflow-hidden border border-[#e8e6e1] shadow-sm group">
+                        <!-- Small Map Container -->
+                        <div id="mini-world-map"
+                            class="w-full h-full opacity-60 mix-blend-multiply transition-opacity group-hover:opacity-80">
+                        </div>
+
+                        <!-- Overlay Text -->
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <span
+                                class="bg-white/80 backdrop-blur-md px-4 py-2 rounded-full text-xs font-bold text-[#1a1a1a] shadow-sm transform group-hover:scale-105 transition-transform">
+                                Ülkelere dokunarak ziyaret olarak işaretle
+                            </span>
+                        </div>
+
+                        <!-- Expand Button -->
+                        <button id="btn-open-map" class="absolute inset-0 w-full h-full cursor-pointer z-10"></button>
+                    </div>
+                </div>
+
+                <!-- 4. Digital Passport -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-serif font-bold text-xl text-[#1a1a1a]">Dijital Pasaport</h3>
+                        <button id="passport-view-all"
+                            class="text-[10px] font-bold text-[#9CAF88] hover:underline uppercase tracking-wide">Tümünü
+                            Gör</button>
+                    </div>
+                    <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-1" id="passport-scroll-container">
+                        <!-- Dynamic Passport Stamps (JS rendered) -->
+                        <div class="passport-loading-skeleton w-24 h-32 bg-[#e8e6e1] rounded-xl animate-pulse flex-shrink-0"></div>
+                        <div class="passport-loading-skeleton w-24 h-32 bg-[#e8e6e1] rounded-xl animate-pulse flex-shrink-0"></div>
+                    </div>
+                    <!-- Expanded grid (shown when VIEW ALL is active) -->
+                    <div id="passport-expanded-grid" class="hidden grid grid-cols-3 gap-3 mt-3 px-1">
+                        <!-- JS rendered -->
+                    </div>
+                </div>
+
+                <!-- 5. Badges -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="award" class="w-5 h-5 text-[#A3C14A]"></i>
+                            <h3 class="font-serif font-bold text-xl text-[#1a1a1a]">Rozetler</h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="badge-unlocked-count" class="bg-[#A3C14A]/10 text-[#5F6F4C] text-xs font-bold px-3 py-1 rounded-full">0 / 6</span>
+                            <button id="badge-view-all" class="text-[10px] font-bold text-[#A3C14A] uppercase tracking-widest hidden">TÜMÜNÜ GÖR</button>
+                        </div>
+                    </div>
+                    <div id="badge-grid" class="grid grid-cols-3 gap-3">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- 6. My Wishlist -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="heart" class="w-5 h-5 text-red-400"></i>
+                            <h3 class="font-serif font-bold text-xl text-[#1a1a1a]">İstek Listem</h3>
+                        </div>
+                        <span id="wishlist-count-badge"
+                            class="bg-red-50 text-red-500 text-xs font-bold px-3 py-1 rounded-full">1 Plan</span>
+                    </div>
+                    <div id="profile-wishlist-cards" class="flex flex-col gap-3">
+                        <div class="trip-card-skeleton h-24"></div>
+                    </div>
+                </div>
+
+                <!-- 6. Recent Trips -->
+                <div>
+                    <h3 class="font-serif font-bold text-xl text-[#1a1a1a] mb-4">Son Seyahatler</h3>
+                    <div id="recent-trips" class="bg-[#F3F1EB] rounded-[24px] p-2">
+                        <!-- Dynamic Content -->
+                        <div class="p-4 text-center text-xs text-[#9ca3af]">Henüz tamamlanmış seyahat yok.</div>
+                    </div>
+                </div>
+
+                <!-- 7. Total Money Saved (Dark Card at Bottom) -->
+                <div class="bg-[#2C3E50] rounded-[32px] p-8 text-center relative overflow-hidden shadow-xl mt-4">
+                    <div
+                        class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent">
+                    </div>
+                    <p class="text-[10px] text-white/60 font-bold uppercase tracking-[0.2em] mb-3">Toplam Tasarruf
+                    </p>
+                    <div class="flex items-center justify-center gap-1 mb-4">
+                        <span class="text-4xl font-serif text-white font-bold">₺12,450</span>
+                    </div>
+                    <div
+                        class="inline-flex items-center gap-2 bg-[#ffffff]/10 backdrop-blur border border-white/10 px-4 py-1.5 rounded-full">
+                        <i data-lucide="trending-up" class="w-3 h-3 text-[#9CAF88]"></i>
+                        <span class="text-xs text-[#9CAF88] font-bold">+8% bu ay</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fullscreen Map Overlay -->
+            <div id="map-fullscreen-overlay" class="fixed inset-0 z-[60] bg-[#F9F7F2] hidden flex-col animate-fade-in">
+                <!-- Overlay Header -->
+                <div
+                    class="px-6 py-6 flex items-center justify-between bg-white/50 backdrop-blur-sm border-b border-gray-100">
+                    <div>
+                        <h2 class="text-2xl font-serif font-bold text-[#1a1a1a]">Dünya Haritası</h2>
+                        <p class="text-xs text-[#9CAF88] font-bold uppercase tracking-wide" id="overlay-stats">5
+                            Ülke Ziyaret Edildi</p>
+                    </div>
+                    <button id="btn-close-map"
+                        class="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center hover:scale-105 transition-transform text-[#1a1a1a]">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Map Area -->
+                <div class="flex-1 relative bg-[#A8D0E6]/20 overflow-hidden" id="fullscreen-map-container">
+                    <!-- Leaflet map will move here on expand -->
+                </div>
+
+                <!-- Overlay Footer -->
+                <div class="bg-white/90 backdrop-blur-md p-6 pb-8 border-t border-gray-100">
+                    <p class="text-center text-xs text-[#6b7280]">Ziyaret ettiğin ülkeleri seçerek işaretle.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- BOTTOM NAVIGATION -->
+        <!-- ============================================ -->
+
+
+        <!-- ============================================ -->
+        <!-- NEW PLAN MODAL -->
+        <!-- ============================================ -->
+        <div id="modal-new-plan" class="hidden fixed inset-0 z-[10000] flex justify-center"
+            style="font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif; background:#f5f3ee;">
+            <!-- Mobile-width container -->
+            <div id="plan-modal-inner" class="w-full max-w-md h-full overflow-y-auto" style="background: #f5f3ee;">
+
+                <!-- Top Bar -->
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px 8px;">
+                    <button type="button" id="btn-close-modal"
+                        style="width:36px; height:36px; border-radius:50%; background:transparent; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5"
+                            stroke-linecap="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button type="button"
+                        style="width:36px; height:36px; border-radius:50%; background:transparent; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1a1a1a">
+                            <circle cx="5" cy="12" r="2" />
+                            <circle cx="12" cy="12" r="2" />
+                            <circle cx="19" cy="12" r="2" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form id="form-new-plan" style="padding:0 24px 48px;">
+
+                    <!-- Title -->
+                    <h2 style="font-size:28px; font-weight:800; color:#1a1a1a; line-height:1.15; margin:8px 0 24px;">
+                        Yeni seyahat<br>planı
+                    </h2>
+
+                    <!-- ═══ DATE TYPE TOGGLE ═══ -->
+                    <div style="display:flex; gap:8px; margin-bottom:24px;">
+                        <label style="cursor:pointer;">
+                            <input type="radio" name="date_type" value="flexible" style="display:none;" checked>
+                            <div id="dt-flexible"
+                                style="padding:10px 22px; border-radius:50px; font-size:14px; font-weight:600; transition:all 0.3s; border:2px solid #7a8a2e; background:#7a8a2e; color:#fff;">
+                                Esnek Tarih
+                            </div>
+                        </label>
+                        <label style="cursor:pointer;">
+                            <input type="radio" name="date_type" value="fixed" style="display:none;">
+                            <div id="dt-fixed"
+                                style="padding:10px 22px; border-radius:50px; font-size:14px; font-weight:600; transition:all 0.3s; border:2px solid #d1d5c8; background:transparent; color:#6b7280;">
+                                Kesin Tarih
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- ═══ FLEXIBLE DATE FIELDS ═══ -->
+                    <div id="field-flexible-dates">
+                        <!-- Ne zaman? -->
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span style="font-size:14px; font-weight:500; color:#6b7280;">Ne zaman?</span>
+                            <span
+                                style="font-size:13px; font-weight:600; color:#7a8a2e; cursor:pointer;">Değiştir</span>
+                        </div>
+
+                        <!-- Month Card -->
+                        <div
+                            style="position:relative; background:#fff; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:14px; margin-bottom:20px; box-shadow:0 1px 4px rgba(0,0,0,0.06); border:1px solid #e8e6e1;">
+                            <div
+                                style="width:40px; height:40px; border-radius:12px; background:#f0efe9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280"
+                                    stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
+                                </svg>
+                            </div>
+                            <div style="flex:1;">
+                                <select name="flexible_month" id="flexible-month-select"
+                                    style="font-size:16px; font-weight:700; color:#1a1a1a; background:transparent; border:none; outline:none; cursor:pointer; width:100%; appearance:none; -webkit-appearance:none;">
+                                    <option value="jan">Ocak'ta</option>
+                                    <option value="feb">Şubat'ta</option>
+                                    <option value="mar">Mart'ta</option>
+                                    <option value="apr">Nisan'da</option>
+                                    <option value="may">Mayıs'ta</option>
+                                    <option value="jun">Haziran'da</option>
+                                    <option value="jul" selected>Temmuz'da</option>
+                                    <option value="aug">Ağustos'ta</option>
+                                    <option value="sep">Eylül'de</option>
+                                    <option value="oct">Ekim'de</option>
+                                    <option value="nov">Kasım'da</option>
+                                    <option value="dec">Aralık'ta</option>
+                                </select>
+                                <p id="month-subtitle" style="font-size:12px; color:#9ca3af; margin:2px 0 0;">Yaz
+                                    tatili
+                                    için ideal</p>
+                            </div>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af"
+                                stroke-width="2" style="flex-shrink:0;">
+                                <path d="M6 9l6 6 6-6" />
+                            </svg>
+                        </div>
+
+                        <!-- Süre -->
+                        <div style="margin-bottom:6px;">
+                            <span style="font-size:14px; font-weight:500; color:#6b7280;">Süre</span>
+                        </div>
+                        <div style="display:flex; gap:8px; margin-bottom:24px;">
+                            <label style="cursor:pointer;">
+                                <input type="radio" name="flexible_duration" value="weekend" style="display:none;"
+                                    checked>
+                                <div class="dur-chip"
+                                    style="padding:10px 20px; border-radius:50px; font-size:13px; font-weight:600; border:2px solid #d1d5c8; background:transparent; color:#6b7280; transition:all 0.3s;">
+                                    Haftasonu
+                                </div>
+                            </label>
+                            <label style="cursor:pointer;">
+                                <input type="radio" name="flexible_duration" value="3-5" style="display:none;">
+                                <div class="dur-chip"
+                                    style="padding:10px 20px; border-radius:50px; font-size:13px; font-weight:600; border:2px solid #7a8a2e; background:#7a8a2e; color:#fff; transition:all 0.3s;">
+                                    3-5 Gün
+                                </div>
+                            </label>
+                            <label style="cursor:pointer;">
+                                <input type="radio" name="flexible_duration" value="week" style="display:none;">
+                                <div class="dur-chip"
+                                    style="padding:10px 20px; border-radius:50px; font-size:13px; font-weight:600; border:2px solid #d1d5c8; background:transparent; color:#6b7280; transition:all 0.3s;">
+                                    1 Hafta
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- ═══ FIXED DATE FIELDS ═══ -->
+                    <div id="field-fixed-dates" style="display:none;">
+                        <div style="margin-bottom:10px;">
+                            <span style="font-size:14px; font-weight:500; color:#6b7280;">Tarih Seçin</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;">
+                            <input type="date" name="start_date"
+                                style="padding:14px 16px; border-radius:16px; border:1px solid #e8e6e1; background:#fff; font-size:14px; color:#1a1a1a; outline:none;">
+                            <input type="date" name="end_date"
+                                style="padding:14px 16px; border-radius:16px; border:1px solid #e8e6e1; background:#fff; font-size:14px; color:#1a1a1a; outline:none;">
+                        </div>
+                    </div>
+
+                    <!-- ═══ NEREDEN? ═══ -->
+                    <div style="margin-bottom:24px;">
+                        <span
+                            style="font-size:14px; font-weight:500; color:#6b7280; display:block; margin-bottom:10px;">Nereden?</span>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <!-- IST Badge -->
+                            <div
+                                style="width:48px; height:48px; border-radius:50%; background:#7a8a2e; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <input type="text" name="origin" value="IST" readonly
+                                    style="width:32px; background:transparent; border:none; text-align:center; font-size:12px; font-weight:800; color:#fff; outline:none; cursor:default;">
+                            </div>
+                            <!-- Search Input -->
+                            <div style="flex:1; position:relative;">
+                                <svg style="position:absolute; left:14px; top:50%; transform:translateY(-50%);"
+                                    width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af"
+                                    stroke-width="2">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <path d="m21 21-4.3-4.3" />
+                                </svg>
+                                <input type="text" id="destination-input" name="destination"
+                                    placeholder="Şehir veya Ülke (ön" autocomplete="off"
+                                    style="width:100%; padding:14px 16px 14px 42px; border-radius:16px; border:1px solid #e8e6e1; background:#fff; font-size:14px; color:#1a1a1a; outline:none; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                                <!-- Autocomplete Dropdown -->
+                                <div id="destination-autocomplete"
+                                    style="display:none; position:absolute; top:100%; left:0; right:0; margin-top:6px; background:#fff; border:1px solid #e8e6e1; border-radius:16px; z-index:50; box-shadow:0 8px 32px rgba(0,0,0,0.12); max-height:240px; overflow-y:auto;">
+                                </div>
+                                <input type="hidden" id="destination-lat" name="destination_lat">
+                                <input type="hidden" id="destination-lng" name="destination_lng">
+                                <input type="hidden" id="destination-display" name="destination_display">
+                            </div>
+                        </div>
+                        <p id="destination-error"
+                            style="display:none; font-size:12px; color:#ef4444; margin-top:8px; font-weight:500;">⚠
+                            Lütfen listeden bir şehir seçin</p>
+                    </div>
+
+                    <!-- ═══ HEDEF BÜTÇE ═══ -->
+                    <div style="margin-bottom:24px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                            <span style="font-size:14px; font-weight:500; color:#6b7280;">HEDEF BÜTÇE</span>
+                            <span style="font-size:11px; font-weight:600; color:#A3C14A; background:rgba(163,193,74,0.1); padding:3px 8px; border-radius:999px;">Opsiyonel</span>
+                        </div>
+                        <div class="budget-input-wrap" id="budget-input-wrap">
+                            <span class="budget-input-symbol">₺</span>
+                            <input
+                                type="text"
+                                id="budget-input"
+                                name="budget_raw"
+                                inputmode="numeric"
+                                placeholder="Örn: 15.000"
+                                autocomplete="off"
+                                class="budget-input-field"
+                                oninput="formatBudgetInput(this)"
+                            >
+                            <span class="budget-input-currency">TRY</span>
+                        </div>
+                        <input type="hidden" name="budget" id="budget-hidden">
+                        <p class="budget-input-hint">Bütçe girersen sana en uygun paketi öneririz</p>
+                    </div>
+
+                    <!-- ═══ POPÜLER ROTALAR ═══ -->
+                    <div style="margin-bottom:28px;">
+                        <div
+                            style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                            <span style="font-size:14px; font-weight:500; color:#6b7280;">Popüler Rotalar</span>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="font-size:11px; font-weight:700; color:#7a8a2e;">AI ÖNERİSİ</span>
+                                <div
+                                    style="width:32px; height:18px; border-radius:9px; background:#7a8a2e; position:relative; cursor:pointer;">
+                                    <div
+                                        style="width:14px; height:14px; border-radius:50%; background:#fff; position:absolute; right:2px; top:2px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:12px; overflow-x:auto; padding-bottom:4px; scroll-snap-type:x mandatory;"
+                            class="hide-scrollbar">
+                            <!-- Antalya -->
+                            <div class="popular-route-chip" data-dest="Antalya"
+                                style="flex-shrink:0; width:140px; height:100px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer; scroll-snap-align:start;">
+                                <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                    alt="Antalya" style="width:100%; height:100%; object-fit:cover;">
+                                <div
+                                    style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);">
+                                </div>
+                                <div
+                                    style="position:absolute; top:8px; right:8px; width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,0.25); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff"
+                                        stroke-width="2.5">
+                                        <path
+                                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="position:absolute; bottom:10px; left:10px; font-size:13px; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.5);">
+                                    Antalya 🇹🇷</div>
+                            </div>
+                            <!-- Paris -->
+                            <div class="popular-route-chip" data-dest="Paris"
+                                style="flex-shrink:0; width:140px; height:100px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer; scroll-snap-align:start;">
+                                <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                    alt="Paris" style="width:100%; height:100%; object-fit:cover;">
+                                <div
+                                    style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);">
+                                </div>
+                                <div
+                                    style="position:absolute; top:8px; right:8px; width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,0.25); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff"
+                                        stroke-width="2.5">
+                                        <path
+                                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="position:absolute; bottom:10px; left:10px; font-size:13px; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.5);">
+                                    Paris 🇫🇷</div>
+                            </div>
+                            <!-- Roma -->
+                            <div class="popular-route-chip" data-dest="Roma"
+                                style="flex-shrink:0; width:140px; height:100px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer; scroll-snap-align:start;">
+                                <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                    alt="Roma" style="width:100%; height:100%; object-fit:cover;">
+                                <div
+                                    style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);">
+                                </div>
+                                <div
+                                    style="position:absolute; top:8px; right:8px; width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,0.25); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff"
+                                        stroke-width="2.5">
+                                        <path
+                                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="position:absolute; bottom:10px; left:10px; font-size:13px; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.5);">
+                                    Roma 🇮🇹</div>
+                            </div>
+                            <!-- Bali -->
+                            <div class="popular-route-chip" data-dest="Bali"
+                                style="flex-shrink:0; width:140px; height:100px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer; scroll-snap-align:start;">
+                                <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                    alt="Bali" style="width:100%; height:100%; object-fit:cover;">
+                                <div
+                                    style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);">
+                                </div>
+                                <div
+                                    style="position:absolute; top:8px; right:8px; width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,0.25); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff"
+                                        stroke-width="2.5">
+                                        <path
+                                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="position:absolute; bottom:10px; left:10px; font-size:13px; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.5);">
+                                    Bali 🇮🇩</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ SUBMIT BUTTON ═══ -->
+                    <button type="submit" style="width:100%; padding:18px; border-radius:18px; border:none; font-size:16px; font-weight:700; color:#fff; cursor:pointer; transition:all 0.3s; 
+                               background:linear-gradient(135deg, #84cc16 0%, #65a30d 50%, #4d7c0f 100%);
+                               box-shadow:0 8px 24px rgba(101,163,13,0.35);">
+                        Planı Oluştur 🚀
+                    </button>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- Wishlist Manager Modal -->
+        <!-- ============================================ -->
+        <!-- ACCOUNT SETTINGS SCREEN -->
+        <!-- ============================================ -->
+        <div id="screen-account-settings" class="hidden fixed inset-0 z-[10000] bg-black/30 flex justify-center"
+             style="font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;">
+            <div class="w-full max-w-md h-full bg-[#F9F7F2] flex flex-col">
+
+            <!-- Header -->
+            <header class="sticky top-0 bg-[#F9F7F2]/95 backdrop-blur-sm z-40 px-4 py-4 border-b border-gray-100/50">
+                <div class="flex items-center gap-3">
+                    <button onclick="closeAccountSettings()"
+                        class="w-10 h-10 rounded-full bg-white shadow-sm border border-[#e8e6e1] flex items-center justify-center text-[#1a1a1a]">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <h1 class="text-xl font-bold text-[#1a1a1a]">Hesap Bilgileri</h1>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+
+                <!-- Username -->
+                <div class="bg-white rounded-2xl p-4 border border-[#e8e6e1]">
+                    <p class="text-xs font-semibold text-[#9CAF88] uppercase tracking-wide mb-1">Kullanıcı Adı</p>
+                    <p class="text-base font-bold text-[#1a1a1a]" id="as-username">—</p>
+                </div>
+
+                <!-- Email -->
+                <div class="bg-white rounded-2xl p-4 border border-[#e8e6e1]">
+                    <p class="text-xs font-semibold text-[#9CAF88] uppercase tracking-wide mb-1">E-posta</p>
+                    <p class="text-base font-bold text-[#1a1a1a]" id="as-email">—</p>
+                </div>
+
+                <!-- Password -->
+                <div class="bg-white rounded-2xl p-4 border border-[#e8e6e1]">
+                    <p class="text-xs font-semibold text-[#9CAF88] uppercase tracking-wide mb-1">Şifre</p>
+                    <div class="flex items-center justify-between">
+                        <p class="text-base font-bold text-[#1a1a1a]" id="as-password">••••••••</p>
+                        <button onclick="togglePasswordVisibility()"
+                            class="text-xs font-semibold text-[#A3C14A]" id="as-toggle-pass">Göster</button>
+                    </div>
+                </div>
+
+                <!-- Logout -->
+                <button onclick="logout()"
+                    class="w-full mt-4 py-4 rounded-2xl border-2 border-red-200 text-red-500 font-bold text-sm flex items-center justify-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                    Çıkış Yap
+                </button>
+            </div>
+            </div><!-- /max-w-md -->
+        </div>
+
+        <div id="modal-wishlist"
+            class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+            <div class="bg-white w-full max-w-md rounded-2xl p-6 relative h-[70vh] flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-slate-900">İstek Listem 💖</h2>
+                    <button id="btn-close-wishlist"
+                        class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="x" class="w-4 h-4 text-slate-600"></i>
+                    </button>
+                </div>
+
+                <div id="wishlist-items-container" class="flex-1 overflow-y-auto space-y-3">
+                    <!-- Dynamic Items -->
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Delete Confirmation Modal (Stylish) -->
+        <div id="modal-confirm-delete"
+            class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4 transition-opacity duration-300">
+            <div
+                class="bg-white w-full max-w-sm rounded-2xl p-6 relative text-center shadow-2xl transform transition-all scale-100">
+                <div
+                    class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce-slow">
+                    <i data-lucide="trash-2" class="w-8 h-8 text-red-500"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Planı İptal Et?</h3>
+                <p class="text-slate-500 mb-6 text-sm leading-relaxed">
+                    Bu seyahat planını tamamen silmek istediğinden emin misin? <br>
+                    <span class="text-red-400 text-xs">(Bu işlem geri alınamaz)</span>
+                </p>
+                <div class="flex gap-3">
+                    <button id="btn-cancel-delete"
+                        class="flex-1 py-3 bg-slate-100 text-slate-700 font-semibold rounded-xl hover:bg-slate-200 transition-colors">
+                        Vazgeç
+                    </button>
+                    <button id="btn-confirm-delete"
+                        class="flex-1 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold rounded-xl shadow-lg hover:shadow-red-500/30 hover:scale-[1.02] transition-all">
+                        Evet, Sil
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ============================================ -->
+    <!-- AUTH MODAL (Login / Register) -->
+    <!-- ============================================ -->
+    <div id="modal-auth"
+        class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-md px-4 transition-opacity duration-300">
+        <div class="w-full max-w-sm rounded-3xl relative overflow-hidden shadow-2xl"
+            style="background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+
+            <!-- Decorative circles -->
+            <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-10"
+                style="background: radial-gradient(circle, #e94560, transparent);"></div>
+            <div class="absolute -bottom-10 -left-10 w-32 h-32 rounded-full opacity-10"
+                style="background: radial-gradient(circle, #0ea5e9, transparent);"></div>
+
+            <div class="relative p-8">
+                <!-- Logo / Header -->
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-2xl flex items-center justify-center"
+                        style="background: linear-gradient(135deg, #e94560, #0ea5e9);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                        </svg>
+                    </div>
+                    <h2 id="auth-title" class="text-2xl font-bold text-white">Giriş Yap</h2>
+                    <p id="auth-subtitle" class="text-sm text-slate-400 mt-1">Hesabına giriş yap ve keşfetmeye başla</p>
+                </div>
+
+                <!-- Auth Form -->
+                <form id="auth-form" onsubmit="return false;" class="space-y-4">
+                    <!-- Username (only register) -->
+                    <div id="auth-username-group" class="hidden">
+                        <label
+                            class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Kullanıcı
+                            Adı</label>
+                        <div class="relative">
+                            <input id="auth-username" type="text" placeholder="gezgin_ali"
+                                class="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 border border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 outline-none transition-all"
+                                style="background: rgba(255,255,255,0.05);">
+                            <svg class="absolute right-3 top-3.5 text-slate-500" xmlns="http://www.w3.org/2000/svg"
+                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">E-posta</label>
+                        <div class="relative">
+                            <input id="auth-email" type="email" placeholder="ali@ornek.com" required
+                                class="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 border border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 outline-none transition-all"
+                                style="background: rgba(255,255,255,0.05);">
+                            <svg class="absolute right-3 top-3.5 text-slate-500" xmlns="http://www.w3.org/2000/svg"
+                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect width="20" height="16" x="2" y="4" rx="2" />
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Şifre</label>
+                        <div class="relative">
+                            <input id="auth-password" type="password" placeholder="••••••••" required minlength="6"
+                                class="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 border border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 outline-none transition-all"
+                                style="background: rgba(255,255,255,0.05);">
+                            <svg class="absolute right-3 top-3.5 text-slate-500" xmlns="http://www.w3.org/2000/svg"
+                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Error message -->
+                    <div id="auth-error"
+                        class="hidden text-red-400 text-sm text-center bg-red-500/10 rounded-xl py-2 px-3"></div>
+
+                    <!-- Submit Button -->
+                    <button id="auth-submit" type="submit" onclick="handleAuthSubmit()"
+                        class="w-full py-3.5 rounded-xl text-white font-bold text-base shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
+                        style="background: linear-gradient(135deg, #e94560, #c62368);">
+                        <span id="auth-btn-text">Giriş Yap</span>
+                    </button>
+                </form>
+
+                <!-- Toggle Login/Register -->
+                <div class="text-center mt-5">
+                    <p class="text-slate-400 text-sm">
+                        <span id="auth-toggle-text">Hesabın yok mu?</span>
+                        <button id="auth-toggle-btn" onclick="toggleAuthMode()"
+                            class="text-cyan-400 font-semibold hover:text-cyan-300 transition-colors ml-1">
+                            Kayıt Ol
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- BOTTOM NAVIGATION (Moved Outside App) -->
+    <!-- ============================================ -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-100 px-4 py-2 z-[9999]"
+        style="display:block !important;">
+        <div class="flex justify-around items-center">
+            <button class="nav-btn" data-screen="discovery">
+                <i data-lucide="compass" class="w-6 h-6"></i>
+                <span class="text-xs mt-1">Keşfet</span>
+            </button>
+            <button class="nav-btn" data-screen="map">
+                <i data-lucide="map" class="w-6 h-6"></i>
+                <span class="text-xs mt-1">Harita</span>
+            </button>
+            <button class="nav-btn active" data-screen="planner">
+                <i data-lucide="briefcase" class="w-6 h-6"></i>
+                <span class="text-xs mt-1">Planlarım</span>
+            </button>
+            <button class="nav-btn" data-screen="profile">
+                <i data-lucide="user" class="w-6 h-6"></i>
+                <span class="text-xs mt-1">Profil</span>
+            </button>
+        </div>
+    </nav>
+
+
+    <!-- ========== EVENT GROUP CHAT SCREEN ========== -->
+    <div id="modal-event-chat" class="hidden fixed inset-0 z-[10000]" style="font-family:'Plus Jakarta Sans',sans-serif;">
+        <div style="max-width:480px; margin:0 auto; height:100%; display:flex; flex-direction:column; background:#fff; overflow:hidden;">
+
+            <!-- Header -->
+            <div style="display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid #f3f4f6; flex-shrink:0; background:#fff;">
+                <button onclick="closeEventChat()" style="width:36px;height:36px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="arrow-left" class="w-5 h-5 text-[#1a1a1a]"></i>
+                </button>
+                <div style="flex:1;min-width:0;">
+                    <h2 id="chat-event-title" style="font-size:14px;font-weight:700;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></h2>
+                    <p id="chat-participant-count" style="font-size:11px;color:#9ca3af;margin-top:1px;"></p>
+                </div>
+                <div style="width:32px;height:32px;border-radius:50%;background:rgba(163,193,74,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i data-lucide="users" class="w-4 h-4 text-[#A3C14A]"></i>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="chat-messages" style="flex:1;overflow-y:auto;min-height:0;padding:16px;display:flex;flex-direction:column;gap:10px;background:#F9F9F6;-webkit-overflow-scrolling:touch;">
+                <div id="chat-empty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;">
+                    <div style="width:56px;height:56px;border-radius:50%;background:rgba(163,193,74,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+                        <i data-lucide="message-circle" class="w-7 h-7 text-[#A3C14A]"></i>
+                    </div>
+                    <p style="font-size:14px;font-weight:600;color:#6b7280;">Henüz mesaj yok</p>
+                    <p style="font-size:12px;color:#9ca3af;margin-top:4px;">İlk mesajı gönderin!</p>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <div style="flex-shrink:0;padding:12px 16px;border-top:1px solid #f3f4f6;display:flex;align-items:flex-end;gap:8px;background:#fff;">
+                <textarea id="chat-input" rows="1"
+                    placeholder="Mesajınızı yazın..."
+                    style="flex:1;resize:none;border-radius:20px;border:1.5px solid #e5e7eb;padding:10px 16px;font-size:13px;font-family:inherit;color:#1a1a1a;outline:none;max-height:96px;line-height:1.4;transition:border-color 0.15s;"
+                    onfocus="this.style.borderColor='#A3C14A'"
+                    onblur="this.style.borderColor='#e5e7eb'"
+                    oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+                    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMessage();}">
+                </textarea>
+                <button onclick="sendChatMessage()"
+                    style="width:40px;height:40px;border-radius:50%;border:none;background:#A3C14A;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.15s;"
+                    onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
+                    <i data-lucide="send" class="w-4 h-4 text-white"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+        <!-- App Script -->
+    <script src="app.js"></script>
+
+    <!-- ========== PLAN DETAIL AI DETAIL MODAL ========== -->
+    <div id="modal-pd-ai-detail" class="hidden fixed inset-0 z-[10000]" style="font-family:'Plus Jakarta Sans',sans-serif;">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closePdAiDetailModal()"></div>
+        <div class="absolute bottom-0 left-0 right-0" style="max-width:480px;margin:0 auto;border-radius:24px 24px 0 0;background:#FDFCF8;display:flex;flex-direction:column;max-height:90vh;overflow:hidden;">
+            <!-- Handle -->
+            <div style="display:flex;justify-content:center;padding:12px 0 4px;flex-shrink:0;">
+                <div style="width:40px;height:4px;background:#e5e7eb;border-radius:2px;"></div>
+            </div>
+            <!-- Header -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 20px 12px;flex-shrink:0;border-bottom:1px solid #f0ede8;">
+                <div>
+                    <p style="font-weight:800;font-size:15px;color:#1a1a1a;margin:0;">✨ AI Gün Planı</p>
+                    <p id="pd-ai-detail-subtitle" style="font-size:11px;color:#A3C14A;font-weight:600;margin:2px 0 0;"></p>
+                </div>
+                <button onclick="closePdAiDetailModal()" style="width:32px;height:32px;border-radius:50%;background:#f3f4f6;border:none;display:flex;align-items:center;justify-content:center;font-size:18px;color:#6b7280;cursor:pointer;line-height:1;">&times;</button>
+            </div>
+            <!-- Body -->
+            <div id="pd-ai-detail-body" style="flex:1;overflow-y:auto;padding:16px 16px 32px;min-height:0;"></div>
+        </div>
+    </div>
+
+    <!-- ========== AI ITİNERARY MODAL ========== -->
+    <div id="modal-ai-itinerary" class="hidden fixed inset-0 z-[10000]" style="font-family:'Plus Jakarta Sans',sans-serif;">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeAiItineraryModal()"></div>
+        <!-- Sheet -->
+        <div class="absolute bottom-0 left-0 right-0" style="max-width:480px; margin:0 auto; border-radius:24px 24px 0 0; background:#fff; display:flex; flex-direction:column; max-height:90vh; overflow:hidden;">
+            <!-- Handle -->
+            <div class="flex justify-center pt-3 pb-1 flex-shrink-0">
+                <div style="width:40px; height:4px; background:#e5e7eb; border-radius:2px;"></div>
+            </div>
+            <!-- Header -->
+            <div class="flex items-center justify-between px-5 py-3 flex-shrink-0">
+                <div>
+                    <h2 class="text-lg font-bold text-[#1a1a1a]">✨ AI Seyahat Planı</h2>
+                    <p class="text-xs text-gray-400">Gemini ile gün gün plan oluştur</p>
+                </div>
+                <button onclick="closeAiItineraryModal()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-lg leading-none">&times;</button>
+            </div>
+            <!-- Form -->
+            <div class="px-5 pb-3 flex-shrink-0">
+                <div class="flex gap-2">
+                    <input id="ai-city-input" type="text" placeholder="Şehir (örn. Roma, Tokyo)"
+                        class="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#A3C14A]"
+                        onkeydown="if(event.key==='Enter') fetchAiItinerary()">
+                    <select id="ai-days-select" class="border border-gray-200 rounded-xl px-2 py-2.5 text-sm outline-none focus:border-[#A3C14A] bg-white">
+                        <option value="1">1 gün</option>
+                        <option value="2">2 gün</option>
+                        <option value="3" selected>3 gün</option>
+                        <option value="4">4 gün</option>
+                        <option value="5">5 gün</option>
+                        <option value="7">7 gün</option>
+                        <option value="10">10 gün</option>
+                        <option value="14">14 gün</option>
+                    </select>
+                    <button onclick="fetchAiItinerary()" id="ai-fetch-btn"
+                        class="bg-[#A3C14A] text-white font-bold px-4 py-2.5 rounded-xl text-sm active:scale-95 transition-transform whitespace-nowrap">
+                        Planla
+                    </button>
+                </div>
+            </div>
+            <!-- Result -->
+            <div id="ai-itinerary-result" class="flex-1 overflow-y-auto px-5 pb-6" style="min-height:0;"></div>
+        </div>
+    </div>
+</body>
+
+</html>

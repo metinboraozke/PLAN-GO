@@ -1,0 +1,19 @@
+{
+  "source": "Türkiye pasaportuyla vizesiz girilebilen popüler destinasyonlar",
+  "updated": "2026-02",
+  "countries": [
+    { "code": "RS", "name": "Sırbistan",        "capital": "Belgrad",     "region": "Balkanlar" },
+    { "code": "ME", "name": "Karadağ",           "capital": "Budva",       "region": "Balkanlar" },
+    { "code": "GE", "name": "Gürcistan",         "capital": "Tiflis",      "region": "Kafkasya"  },
+    { "code": "BA", "name": "Bosna Hersek",      "capital": "Saraybosna",  "region": "Balkanlar" },
+    { "code": "AZ", "name": "Azerbaycan",        "capital": "Bakü",        "region": "Kafkasya"  },
+    { "code": "AL", "name": "Arnavutluk",        "capital": "Tiran",       "region": "Balkanlar" },
+    { "code": "MA", "name": "Fas",               "capital": "Marakeş",     "region": "Kuzey Afrika" },
+    { "code": "MK", "name": "Kuzey Makedonya",  "capital": "Üsküp",       "region": "Balkanlar" },
+    { "code": "TN", "name": "Tunus",             "capital": "Tunus",       "region": "Kuzey Afrika" },
+    { "code": "KG", "name": "Kırgızistan",       "capital": "Bişkek",      "region": "Orta Asya" },
+    { "code": "UZ", "name": "Özbekistan",        "capital": "Taşkent",     "region": "Orta Asya" },
+    { "code": "QA", "name": "Katar",             "capital": "Doha",        "region": "Körfez"    },
+    { "code": "JO", "name": "Ürdün",             "capital": "Amman",       "region": "Orta Doğu" }
+  ]
+}

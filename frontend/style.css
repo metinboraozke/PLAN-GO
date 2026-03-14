@@ -1,0 +1,3399 @@
+/* =====================================================
+   SITA SMART PLANNER — Global Stylesheet v3.0
+   Cream & Sage Premium Design System
+   ===================================================== */
+
+/* ===================================================
+   1. CSS CUSTOM PROPERTIES (Design Tokens)
+   =================================================== */
+:root {
+  --sage:         #9CAF88;
+  --sage-dark:    #7A8A2E;
+  --sage-light:   rgba(156, 175, 136, 0.12);
+  --cream:        #FDFCF8;
+  --cream-deep:   #F9F7F2;
+  --main:         #1a1a1a;
+  --muted:        #9ca3af;
+  --border:       #e8e6e1;
+
+  --shadow-soft:  0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.10);
+  --shadow-card:  0 4px 20px rgba(0, 0, 0, 0.05);
+
+  --radius-sm:    12px;
+  --radius-md:    16px;
+  --radius-lg:    24px;
+  --radius-xl:    32px;
+
+  /* ── Typography ── */
+  --font-primary: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --tracking-tight: -0.02em;
+  --tracking-base:  -0.01em;
+}
+
+/* ===================================================
+   2. BASE STYLES
+   =================================================== */
+* { box-sizing: border-box; }
+
+body, button, input, select, textarea {
+  font-family:  var(--font-primary);
+  letter-spacing: var(--tracking-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Global Type Scale ───────────────────────────── */
+h1, h2, h3, h4 {
+  font-family:    var(--font-primary);
+  font-weight:    800;
+  letter-spacing: var(--tracking-tight);
+  color:          var(--main);
+}
+h1 { font-size: 1.75rem; line-height: 1.2; }
+h2 { font-size: 1.375rem; line-height: 1.25; }
+h3 { font-size: 1.125rem; line-height: 1.3; }
+h4 { font-size: 1rem;     line-height: 1.4; font-weight: 700; }
+
+p, span, li, label { font-weight: 400; }
+
+/* XP & Level indicators — SemiBold */
+#profile-level,
+#profile-xp,
+.xp-label,
+.level-label {
+  font-weight:    600;
+  letter-spacing: var(--tracking-tight);
+  font-family:    var(--font-primary);
+}
+
+/* ===================================================
+   3. UTILITY CLASS EXTENSIONS
+   (fills gaps where Tailwind custom colors were used
+    before config was updated)
+   =================================================== */
+.text-sage   { color: var(--sage); }
+.bg-sage     { background-color: var(--sage); }
+.border-sage { border-color: var(--sage); }
+.text-main   { color: var(--main); }
+.text-muted  { color: var(--muted); }
+.bg-cream    { background-color: var(--cream); }
+.shadow-soft { box-shadow: var(--shadow-soft); }
+.shadow-hover{ box-shadow: var(--shadow-hover); }
+
+/* ===================================================
+   4. ANIMATIONS (Keyframes)
+   =================================================== */
+
+/* Primary pulse ring — includes translate for the main element
+   (it sits at top:50%;left:50%; margin-corrected, so scale from centre) */
+@keyframes user-pulse-ring {
+  0%   { transform: scale(0.4); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0;   }
+}
+
+/* Secondary pulse ring — only scale (::before fills its parent already) */
+@keyframes user-pulse-ring-scale {
+  0%   { transform: scale(0.5); opacity: 0.6; }
+  100% { transform: scale(2.0); opacity: 0;   }
+}
+
+/* Gentle glow for user dot */
+@keyframes user-dot-glow {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.25); }
+  50%       { box-shadow: 0 0 0 6px rgba(0, 122, 255, 0.15); }
+}
+
+/* Stamp "Zınk" bounce */
+@keyframes stamp-zink {
+  0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(4deg); opacity: 1; }
+  80%  { transform: scale(0.95) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* New passport stamp glow */
+@keyframes passport-new-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(156, 175, 136, 0.7); }
+  70%  { box-shadow: 0 0 0 14px rgba(156, 175, 136, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(156, 175, 136, 0); }
+}
+
+/* Fade in up */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Slide up (modals) */
+@keyframes slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Bounce in (confetti text) */
+@keyframes bounce-in {
+  0%   { transform: scale(0.3); opacity: 0; }
+  50%  { transform: scale(1.1); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Confetti particle */
+@keyframes confetti-fall {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0; }
+}
+
+/* Shimmer skeleton */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* Visited country pulse (SVG) */
+@keyframes visited-pulse {
+  0%, 100% { fill-opacity: 0.8; }
+  50%       { fill-opacity: 1;   }
+}
+
+/* ===================================================
+   5. ANIMATION UTILITY CLASSES
+   =================================================== */
+.animate-fade-in    { animation: fade-in-up 0.35s ease-out both; }
+.animate-slide-up   { animation: slide-up  0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.animate-bounce-in  { animation: bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.screen-transition  { animation: fade-in-up 0.3s ease-out both; }
+
+/* ===================================================
+   6. LEAFLET MAP — USER LOCATION MARKER (Blue Pulse Dot)
+   =================================================== */
+
+/*
+ * Leaflet L.divIcon adds class "leaflet-div-icon" (NOT "leaflet-marker-icon").
+ * We MUST target .leaflet-div-icon to override the default white bg & border.
+ */
+.leaflet-div-icon.user-location-marker {
+  background: transparent !important;
+  border:     none !important;
+  overflow:   visible !important;
+}
+
+/* Wrapper — Leaflet sets position:absolute; we just ensure overflow is clear */
+.user-location-marker {
+  overflow: visible !important;
+  position: relative;
+}
+
+/* ── Core blue dot ───────────────────────────────────
+   Centred with margin-top/margin-left (avoids transform
+   conflicts with the animation on .user-dot-pulse).     */
+.user-dot-inner {
+  position:      absolute;
+  width:         16px;
+  height:        16px;
+  border-radius: 50%;
+  background:    #007AFF;
+  border:        2.5px solid #ffffff;
+  box-shadow:    0 2px 10px rgba(0, 122, 255, 0.55);
+  /* Centre inside 40×40 icon: (40-16)/2 = 12 */
+  top:       50%;
+  left:      50%;
+  margin-top:  -8px;
+  margin-left: -8px;
+  z-index:   2;
+  animation: user-dot-glow 2.5s ease-in-out infinite;
+}
+
+/* ── Primary pulse ring ──────────────────────────────
+   Centred the same way; animation only uses scale()
+   so there is NO translate conflict.                   */
+.user-dot-pulse {
+  position:      absolute;
+  width:         40px;
+  height:        40px;
+  border-radius: 50%;
+  background:    rgba(0, 122, 255, 0.25);
+  /* Centre inside 40×40 icon: (40-40)/2 = 0 */
+  top:        50%;
+  left:       50%;
+  margin-top:  -20px;
+  margin-left: -20px;
+  z-index:    1;
+  animation:  user-pulse-ring 2s ease-out infinite;
+}
+
+/* ── Secondary staggered ring (::before on pulse) ─── */
+.user-dot-pulse::before {
+  content:         '';
+  position:        absolute;
+  inset:           0;            /* fills .user-dot-pulse (40×40) */
+  border-radius:   50%;
+  background:      rgba(0, 122, 255, 0.15);
+  /* Use the scale-only animation — translate NOT needed
+     because ::before fills its parent (already centred) */
+  animation:       user-pulse-ring-scale 2s ease-out 0.75s infinite;
+}
+
+/* ===================================================
+   7. LEAFLET MAP — PIN MARKERS
+   =================================================== */
+.custom-pin-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width:  36px !important;
+  height: 36px !important;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #e8e6e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.custom-pin-marker:hover {
+  transform: scale(1.15) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Category colour variants */
+.pin-cafe       { border-color: #f59e0b; background: #fffbeb; }
+.pin-cheap-eats { border-color: #f97316; background: #fff7ed; }
+.pin-viewpoints { border-color: #8b5cf6; background: #f5f3ff; }
+.pin-hidden-gems{ border-color: #3b82f6; background: #eff6ff; }
+.pin-restaurant { border-color: #ef4444; background: #fef2f2; }
+.pin-nightlife  { border-color: #6366f1; background: #eef2ff; }
+.pin-shopping   { border-color: #ec4899; background: #fdf2f8; }
+.pin-historical { border-color: #92400e; background: #fef3c7; }
+.pin-nature     { border-color: var(--sage); background: #f0fdf4; }
+.pin-attraction { border-color: #06b6d4; background: #ecfeff; }
+
+/* Secret Spot — amber glow */
+.custom-pin-marker.secret-spot {
+  border-color: #f59e0b;
+  background:   #fffbeb;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2), 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ===================================================
+   8. LEAFLET MAP — PIN POPUP
+   =================================================== */
+/* Pin tooltip (replaces old popup) */
+.pin-tooltip {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1a1a;
+  white-space: nowrap;
+}
+.leaflet-tooltip {
+  background: #fff !important;
+  border: 1.5px solid #A3C14A !important;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important;
+  padding: 5px 12px !important;
+  color: #1a1a1a !important;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+}
+.leaflet-tooltip-top:before {
+  border-top-color: #A3C14A !important;
+}
+
+/* ===================================================
+   9. MAP CATEGORY FILTER PILLS
+   =================================================== */
+.map-filter-pill {
+  display:         inline-flex !important;
+  flex-direction:  row !important;
+  flex-wrap:       nowrap !important;
+  align-items:     center !important;
+  gap:             4px;
+  padding:         0 14px;
+  height:          30px;
+  border-radius:   99px;
+  font-size:       12px;
+  font-weight:     600;
+  line-height:     1;
+  white-space:     nowrap;
+  cursor:          pointer;
+  background:      #ffffff;
+  color:           var(--muted);
+  border:          1.5px solid var(--border);
+  transition:      background 0.18s, color 0.18s, border-color 0.18s, transform 0.12s;
+  flex-shrink:     0;
+}
+
+.map-filter-pill:hover {
+  border-color: var(--sage);
+  color:        var(--sage);
+  transform:    translateY(-1px);
+}
+
+.map-filter-pill.active {
+  background:   var(--sage);
+  color:        #ffffff;
+  border-color: var(--sage);
+  box-shadow:   0 2px 8px rgba(156, 175, 136, 0.35);
+}
+
+/* ===================================================
+   10. DISCOVERY FILTER PILLS
+   =================================================== */
+.filter-pill {
+  display:      inline-flex;
+  align-items:  center;
+  gap:          6px;
+  padding:      8px 16px;
+  border-radius: 99px;
+  font-size:    13px;
+  font-weight:  600;
+  white-space:  nowrap;
+  cursor:       pointer;
+  background:   #ffffff;
+  color:        #475569;
+  border:       1.5px solid #e2e8f0;
+  transition:   all 0.2s ease;
+  flex-shrink:  0;
+}
+
+.filter-pill:hover {
+  border-color: var(--sage);
+  color:        var(--sage);
+  transform:    translateY(-1px);
+}
+
+.filter-pill.active {
+  background:   #A3C14A;
+  color:        #ffffff;
+  border-color: transparent;
+  box-shadow:   0 4px 14px rgba(163, 193, 74, 0.35);
+}
+
+/* ===================================================
+   11. SEARCH BAR
+   =================================================== */
+.search-input-wrapper {
+  position:   relative;
+  width:      100%;
+}
+
+.search-icon {
+  position:   absolute;
+  left:       14px;
+  top:        50%;
+  transform:  translateY(-50%);
+  color:      var(--muted);
+  pointer-events: none;
+}
+
+.search-input {
+  width:          100%;
+  padding:        9px 58px 9px 40px; /* right side leaves room for IST button */
+  border-radius:  var(--radius-md);
+  border:         1.5px solid var(--border);
+  background:     var(--cream);
+  font-size:      13px;
+  color:          var(--main);
+  outline:        none;
+  transition:     border-color 0.18s, box-shadow 0.18s;
+}
+
+/* IST city selector button inside search bar */
+.disc-ist-btn {
+  position:    absolute;
+  right:       8px;
+  top:         50%;
+  transform:   translateY(-50%);
+  display:     flex;
+  align-items: center;
+  gap:         3px;
+  background:  #A3C14A;
+  color:       white;
+  font-size:   11px;
+  font-weight: 800;
+  padding:     5px 10px;
+  border-radius: 99px;
+  border:      none;
+  cursor:      pointer;
+  white-space: nowrap;
+  transition:  background 0.15s;
+}
+.disc-ist-btn:hover { background: #8fac38; }
+
+.search-input::placeholder { color: var(--muted); }
+
+.search-input:focus {
+  border-color: var(--sage);
+  box-shadow:   0 0 0 3px rgba(156, 175, 136, 0.15);
+}
+
+/* ===================================================
+   12. NEARBY VIBES CARDS
+   (horizontal scroll cards on map screen)
+   =================================================== */
+#nearby-vibes-scroll {
+  display:     flex;
+  gap:         10px;
+  overflow-x:  auto;
+  overflow-y:  visible;
+  padding:     4px 2px 12px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+#nearby-vibes-scroll::-webkit-scrollbar { display: none; }
+
+/* Each card */
+#nearby-vibes-scroll > div {
+  min-width:      230px !important;
+  max-width:      260px !important;
+  height:         76px !important;
+  flex-shrink:    0 !important;
+  scroll-snap-align: center;
+  border-radius:  var(--radius-md);
+  background:     #ffffff;
+  box-shadow:     var(--shadow-card);
+  display:        flex !important;
+  align-items:    center !important;
+  gap:            10px;
+  padding:        10px 12px !important;
+  cursor:         pointer;
+  transition:     box-shadow 0.18s, transform 0.18s;
+  pointer-events: auto;
+  border:         1px solid rgba(0,0,0,0.04);
+  overflow:       hidden;
+}
+
+#nearby-vibes-scroll > div:hover {
+  box-shadow:  var(--shadow-hover);
+  transform:   translateY(-2px);
+}
+
+/* Distance badge inside cards */
+.nearby-distance-badge {
+  font-size:    10px;
+  font-weight:  700;
+  color:        var(--sage);
+  background:   var(--sage-light);
+  padding:      2px 7px;
+  border-radius: 99px;
+  white-space:  nowrap;
+}
+
+/* ===================================================
+   13. DISCOVERY CARDS
+   =================================================== */
+
+/* Wide Deal Card (Deal of the Day) */
+.deal-card-wide {
+  position:     relative;
+  width:        100%;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius-lg);
+  overflow:      hidden;
+  background:    #1a1a1a;
+  box-shadow:    0 8px 32px rgba(0,0,0,0.18);
+}
+
+.deal-card-wide img {
+  width:      100%;
+  height:     100%;
+  object-fit: cover;
+  display:    block;
+}
+
+.deal-card-overlay-gradient {
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
+}
+
+.deal-card-badge {
+  position:    absolute;
+  top:         16px;
+  right:       16px;
+  background:  #f97316;
+  color:       #ffffff;
+  font-size:   12px;
+  font-weight: 800;
+  padding:     4px 12px;
+  border-radius: 99px;
+  letter-spacing: 0.05em;
+  z-index:     10;
+}
+
+.deal-card-content {
+  position: absolute;
+  bottom:   0;
+  left:     0;
+  right:    0;
+  padding:  24px;
+  z-index:  10;
+}
+
+.btn-book-now {
+  background:    rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  border:        1.5px solid rgba(255,255,255,0.4);
+  color:         #ffffff;
+  font-size:     13px;
+  font-weight:   700;
+  padding:       8px 18px;
+  border-radius: 99px;
+  cursor:        pointer;
+  transition:    background 0.18s;
+}
+
+.btn-book-now:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/* Dynamic deal card (from renderDealOfDay JS) */
+.deal-card {
+  position:      relative;
+  border-radius: var(--radius-lg);
+  overflow:      hidden;
+}
+
+.deal-card-overlay {
+  position: absolute;
+  inset:    0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%);
+}
+
+.discount-badge {
+  position:    absolute;
+  top:         16px;
+  right:       16px;
+  background:  #ef4444;
+  color:       #ffffff;
+  font-size:   11px;
+  font-weight: 800;
+  padding:     4px 12px;
+  border-radius: 99px;
+  z-index:     20;
+}
+
+/* Story Circles */
+.story-circle {
+  width:         68px;
+  height:        68px;
+  border-radius: 50%;
+  overflow:      hidden;
+  border:        2.5px solid var(--border);
+  flex-shrink:   0;
+}
+
+.story-circle img {
+  width:      100%;
+  height:     100%;
+  object-fit: cover;
+}
+
+.story-circle-label {
+  font-size:   11px;
+  font-weight: 600;
+  color:       #475569;
+  text-align:  center;
+  max-width:   68px;
+  overflow:    hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Budget Escape Cards — full-width vertical stack */
+.escape-card {
+  position:      relative;
+  width:         100%;
+  border-radius: var(--radius-md);
+  overflow:      hidden;
+  cursor:        pointer;
+  box-shadow:    var(--shadow-card);
+  background:    #ffffff;
+  transition:    transform 0.22s, box-shadow 0.22s;
+}
+
+.escape-card:hover {
+  transform:  translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Image section */
+.escape-card-img {
+  position: relative;
+  width:    100%;
+  height:   162px;
+  overflow: hidden;
+}
+
+.escape-card-img img {
+  width:      100%;
+  height:     100%;
+  object-fit: cover;
+  display:    block;
+  transition: transform 0.5s;
+}
+
+.escape-card:hover .escape-card-img img {
+  transform: scale(1.06);
+}
+
+/* gradient overlay */
+.escape-card-img::after {
+  content:  '';
+  position: absolute;
+  inset:    0;
+  background: linear-gradient(to top, rgba(0,0,0,0.58) 0%, transparent 55%);
+}
+
+/* City name inside image */
+.escape-card-city {
+  position:    absolute;
+  bottom:      12px;
+  left:        14px;
+  z-index:     5;
+  font-size:   20px;
+  font-weight: 800;
+  color:       #fff;
+  line-height: 1.1;
+}
+
+/* Duration pill inside image (bottom-right) */
+.escape-card-duration {
+  position:    absolute;
+  bottom:      12px;
+  right:       12px;
+  z-index:     5;
+  font-size:   10px;
+  font-weight: 700;
+  color:       rgba(255,255,255,0.92);
+  background:  rgba(0,0,0,0.38);
+  padding:     3px 9px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+/* Bottom info bar */
+.escape-card-bottom {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         11px 14px;
+  background:      #ffffff;
+}
+
+/* Status badges */
+.escape-status-visa {
+  font-size:     11px;
+  font-weight:   800;
+  color:         var(--sage);
+  background:    rgba(163,193,74,0.13);
+  padding:       4px 11px;
+  border-radius: 99px;
+}
+
+.escape-status-seats {
+  font-size:     11px;
+  font-weight:   800;
+  color:         #e85d35;
+  background:    rgba(232,93,53,0.1);
+  padding:       4px 11px;
+  border-radius: 99px;
+}
+
+.escape-status-discount {
+  font-size:     11px;
+  font-weight:   800;
+  color:         #f59e0b;
+  background:    rgba(245,158,11,0.1);
+  padding:       4px 11px;
+  border-radius: 99px;
+}
+
+/* Price box — always anchored left */
+.escape-price-box   { text-align: left; }
+.escape-price-label {
+  display:        block;
+  font-size:      9px;
+  font-weight:    600;
+  color:          var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom:  2px;
+}
+.escape-price-value {
+  font-size:   17px;
+  font-weight: 900;
+  color:       var(--main);
+  line-height: 1;
+}
+
+/* Staggered slide-up animation */
+@keyframes escape-slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.escape-stagger {
+  opacity:   0;
+  animation: escape-slide-up 0.42s ease forwards;
+}
+
+/* Discovery screen cream background */
+#screen-discovery { background: var(--cream); }
+
+/* ===================================================
+   14. PASSPORT STAMP CARDS
+   =================================================== */
+
+/* The scroll container */
+#passport-scroll-container {
+  display:    flex;
+  gap:        12px;
+  overflow-x: auto;
+  padding:    4px 2px 8px;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+
+/* Each stamp card — FIXED SIZE (never deviates) */
+.passport-stamp-card {
+  position:      relative;
+  width:         96px;
+  height:        130px;
+  min-width:     96px;
+  max-width:     96px;
+  border-radius: 16px !important;
+  overflow:      hidden;
+  flex-shrink:   0;
+  cursor:        pointer;
+  scroll-snap-align: center;
+  transition:    transform 0.18s ease, box-shadow 0.18s ease;
+  box-sizing:    border-box;
+}
+
+.passport-stamp-card:hover {
+  transform:  translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(163,193,74,0.30);
+}
+
+/* In expanded grid: cards fill the column width */
+#passport-expanded-grid .passport-stamp-card {
+  width:     100% !important;
+  max-width: none !important;
+  height:    145px !important;
+}
+
+/* Real stamp card — white bg + modern border */
+.passport-stamp-real {
+  background:     #FFFFFF;
+  border:         2px solid #A3C14A;
+  box-shadow:     0 2px 12px rgba(163, 193, 74, 0.15), 0 1px 3px rgba(0,0,0,0.06);
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  justify-content: flex-start;
+}
+
+/* Stamp image — larger, fills more of the card */
+.passport-stamp-img {
+  width:       88%;
+  height:      88px;
+  object-fit:  contain;
+  padding:     8px 4px 2px;
+  flex-shrink: 0;
+}
+
+/* Fallback when no image */
+.passport-stamp-fallback {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  justify-content: center;
+  height:         88px;
+  width:          100%;
+}
+
+/* Country label at bottom */
+.passport-stamp-label {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  justify-content: center;
+  width:          100%;
+  padding:        0 6px 8px;
+  text-align:     center;
+  font-size:      9.5px;
+  font-weight:    800;
+  color:          #2d3f1a;
+  line-height:    1.15;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.passport-stamp-year {
+  display:        block;
+  font-size:      7px;
+  font-weight:    500;
+  color:          #A3C14A;
+  margin-top:     3px;
+  letter-spacing: 0.08em;
+}
+
+/* Text overlay at bottom (legacy — keep for compat) */
+.passport-overlay-text {
+  position:   absolute;
+  bottom:     0;
+  left:       0;
+  right:      0;
+  padding:    10px 10px 12px;
+  background: linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 100%);
+  color:      #ffffff;
+  line-height: 1.2;
+}
+
+/* Add New Button */
+.passport-add-btn {
+  width:         96px;
+  height:        128px;
+  min-width:     96px;
+  border-radius: 24px;
+  border:        2px dashed var(--border);
+  background:    var(--cream-deep);
+  color:         var(--muted);
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  flex-shrink:   0;
+  cursor:        pointer;
+  transition:    border-color 0.2s, color 0.2s, background 0.2s;
+  scroll-snap-align: center;
+}
+
+.passport-add-btn:hover {
+  border-color: var(--sage);
+  color:        var(--sage);
+  background:   var(--sage-light);
+}
+
+/* New stamp animation */
+.passport-stamp-new {
+  animation: stamp-zink 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             passport-new-glow 1.5s ease 0.5s 3;
+}
+
+/* Visited country SVG pulse */
+.visited-country-pulse {
+  animation: visited-pulse 2s ease-in-out infinite;
+}
+
+/* Smooth fill/opacity transition for all Leaflet country polygons */
+.leaflet-interactive {
+  transition: fill 0.35s ease, fill-opacity 0.35s ease;
+}
+
+/* Mini-map country hover cursor — shows it's clickable */
+#mini-world-map .leaflet-interactive {
+  cursor: pointer;
+}
+
+/* ===================================================
+   PAX — EVENT PIN MARKERS
+   =================================================== */
+
+/* Pulsing Sage Green event marker */
+.event-pin-marker {
+  position: relative;
+  width: 42px; height: 42px;
+  background: #A3C14A;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px;
+  box-shadow: 0 4px 16px rgba(163, 193, 74, 0.55);
+  border: 2.5px solid #fff;
+  cursor: pointer;
+}
+
+/* Pulse ring */
+.event-pin-marker::before {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  background: rgba(163, 193, 74, 0.28);
+  animation: pax-pulse 2.2s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes pax-pulse {
+  0%, 100% { transform: scale(1);   opacity: 0.65; }
+  55%       { transform: scale(1.5); opacity: 0;    }
+}
+
+/* Map add-choice bottom card */
+#map-add-choice-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 9997;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+#map-add-choice-backdrop.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#map-add-choice-card {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 9998;
+  background: #fff;
+  border-radius: 22px 22px 0 0;
+  padding: 18px 16px 44px;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+#map-add-choice-card.show {
+  transform: translateY(0);
+}
+
+.choice-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px;
+  border: 2px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 18px 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: #fff;
+}
+.choice-btn:hover { border-color: #A3C14A; background: rgba(163,193,74,0.06); }
+.choice-btn.event  { border-color: #A3C14A; background: rgba(163,193,74,0.05); }
+
+/* Event type radio pill selector */
+.evt-type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+.evt-type-label {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 8px 4px 6px;
+  cursor: pointer;
+  font-size: 11px; font-weight: 700;
+  color: #6b7280;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.evt-type-label span.type-emoji { font-size: 20px; }
+.evt-type-radio:checked + .evt-type-label {
+  border-color: #A3C14A;
+  background: rgba(163,193,74,0.12);
+  color: #5a7a1e;
+}
+
+/* ===================================================
+   PAX — EVENT DETAIL MODAL  (#modal-event-detail)
+   =================================================== */
+
+/* Slide-up animation reuses .animate-slide-up from existing CSS */
+#modal-event-detail .evd-type-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #A3C14A; color: #fff;
+  font-size: 11px; font-weight: 800;
+  padding: 4px 13px; border-radius: 99px;
+  letter-spacing: 0.02em;
+}
+
+.evd-avatar {
+  width: 42px; height: 42px; min-width: 42px;
+  background: #A3C14A; color: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 900;
+  border: 2.5px solid #fff;
+  box-shadow: 0 3px 10px rgba(163,193,74,0.40);
+  text-transform: uppercase;
+}
+
+.evd-info-cell {
+  display: flex; align-items: flex-start; gap: 9px;
+}
+.evd-info-label {
+  font-size: 10px; font-weight: 600;
+  color: #9ca3af; margin-bottom: 2px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.evd-info-value {
+  font-size: 13px; font-weight: 700; color: #1a1a1a;
+  line-height: 1.3;
+}
+
+/* Join CTA button (full-width, inside modal) */
+.btn-join-event {
+  background: #A3C14A; color: #fff;
+  font-size: 14px; font-weight: 800;
+  padding: 13px 0; border-radius: 16px;
+  border: none; cursor: pointer;
+  width: 100%;
+  transition: background 0.2s, transform 0.1s;
+  display: block;
+}
+.btn-join-event:hover   { background: #8fad3a; }
+.btn-join-event:active  { transform: scale(0.97); }
+.btn-join-event:disabled { background: #c5d89f; cursor: default; }
+
+/* Join form slide-in */
+#evd-join-form {
+  animation: slide-down 0.22s ease;
+}
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ===================================================
+   PAX — MANAGE EVENT MODAL  (#modal-manage-event)
+   =================================================== */
+
+/* Single join-request card */
+.req-card {
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 14px;
+  transition: border-color 0.2s;
+}
+.req-card:hover { border-color: #d1d5db; }
+
+/* Avatar button inside request card */
+.req-avatar {
+  width: 40px; height: 40px; min-width: 40px;
+  background: #A3C14A; color: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 900;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(163,193,74,0.30);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.req-avatar:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(163,193,74,0.40); }
+
+/* Status pill */
+.req-status {
+  font-size: 10px; font-weight: 800;
+  padding: 3px 9px; border-radius: 99px;
+  white-space: nowrap;
+}
+.req-status--pending  { background: #FFF3CD; color: #8A6000; }
+.req-status--approved { background: rgba(163,193,74,0.15); color: #5a7a1e; }
+.req-status--rejected { background: #FEE2E2; color: #B91C1C; }
+
+/* Approve / Reject action buttons */
+.btn-approve, .btn-reject {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 10px;
+  border: none;
+  font-size: 12px; font-weight: 800;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn-approve         { background: #A3C14A; color: #fff; }
+.btn-approve:hover   { background: #8fad3a; }
+.btn-reject          { background: #FEE2E2; color: #B91C1C; }
+.btn-reject:hover    { background: #fecaca; }
+.btn-approve:active,
+.btn-reject:active   { transform: scale(0.96); }
+
+/* ===================================================
+   15. WISHLIST CARDS (Profile — renderProfileWishlist)
+   =================================================== */
+.wishlist-card {
+  display:       flex;
+  align-items:   center;
+  gap:           12px;
+  padding:       12px;
+  border-radius: var(--radius-md);
+  background:    #ffffff;
+  border:        1.5px solid #f3f4f6;
+  min-height:    80px !important;  /* force equalize height */
+  box-shadow:    var(--shadow-soft);
+  cursor:        pointer;
+  transition:    box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+  overflow:      hidden;           /* no bleed */
+}
+
+.wishlist-card:hover {
+  box-shadow:    var(--shadow-hover);
+  border-color:  rgba(156, 175, 136, 0.4);
+  transform:     translateY(-2px);
+}
+
+/*
+ * The text container (flex-1 div) must have min-width:0 so that
+ * long destination names truncate instead of stretching the card.
+ */
+.wishlist-card > div {
+  min-width: 0;
+  flex:      1 1 0%;
+  overflow:  hidden;
+}
+
+/* Truncate long titles and routes inside wishlist cards */
+.wishlist-card h4,
+.wishlist-card p  {
+  overflow:      hidden;
+  white-space:   nowrap;
+  text-overflow: ellipsis;
+  max-width:     100%;
+}
+
+/* Destination thumbnail — SQUARE, NEVER DISTORTS */
+.wishlist-thumb {
+  width:         60px !important;
+  height:        60px !important;
+  min-width:     60px !important;
+  aspect-ratio:  1 / 1;
+  object-fit:    cover;
+  object-position: center;
+  border-radius: var(--radius-sm);
+  flex-shrink:   0;
+  background:    var(--cream-deep);
+  display:       block;
+}
+
+/* ===================================================
+   16. WISHLIST PREMIUM CARDS (Profile — renderProfileWishlistCards)
+   =================================================== */
+.wishlist-premium-card {
+  position:      relative;
+  padding:       16px;
+  border-radius: var(--radius-lg);
+  background:    linear-gradient(135deg, #2C3E50 0%, #1a2533 100%);
+  color:         #ffffff;
+  cursor:        pointer;
+  min-height:    100px;
+  transition:    transform 0.2s, box-shadow 0.2s;
+  overflow:      hidden;
+}
+
+.wishlist-premium-card::before {
+  content:    '';
+  position:   absolute;
+  top:        0;
+  left:       0;
+  right:      0;
+  height:     1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+}
+
+.wishlist-premium-card:hover {
+  transform:  translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+}
+
+.wishlist-premium-card.price-alert {
+  background: linear-gradient(135deg, #1a4731 0%, #0d2b1e 100%);
+}
+
+.wishlist-card-badge {
+  display:       inline-block;
+  font-size:     9px;
+  font-weight:   700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color:         rgba(255,255,255,0.5);
+  margin-bottom: 6px;
+}
+
+.wishlist-card-badge.tracking {
+  color: var(--sage);
+}
+
+.wishlist-card-route {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  font-size:   22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color:       #ffffff;
+}
+
+.wishlist-card-route-arrow {
+  color:     var(--sage);
+  font-size: 18px;
+}
+
+.wishlist-card-price {
+  margin-top: 8px;
+  display:    flex;
+  align-items: center;
+  gap:        6px;
+}
+
+.wishlist-card-target {
+  font-size:   11px;
+  color:       rgba(255,255,255,0.55);
+}
+
+.wishlist-card-current {
+  font-size:   14px;
+  font-weight: 700;
+  color:       #ffffff;
+}
+
+.wishlist-card-meta {
+  margin-top:  8px;
+  font-size:   10px;
+  color:       rgba(255,255,255,0.4);
+}
+
+/* ===================================================
+   17. RECENT TRIPS (Profile)
+   =================================================== */
+#recent-trips {
+  display:        flex;
+  flex-direction: column;
+  gap:            8px;
+}
+
+/*
+ * Every direct child div (trip row) gets fixed minimum height.
+ * Long destination names are truncated, not wrapped.
+ */
+#recent-trips > div {
+  display:         flex !important;
+  align-items:     center !important;
+  justify-content: space-between !important;
+  background:      #ffffff;
+  border-radius:   var(--radius-lg) !important;
+  padding:         14px 16px !important;
+  box-shadow:      var(--shadow-soft);
+  min-height:      68px !important;  /* equalize all rows */
+  gap:             12px;
+  box-sizing:      border-box;
+  overflow:        hidden;
+}
+
+/* Truncate destination title inside trip row */
+#recent-trips h4 {
+  overflow:      hidden;
+  white-space:   nowrap;
+  text-overflow: ellipsis;
+  max-width:     160px;
+}
+
+/* Destination image — SQUARE */
+#recent-trips .trip-dest-img,
+#recent-trips img {
+  width:         44px !important;
+  height:        44px !important;
+  min-width:     44px !important;
+  aspect-ratio:  1 / 1;
+  object-fit:    cover;
+  object-position: center;
+  border-radius: var(--radius-sm);
+  flex-shrink:   0;
+}
+
+/* ===================================================
+   18. SKELETON LOADERS
+   =================================================== */
+.skeleton-card {
+  background:           linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size:      200% 100%;
+  animation:            shimmer 1.5s infinite;
+  border-radius:        var(--radius-lg);
+  width:                100%;
+}
+
+.loading-shimmer {
+  background:           linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size:      200% 100%;
+  animation:            shimmer 1.5s infinite;
+}
+
+.trip-card-skeleton {
+  height:               120px;
+  border-radius:        var(--radius-lg);
+  background:           linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size:      200% 100%;
+  animation:            shimmer 1.5s infinite;
+}
+
+/* ===================================================
+   19. CONFETTI
+   =================================================== */
+.confetti-burst {
+  position:   fixed;
+  top:        50%;
+  left:       50%;
+  width:      0;
+  height:     0;
+  pointer-events: none;
+}
+
+.confetti-particle {
+  position:   absolute;
+  width:      10px;
+  height:     10px;
+  border-radius: 2px;
+  top:        0;
+  left:       0;
+  animation:  confetti-fall 2s ease-out var(--delay, 0s) both;
+}
+
+/* ===================================================
+   20. LAYOUT — GENERAL SCROLL & GAP
+   =================================================== */
+
+/* Prevent card overlap on scroll */
+.screen {
+  position:   relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Profile content vertical spacing */
+#screen-profile .space-y-8 > * + * {
+  margin-top: 2rem; /* 32px — prevent overlap */
+}
+
+/* Passport scroll: no overlap */
+#passport-scroll-container {
+  position:  relative;
+  z-index:   1;
+}
+
+/* Profile wishlist cards: consistent gaps */
+#profile-wishlist-cards {
+  display:        flex;
+  flex-direction: column;
+  gap:            12px;
+}
+
+/* Recent trips container: consistent gap */
+.recent-trips-wrapper {
+  display:        flex;
+  flex-direction: column;
+  gap:            8px;
+}
+
+/* Planner drafts grid: consistent */
+#planner-drafts {
+  display:               grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:                   12px;
+  align-items:           start;
+}
+
+/* ============================================================
+   DRAFT CARD — ATMOSPHERIC CITY IMAGE
+   ============================================================ */
+
+/* Base: gradient placeholder while image loads */
+.draft-card-atmo {
+  position:           relative;
+  min-height:         200px;
+  border-radius:      24px;
+  padding:            16px;
+  display:            flex;
+  flex-direction:     column;
+  justify-content:    space-between;
+  cursor:             pointer;
+  overflow:           hidden;
+  background-color:   #1c2340;
+  background-image:   linear-gradient(135deg, #1c2340 0%, #2d3a50 100%);
+  background-size:    cover;
+  background-position: center;
+  transition:         transform 0.22s, box-shadow 0.22s;
+  box-shadow:         0 4px 18px rgba(0,0,0,0.18);
+}
+.draft-card-atmo:hover {
+  transform:  translateY(-3px);
+  box-shadow: 0 10px 32px rgba(0,0,0,0.28);
+}
+
+/* Top row: status pill */
+.draft-card-top {
+  display:         flex;
+  justify-content: flex-end;
+}
+.draft-status-pill {
+  font-size:     10px;
+  font-weight:   800;
+  padding:       4px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(4px);
+}
+
+/* Bottom row: text content */
+.draft-card-bottom {
+  display:        flex;
+  flex-direction: column;
+  gap:            2px;
+}
+.draft-card-route {
+  font-size:   11px;
+  font-weight: 600;
+  color:       rgba(255,255,255,0.65);
+  letter-spacing: 0.03em;
+}
+.draft-card-title {
+  font-size:   17px;
+  font-weight: 800;
+  color:       #ffffff;
+  line-height: 1.25;
+  margin-top:  2px;
+  font-family: var(--font-primary);
+}
+.draft-card-budget {
+  margin-top:  6px;
+  font-size:   13px;
+  font-weight: 700;
+  color:       #A3C14A;
+  background:  rgba(163,193,74,0.15);
+  display:     inline-block;
+  padding:     3px 10px;
+  border-radius: 99px;
+  border:      1px solid rgba(163,193,74,0.35);
+}
+
+/* Map expand — prevent content bleed */
+#leaflet-map {
+  z-index: 0;
+  isolation: isolate;
+}
+
+/* Bottom sheet layering fix */
+#map-bottom-sheet {
+  isolation: isolate;
+}
+
+/* ===================================================
+   21. NAVIGATION
+   =================================================== */
+.nav-btn {
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  gap:             4px;
+  padding:         8px 12px;
+  color:           var(--muted);
+  transition:      color 0.18s;
+  font-size:       10px;
+  font-weight:     600;
+  cursor:          pointer;
+  background:      transparent;
+  border:          none;
+}
+
+.nav-btn.active {
+  color: var(--sage);
+}
+
+.nav-btn.active svg {
+  stroke: var(--sage);
+}
+
+/* ===================================================
+   22. MISC UTILITY
+   =================================================== */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width:    none;
+}
+
+/* Hover shadow utility */
+.hover\:shadow-hover:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+/* Ensure Leaflet popup looks clean */
+.leaflet-popup-content-wrapper {
+  border-radius: var(--radius-md) !important;
+  box-shadow:    var(--shadow-hover) !important;
+  padding:       0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px !important;
+}
+
+.leaflet-popup-tip-container {
+  display: none;
+}
+
+/* ============================================================
+   BUDGET INPUT — modal-new-plan
+   ============================================================ */
+
+.budget-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 0 16px;
+  height: 54px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.budget-input-wrap:focus-within {
+  border-color: #A3C14A;
+  box-shadow: 0 0 0 3px rgba(163, 193, 74, 0.18), 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.budget-input-symbol {
+  font-size: 20px;
+  font-weight: 800;
+  color: #A3C14A;
+  margin-right: 8px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.budget-input-field {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  min-width: 0;
+  letter-spacing: 0.01em;
+}
+
+.budget-input-field::placeholder {
+  color: #c4c9be;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.budget-input-currency {
+  font-size: 11px;
+  font-weight: 700;
+  color: #A3C14A;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  margin-left: 6px;
+  opacity: 0.75;
+}
+
+.budget-input-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 7px;
+  padding-left: 4px;
+}
+
+/* ============================================================
+   PLAN DETAIL SCREEN  (screen-planner-detail)
+   ============================================================ */
+
+.pd-screen {
+  background: var(--cream);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---- Header ---- */
+.pd-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(253, 252, 248, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pd-icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  color: var(--main);
+  box-shadow: var(--shadow-soft);
+  transition: background 0.15s;
+}
+.pd-icon-btn:hover { background: var(--cream-deep); }
+
+.pd-header-center {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+.pd-header-route {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+.pd-header-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--main);
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pd-header-dates {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pd-settings-dropdown {
+  position: absolute;
+  right: 0;
+  top: 48px;
+  width: 176px;
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-hover);
+  border: 1px solid var(--border);
+  z-index: 60;
+  overflow: hidden;
+}
+.pd-settings-item {
+  width: 100%;
+  padding: 11px 16px;
+  text-align: left;
+  font-size: 14px;
+  color: var(--main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.pd-settings-item:hover { background: var(--cream-deep); }
+
+/* ---- Trip type pills ---- */
+.pd-pills-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--cream);
+  flex-shrink: 0;
+}
+.pd-pill {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  background: white;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.pd-pill.active {
+  background: #A3C14A;
+  border-color: #A3C14A;
+  color: white;
+  box-shadow: 0 2px 12px rgba(163, 193, 74, 0.35);
+}
+
+/* ---- Scrollable body ---- */
+.pd-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 16px 200px; /* bottom padding keeps content above action bar */
+}
+
+/* ---- Sections ---- */
+.pd-section {
+  margin-bottom: 22px;
+}
+.pd-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.pd-section-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.pd-section-chevron {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #A3C14A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.25s;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(163,193,74,0.4);
+}
+.pd-section-chevron.open { transform: rotate(180deg); }
+
+/* ---- Timeline ---- */
+.pd-timeline {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.pd-tl-line-wrap {
+  width: 20px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 16px;
+}
+.pd-tl-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 3px solid white;
+}
+.pd-tl-dot.flight {
+  background: #A3C14A;
+  box-shadow: 0 0 0 3px rgba(163,193,74,0.25);
+}
+.pd-tl-dot.return-dot {
+  background: #60A5FA;
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.25);
+}
+.pd-tl-line {
+  width: 2px;
+  height: 70px;
+  background: linear-gradient(to bottom, rgba(163,193,74,0.35), transparent);
+  margin-top: 6px;
+}
+.pd-tl-card { flex: 1; min-width: 0; }
+
+/* ---- Flight card ---- */
+.pd-flight-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+}
+.pd-flight-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.pd-flight-airline {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.pd-flight-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  object-fit: contain;
+  background: var(--cream-deep);
+}
+.pd-flight-airline-name {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.pd-flight-price {
+  font-size: 14px;
+  font-weight: 800;
+  color: #A3C14A;
+}
+.pd-flight-route {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.pd-flight-port { text-align: center; }
+.pd-flight-time {
+  font-size: 21px;
+  font-weight: 900;
+  color: var(--main);
+  line-height: 1;
+}
+.pd-flight-code {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: 3px;
+}
+.pd-flight-city {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.pd-flight-mid { flex: 1; text-align: center; }
+.pd-flight-duration {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.pd-flight-arrow-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pd-flight-arrow-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.pd-flight-stops {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ---- Hotel card ---- */
+.pd-hotel-card {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  background: white;
+  position: relative;
+  cursor: pointer;
+}
+.pd-hotel-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+}
+.pd-hotel-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  padding: 14px 14px 14px;
+  color: white;
+}
+.pd-hotel-stars {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+.pd-hotel-name {
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+.pd-hotel-address {
+  font-size: 11px;
+  opacity: 0.8;
+}
+.pd-hotel-nights {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #A3C14A;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 11px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(163,193,74,0.4);
+}
+
+/* ---- Hotel options list ---- */
+.pd-hotel-options {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.pd-hotel-opt {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 11px;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-soft);
+}
+.pd-hotel-opt.selected {
+  border-color: #A3C14A;
+  box-shadow: 0 0 0 3px rgba(163,193,74,0.15);
+}
+.pd-hotel-opt-thumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--cream-deep);
+}
+.pd-hotel-opt-info { flex: 1; min-width: 0; }
+.pd-hotel-opt-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pd-hotel-opt-stars {
+  font-size: 11px;
+  color: #F59E0B;
+  margin: 2px 0;
+}
+.pd-hotel-opt-price {
+  font-size: 13px;
+  font-weight: 800;
+  color: #A3C14A;
+  flex-shrink: 0;
+}
+
+/* ---- AI cards ---- */
+.pd-ai-label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pd-ai-add-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #A3C14A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(163,193,74,0.4);
+}
+.pd-ai-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+.pd-ai-scroll::-webkit-scrollbar { display: none; }
+.pd-ai-card {
+  flex-shrink: 0;
+  width: 148px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: white;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.pd-ai-card:hover { transform: translateY(-2px); }
+.pd-ai-card-img {
+  width: 100%;
+  height: 88px;
+  object-fit: cover;
+  display: block;
+}
+.pd-ai-card-body {
+  padding: 9px 10px;
+  background: rgba(163,193,74,0.07);
+}
+.pd-ai-card-day {
+  font-size: 10px;
+  color: #A3C14A;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 3px;
+}
+.pd-ai-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--main);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---- Skeleton placeholder ---- */
+.pd-flight-skeleton {
+  background: var(--cream-deep);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+/* ---- Combined Action Bar (Budget + Confirm Button) ---- */
+.pd-action-bar {
+  position: fixed;
+  bottom: 70px; /* just above bottom nav */
+  left: 0;
+  right: 0;
+  max-width: 448px;   /* matches #app max-w-md — stays within mobile frame */
+  margin: 0 auto;     /* centers the bar on wide screens */
+  border-radius: 20px 20px 0 0;
+  background: #1a1a1a;
+  padding: 14px 20px 16px;
+  z-index: 999;
+  color: white;
+  box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.22), 0 -1px 0 rgba(255,255,255,0.04);
+}
+.pd-action-budget-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.pd-action-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pd-action-label {
+  font-size: 9px;
+  letter-spacing: 0.09em;
+  opacity: 0.5;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  display: block;
+}
+.pd-budget-target {
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: white;
+}
+.pd-budget-badge {
+  background: #A3C14A;
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+}
+.pd-budget-total {
+  font-size: 22px;
+  font-weight: 900;
+  color: #A3C14A;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================================
+   PLAN CONFIRM BUTTON (inside pd-action-bar)
+   ============================================================ */
+.pd-confirm-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #A3C14A;
+  color: white;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  border: none;
+  border-radius: 20px;
+  padding: 17px 24px;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(163, 193, 74, 0.38), 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.pd-confirm-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 10px rgba(163, 193, 74, 0.28);
+}
+.pd-confirm-btn-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* ============================================================
+   PLAN CONFIRM MODAL
+   ============================================================ */
+.plan-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 24px;
+  animation: confirm-overlay-in 0.2s ease;
+}
+.plan-confirm-overlay.hidden {
+  display: none;
+}
+@keyframes confirm-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.plan-confirm-card {
+  background: #FDFCF8;
+  border-radius: 28px 28px 20px 20px;
+  padding: 32px 24px 28px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 -4px 40px rgba(0,0,0,0.14);
+  animation: confirm-card-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes confirm-card-in {
+  from { transform: translateY(60px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.plan-confirm-emoji {
+  font-size: 52px;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+.plan-confirm-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  font-family: var(--font-primary);
+}
+.plan-confirm-desc {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 28px;
+  line-height: 1.55;
+}
+.plan-confirm-actions {
+  display: flex;
+  gap: 12px;
+}
+.plan-confirm-cancel {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1.5px solid #e5e7eb;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 700;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.plan-confirm-cancel:hover { background: #f3f4f6; }
+.plan-confirm-ok {
+  flex: 2;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  background: #A3C14A;
+  color: white;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(163,193,74,0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.plan-confirm-ok:active { transform: scale(0.97); }
+
+/* ============================================================
+   UPCOMING TRIP CARD (confirmed plan — wide horizontal card)
+   ============================================================ */
+.upcoming-trip-card {
+  display: flex;
+  background: #FDFCF8;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+  min-height: 110px;
+}
+.upcoming-trip-img {
+  width: 110px;
+  flex-shrink: 0;
+  object-fit: cover;
+  display: block;
+}
+.upcoming-trip-body {
+  flex: 1;
+  padding: 14px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.upcoming-trip-route {
+  font-size: 17px;
+  font-weight: 900;
+  color: #1a1a1a;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.upcoming-trip-dates {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 3px;
+  font-weight: 500;
+}
+.upcoming-trip-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  gap: 8px;
+}
+.upcoming-trip-budget {
+  display: flex;
+  flex-direction: column;
+}
+.upcoming-trip-budget-label {
+  font-size: 9px;
+  font-weight: 800;
+  color: #9ca3af;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.upcoming-trip-budget-value {
+  font-size: 15px;
+  font-weight: 900;
+  color: #A3C14A;
+  letter-spacing: -0.01em;
+}
+.upcoming-trip-badge {
+  font-size: 9px;
+  font-weight: 800;
+  background: #A3C14A;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.upcoming-trip-review-btn {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1a1a;
+  border: 1.5px solid #e5e7eb;
+  background: white;
+  padding: 7px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.upcoming-trip-review-btn:hover { background: #f9f7f2; }
+
+/* ============================================================
+   DISCOVERY SCREEN — DEAL CARD ENHANCEMENTS
+   ============================================================ */
+
+/* "Vizesiz ✓" white badge — top-left of deal card */
+.deal-visa-badge {
+  position:     absolute;
+  top:          14px;
+  left:         14px;
+  z-index:      10;
+  background:   white;
+  color:        #A3C14A;
+  font-size:    10px;
+  font-weight:  800;
+  padding:      4px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.02em;
+  box-shadow:   0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Price in sage green pill */
+.deal-price-pill {
+  display:      inline-block;
+  background:   #A3C14A;
+  color:        white;
+  font-size:    17px;
+  font-weight:  900;
+  padding:      6px 16px;
+  border-radius: 99px;
+  letter-spacing: -0.01em;
+  box-shadow:   0 4px 12px rgba(163,193,74,0.4);
+}
+
+/* Nights/days info row above price */
+.deal-nights-row {
+  font-size:    12px;
+  color:        rgba(255, 255, 255, 0.75);
+  display:      flex;
+  align-items:  center;
+  gap:          6px;
+  margin-bottom: 10px;
+  font-weight:  500;
+}
+
+/* ============================================================
+   DISCOVERY SCREEN — VIRAL STORIES ENHANCEMENTS
+   ============================================================ */
+
+/* Wrapper for each story circle — needs relative for badge positioning */
+.story-wrapper {
+  position:    relative;
+  display:     flex;
+  flex-direction: column;
+  align-items: center;
+  gap:         8px;
+  flex-shrink: 0;
+}
+
+/* Small count badge overlapping the bottom of the story circle */
+.story-count-badge {
+  position:    absolute;
+  top:         52px; /* sits just below center of 68px circle */
+  left:        50%;
+  transform:   translateX(-50%);
+  background:  #1a1a1a;
+  color:       white;
+  font-size:   9px;
+  font-weight: 800;
+  padding:     2px 7px;
+  border-radius: 99px;
+  white-space: nowrap;
+  border:      1.5px solid white;
+  z-index:     5;
+}
+
+/* ============================================================
+   VİZESİZ SECTION — Full-width destination card
+   ============================================================ */
+
+/* Section title badge */
+.vz-section-title-badge {
+  display:       inline-block;
+  background:    #A3C14A;
+  color:         white;
+  font-size:     11px;
+  font-weight:   800;
+  padding:       3px 10px;
+  border-radius: 99px;
+  margin-right:  6px;
+  vertical-align: middle;
+}
+
+/* Card shell */
+.vz-card {
+  position:      relative;
+  width:         100%;
+  border-radius: 20px;
+  overflow:      hidden;
+  cursor:        pointer;
+  background:    #fff;
+  box-shadow:    0 4px 18px rgba(0,0,0,0.10);
+  transition:    transform 0.22s, box-shadow 0.22s;
+}
+.vz-card:hover {
+  transform:  translateY(-3px);
+  box-shadow: 0 10px 32px rgba(0,0,0,0.18);
+}
+
+/* Image container — 16:9 ish */
+.vz-card-img {
+  position: relative;
+  width:    100%;
+  height:   210px;
+  overflow: hidden;
+}
+.vz-card-img img {
+  width:      100%;
+  height:     100%;
+  object-fit: cover;
+  display:    block;
+  transition: transform 0.5s;
+}
+.vz-card:hover .vz-card-img img {
+  transform: scale(1.06);
+}
+
+/* Dark gradient overlay for text readability */
+.vz-img-overlay {
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.08) 0%,
+    rgba(0,0,0,0.55) 70%,
+    rgba(0,0,0,0.72) 100%
+  );
+  z-index: 1;
+}
+
+/* "Vizesiz ✓" badge — top-left of image */
+.vz-badge {
+  position:     absolute;
+  top:          14px;
+  left:         14px;
+  z-index:      5;
+  background:   #A3C14A;
+  color:        white;
+  font-size:    11px;
+  font-weight:  800;
+  padding:      5px 12px;
+  border-radius: 99px;
+  letter-spacing: 0.03em;
+  box-shadow:   0 2px 10px rgba(163,193,74,0.5);
+}
+
+/* City name + meta info at bottom of image */
+.vz-city-block {
+  position:   absolute;
+  bottom:     16px;
+  left:       16px;
+  right:      16px;
+  z-index:    5;
+}
+.vz-city-name {
+  font-size:   26px;
+  font-weight: 900;
+  color:       #ffffff;
+  line-height: 1.1;
+  font-family: var(--font-primary);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.vz-meta-row {
+  display:     flex;
+  gap:         12px;
+  margin-top:  6px;
+  font-size:   12px;
+  font-weight: 600;
+  color:       rgba(255,255,255,0.85);
+}
+
+/* Footer row: country tag (left) + price (right) */
+.vz-card-footer {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         14px 16px;
+  background:      #ffffff;
+}
+.vz-footer-left {}
+.vz-country-tag {
+  font-size:   11px;
+  font-weight: 700;
+  color:       #6b7280;
+  background:  #f3f4f6;
+  padding:     3px 10px;
+  border-radius: 99px;
+}
+.vz-footer-right {
+  display:        flex;
+  flex-direction: column;
+  align-items:    flex-end;
+  gap:            1px;
+}
+.vz-price-label {
+  font-size:   10px;
+  color:       #9ca3af;
+  font-weight: 600;
+}
+.vz-price {
+  font-size:   20px;
+  font-weight: 900;
+  color:       #1a1a1a;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================================
+   FILTER TRANSITION — fade-in when switching filters
+   ============================================================ */
+
+@keyframes filterFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.filter-fade-in {
+  animation: filterFadeIn 0.35s ease forwards;
+}
+
+/* ============================================================
+   VİZESİZ SECTION — full-width card stack
+   ============================================================ */
+
+/* Section title badge */
+.vz-section-title-badge {
+  display:          inline-block;
+  background:       #A3C14A;
+  color:            white;
+  font-size:        11px;
+  font-weight:      800;
+  padding:          3px 10px;
+  border-radius:    99px;
+  letter-spacing:   0.5px;
+}
+
+/* Card shell */
+.vz-card {
+  border-radius:    18px;
+  overflow:         hidden;
+  background:       var(--bg-card, #fff);
+  box-shadow:       0 4px 20px rgba(0,0,0,0.10);
+  cursor:           pointer;
+  transition:       transform 0.22s ease, box-shadow 0.22s ease;
+}
+.vz-card:hover {
+  transform:        translateY(-3px);
+  box-shadow:       0 10px 32px rgba(0,0,0,0.18);
+}
+
+/* Image area */
+.vz-card-img {
+  position:         relative;
+  width:            100%;
+  height:           210px;
+  overflow:         hidden;
+}
+.vz-card-img img {
+  width:            100%;
+  height:           100%;
+  object-fit:       cover;
+  display:          block;
+  transition:       transform 0.4s ease;
+}
+.vz-card:hover .vz-card-img img {
+  transform:        scale(1.04);
+}
+
+/* Dark gradient overlay */
+.vz-img-overlay {
+  position:         absolute;
+  inset:            0;
+  background:       linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.65) 100%);
+  pointer-events:   none;
+}
+
+/* "Vizesiz ✓" badge — top-left */
+.vz-badge {
+  position:         absolute;
+  top:              14px;
+  left:             14px;
+  z-index:          10;
+  background:       white;
+  color:            #A3C14A;
+  font-size:        10px;
+  font-weight:      800;
+  padding:          4px 10px;
+  border-radius:    99px;
+  letter-spacing:   0.4px;
+  box-shadow:       0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* City name + meta row — bottom of image */
+.vz-city-block {
+  position:         absolute;
+  bottom:           14px;
+  left:             14px;
+  right:            14px;
+  z-index:          10;
+}
+.vz-city-name {
+  color:            white;
+  font-size:        22px;
+  font-weight:      800;
+  margin:           0 0 4px;
+  line-height:      1.1;
+  text-shadow:      0 2px 8px rgba(0,0,0,0.4);
+}
+.vz-meta-row {
+  display:          flex;
+  align-items:      center;
+  gap:              10px;
+  font-size:        12px;
+  color:            rgba(255,255,255,0.85);
+  font-weight:      600;
+}
+
+/* Footer bar */
+.vz-card-footer {
+  display:          flex;
+  align-items:      center;
+  justify-content:  space-between;
+  padding:          12px 16px;
+  background:       var(--bg-card, #fff);
+}
+
+/* Country tag — left side */
+.vz-country-tag {
+  font-size:        12px;
+  font-weight:      700;
+  color:            var(--text-muted, #888);
+  background:       var(--bg-secondary, #f5f5f5);
+  padding:          4px 10px;
+  border-radius:    99px;
+}
+
+/* Price — right side */
+.vz-footer-right {
+  display:          flex;
+  flex-direction:   column;
+  align-items:      flex-end;
+  gap:              1px;
+}
+.vz-price-label {
+  font-size:        10px;
+  color:            var(--text-muted, #aaa);
+  font-weight:      500;
+}
+.vz-price {
+  font-size:        20px;
+  font-weight:      900;
+  color:            #A3C14A;
+  line-height:      1;
+}
+
+/* Stagger fade-in on cards */
+.vz-card.filter-fade-in {
+  animation:        filterFadeIn 0.4s ease both;
+}
+
+/* ============================================================
+   BÜTÇE DOSTU SECTION
+   ============================================================ */
+
+/* Section title badge */
+.bf-section-badge {
+  display:          inline-block;
+  background:       #FFF3CD;
+  color:            #8A6000;
+  font-size:        11px;
+  font-weight:      800;
+  padding:          3px 10px;
+  border-radius:    99px;
+  letter-spacing:   0.5px;
+}
+
+/* Budget card badge — top-left inside image (shared base) */
+.bf-badge {
+  position:         absolute;
+  top:              14px;
+  left:             14px;
+  z-index:          10;
+  font-size:        10px;
+  font-weight:      800;
+  padding:          4px 10px;
+  border-radius:    99px;
+  letter-spacing:   0.4px;
+  box-shadow:       0 2px 8px rgba(0,0,0,0.18);
+  white-space:      nowrap;
+}
+
+/* Discount badge — warm orange */
+.bf-badge--discount {
+  background:       #FF6B35;
+  color:            white;
+}
+
+/* Last seats badge — urgent red */
+.bf-badge--seats {
+  background:       #E53E3E;
+  color:            white;
+}
+
+/* escape-status-discount — referenced in renderEscapeCard (was missing) */
+.escape-status-discount {
+  font-size:        11px;
+  font-weight:      800;
+  color:            #FF6B35;
+  background:       rgba(255, 107, 53, 0.12);
+  padding:          4px 11px;
+  border-radius:    99px;
+}
+
+/* ============================================ */
+/* PHASE 5 — NOTIFICATION BELL + PANEL          */
+/* ============================================ */
+
+/* Bell button wrapper */
+#btn-notif-bell {
+  position:         relative;
+  width:            40px;
+  height:           40px;
+  border-radius:    50%;
+  background:       white;
+  box-shadow:       0 2px 8px rgba(0,0,0,0.10);
+  border:           none;
+  cursor:           pointer;
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  flex-shrink:      0;
+}
+
+/* Unread count badge on bell */
+#notif-badge {
+  position:         absolute;
+  top:              4px;
+  right:            4px;
+  min-width:        16px;
+  height:           16px;
+  padding:          0 4px;
+  background:       #EF4444;
+  color:            white;
+  font-size:        9px;
+  font-weight:      900;
+  border-radius:    99px;
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  line-height:      1;
+  pointer-events:   none;
+}
+
+/* Notification panel slide-down */
+#notification-panel {
+  position:         fixed;
+  top:              0;
+  left:             50%;
+  transform:        translateX(-50%) translateY(-110%);
+  width:            min(420px, 100vw);
+  max-height:       70vh;
+  background:       #fff;
+  border-radius:    0 0 24px 24px;
+  box-shadow:       0 8px 32px rgba(0,0,0,0.18);
+  z-index:          850;
+  display:          flex;
+  flex-direction:   column;
+  overflow:         hidden;
+  transition:       transform 0.35s cubic-bezier(0.34,1.4,0.64,1);
+}
+#notification-panel.show {
+  transform:        translateX(-50%) translateY(0);
+}
+
+/* Panel header */
+.notif-panel-header {
+  padding:          16px 20px 12px;
+  display:          flex;
+  align-items:      center;
+  justify-content:  space-between;
+  border-bottom:    1px solid #f3f4f6;
+  flex-shrink:      0;
+}
+.notif-panel-header h3 {
+  font-size:        16px;
+  font-weight:      800;
+  color:            #1a1a1a;
+}
+.notif-panel-close {
+  width:            32px;
+  height:           32px;
+  border-radius:    50%;
+  border:           none;
+  background:       #f3f4f6;
+  cursor:           pointer;
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  font-size:        16px;
+  color:            #6b7280;
+}
+
+/* Scrollable list */
+#notif-list {
+  overflow-y:       auto;
+  flex:             1;
+  padding:          8px 0;
+}
+
+/* Individual notification item */
+.notif-item {
+  padding:          14px 20px;
+  display:          flex;
+  gap:              12px;
+  align-items:      flex-start;
+  cursor:           pointer;
+  transition:       background 0.15s;
+}
+.notif-item:hover {
+  background:       #fafafa;
+}
+.notif-item.unread {
+  background:       rgba(163,193,74,0.07);
+}
+.notif-item.unread::before {
+  content:          '';
+  width:            6px;
+  height:           6px;
+  background:       #A3C14A;
+  border-radius:    50%;
+  align-self:       center;
+  flex-shrink:      0;
+  margin-right:     -4px;
+}
+
+/* Notification icon circle */
+.notif-icon {
+  width:            38px;
+  height:           38px;
+  border-radius:    50%;
+  background:       rgba(163,193,74,0.15);
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  font-size:        18px;
+  flex-shrink:      0;
+}
+.notif-icon--rejected {
+  background:       rgba(239,68,68,0.10);
+}
+
+/* Notification text */
+.notif-content {
+  flex:             1;
+  min-width:        0;
+}
+.notif-title {
+  font-size:        13px;
+  font-weight:      700;
+  color:            #1a1a1a;
+  margin-bottom:    2px;
+  white-space:      nowrap;
+  overflow:         hidden;
+  text-overflow:    ellipsis;
+}
+.notif-body {
+  font-size:        12px;
+  color:            #6b7280;
+  line-height:      1.4;
+  display:          -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow:         hidden;
+}
+.notif-time {
+  font-size:        10px;
+  color:            #9ca3af;
+  white-space:      nowrap;
+  margin-top:       4px;
+}
+
+/* Empty state */
+.notif-empty {
+  padding:          40px 20px;
+  text-align:       center;
+  color:            #9ca3af;
+  font-size:        13px;
+}
+.notif-empty-icon {
+  font-size:        36px;
+  margin-bottom:    12px;
+  display:          block;
+}
+
+/* Mark-all-read button in panel header */
+.notif-mark-all-btn {
+  font-size:        11px;
+  font-weight:      700;
+  color:            #A3C14A;
+  background:       none;
+  border:           none;
+  cursor:           pointer;
+  padding:          4px 8px;
+}
+
+/* ============================================ */
+/* PHASE 5 — PAX EVENT CARD IN PLANNER          */
+/* ============================================ */
+
+.pax-event-card {
+  background:       white;
+  border-radius:    18px;
+  box-shadow:       0 2px 12px rgba(0,0,0,0.07);
+  overflow:         hidden;
+  display:          flex;
+  align-items:      stretch;
+  position:         relative;
+}
+
+/* Left color bar by type */
+.pax-event-card::before {
+  content:          '';
+  width:            5px;
+  background:       #A3C14A;
+  flex-shrink:      0;
+}
+
+.pax-event-card-body {
+  padding:          10px 12px;
+  flex:             1;
+  min-width:        0;
+}
+
+.pax-event-card-type {
+  font-size:        9px;
+  font-weight:      800;
+  color:            #A3C14A;
+  text-transform:   uppercase;
+  letter-spacing:   0.06em;
+  margin-bottom:    2px;
+}
+
+.pax-event-card-title {
+  font-size:        13px;
+  font-weight:      800;
+  color:            #1a1a1a;
+  white-space:      nowrap;
+  overflow:         hidden;
+  text-overflow:    ellipsis;
+  margin-bottom:    4px;
+}
+
+.pax-event-card-meta {
+  display:          flex;
+  flex-wrap:        wrap;
+  gap:              8px;
+  align-items:      center;
+}
+
+.pax-event-card-date,
+.pax-event-card-loc {
+  font-size:        11px;
+  color:            #6b7280;
+  display:          flex;
+  align-items:      center;
+  gap:              3px;
+}
+
+/* Role badge: creator or participant */
+.pax-event-role {
+  font-size:        9px;
+  font-weight:      800;
+  padding:          2px 8px;
+  border-radius:    99px;
+  text-transform:   uppercase;
+  letter-spacing:   0.05em;
+}
+.pax-event-role--creator {
+  background:       rgba(163,193,74,0.15);
+  color:            #7a8a2e;
+}
+.pax-event-role--participant {
+  background:       rgba(99,102,241,0.10);
+  color:            #4338ca;
+}
+.pax-event-role--pending {
+  background:       rgba(245,158,11,0.12);
+  color:            #92400e;
+}
+.pax-event-role--approved {
+  background:       rgba(163,193,74,0.15);
+  color:            #7a8a2e;
+}
+.pax-event-role--rejected {
+  background:       rgba(239,68,68,0.10);
+  color:            #b91c1c;
+}
+
+/* PAX Cancel Button */
+.pax-cancel-btn {
+  font-size:        10px;
+  font-weight:      700;
+  color:            #ef4444;
+  background:       transparent;
+  border:           none;
+  padding:          0;
+  cursor:           pointer;
+  opacity:          0.7;
+  transition:       opacity 0.15s;
+  white-space:      nowrap;
+}
+.pax-cancel-btn:hover:not(:disabled) { opacity: 1; }
+.pax-cancel-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Pax event card – chat button ─────────────────────────────────────────── */
+.pax-chat-btn {
+  position:        relative;
+  width:           30px;
+  height:          30px;
+  border-radius:   50%;
+  border:          none;
+  background:      rgba(163,193,74,0.10);
+  color:           #A3C14A;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  cursor:          pointer;
+  transition:      background 0.15s, transform 0.15s;
+  flex-shrink:     0;
+}
+.pax-chat-btn:hover { background: rgba(163,193,74,0.22); transform: scale(1.08); }
+.pax-chat-btn svg  { width:15px; height:15px; }
+
+/* Unread notification ring */
+.pax-chat-btn--unread::after {
+  content:       '';
+  position:      absolute;
+  top:           -3px;
+  right:         -3px;
+  width:         10px;
+  height:        10px;
+  border-radius: 50%;
+  background:    #A3C14A;
+  border:        2px solid #fff;
+}
+
+/* Chat message bubbles */
+.chat-bubble {
+  max-width:     75%;
+  padding:       8px 12px;
+  border-radius: 16px;
+  font-size:     13px;
+  line-height:   1.45;
+  word-break:    break-word;
+}
+.chat-bubble--mine {
+  background:    #A3C14A;
+  color:         #fff;
+  border-bottom-right-radius: 4px;
+  align-self:    flex-end;
+}
+.chat-bubble--other {
+  background:    #fff;
+  color:         #1a1a1a;
+  border:        1px solid #f0f0ee;
+  border-bottom-left-radius: 4px;
+  align-self:    flex-start;
+}
+.chat-row { display:flex; flex-direction:column; gap:2px; }
+
+/* ═══════════════════════════════════════════════
+   GAMIFICATION — XP & Badge Animations
+   ═══════════════════════════════════════════════ */
+
+/* +XP floating toast */
+@keyframes xpFloat {
+  0%   { opacity: 0; transform: translateY(0)   scale(0.8); }
+  20%  { opacity: 1; transform: translateY(-12px) scale(1.1); }
+  80%  { opacity: 1; transform: translateY(-32px) scale(1); }
+  100% { opacity: 0; transform: translateY(-52px) scale(0.9); }
+}
+.xp-toast {
+  position:         fixed;
+  bottom:           90px;
+  left:             50%;
+  transform:        translateX(-50%);
+  font-size:        22px;
+  font-weight:      900;
+  font-family:      var(--font-primary);
+  letter-spacing:   0.04em;
+  pointer-events:   none;
+  z-index:          9999;
+  animation:        xpFloat 1.8s cubic-bezier(0.22,1,0.36,1) forwards;
+  text-shadow:      0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Level Up banner */
+@keyframes levelUpSlide {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.85); }
+  15%  { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1.05); }
+  80%  { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-15px) scale(0.95); }
+}
+.level-up-banner {
+  position:         fixed;
+  bottom:           130px;
+  left:             50%;
+  transform:        translateX(-50%);
+  background:       linear-gradient(135deg, #A3C14A, #7a8a2e);
+  color:            #fff;
+  font-weight:      900;
+  font-size:        16px;
+  letter-spacing:   0.08em;
+  padding:          12px 28px;
+  border-radius:    99px;
+  box-shadow:       0 8px 30px rgba(163,193,74,0.45);
+  pointer-events:   none;
+  z-index:          9999;
+  animation:        levelUpSlide 3s cubic-bezier(0.22,1,0.36,1) forwards;
+  display:          flex;
+  align-items:      center;
+  gap:              8px;
+}
+.level-up-star { font-size: 20px; }
+.level-up-num  { background: rgba(255,255,255,0.25); border-radius: 99px; padding: 2px 10px; font-size: 13px; }
+
+/* Badge popup */
+@keyframes badgeSlide {
+  0%   { opacity: 0; transform: translateX(100%); }
+  15%  { opacity: 1; transform: translateX(0); }
+  80%  { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(100%); }
+}
+.badge-popup {
+  position:         fixed;
+  right:            16px;
+  bottom:           100px;
+  background:       #fff;
+  border:           2px solid #A3C14A;
+  border-radius:    16px;
+  padding:          12px 16px;
+  display:          flex;
+  align-items:      center;
+  gap:              12px;
+  box-shadow:       0 8px 24px rgba(0,0,0,0.12);
+  z-index:          9999;
+  animation:        badgeSlide 3.5s cubic-bezier(0.22,1,0.36,1) forwards;
+  min-width:        200px;
+}
+.badge-popup-img-wrap { width: 44px; height: 44px; border-radius: 12px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.badge-popup-img   { width: 100%; height: 100%; object-fit: cover; display: block; }
+.badge-popup-icon  { font-size: 28px; }
+.badge-popup-name  { font-size: 10px; color: #A3C14A; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; }
+.badge-popup-title { font-size: 14px; font-weight: 700; color: #1a1a1a; margin-top: 2px; }
+
+/* ── Badge Grid ──────────────────────────────────── */
+.badge-card {
+  display:          flex;
+  flex-direction:   column;
+  align-items:      center;
+  gap:              6px;
+  padding:          10px 6px;
+  border-radius:    24px;
+  cursor:           pointer;
+  transition:       transform 0.18s ease, box-shadow 0.18s ease;
+  border:           1.5px solid #A3C14A;
+  background:       #fff;
+  min-width:        0;
+}
+.badge-card:hover {
+  transform:        translateY(-3px);
+  box-shadow:       0 6px 18px rgba(163,193,74,0.25);
+}
+.badge-card:active { transform: scale(0.96); }
+
+.badge-card--unlocked {
+  border-color:     #A3C14A;
+  background:       rgba(163,193,74,0.06);
+}
+.badge-card--locked {
+  border-color:     rgba(163,193,74,0.30);
+  background:       rgba(0,0,0,0.02);
+  opacity:          0.55;
+}
+
+/* Badge image wrapper: 80×80 fixed square */
+.badge-img-wrap {
+  width:            80px;
+  height:           80px;
+  border-radius:    18px;
+  overflow:         hidden;
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  flex-shrink:      0;
+}
+.badge-card--locked .badge-img-wrap {
+  filter:           grayscale(100%);
+  opacity:          0.55;
+}
+.badge-img {
+  width:            100%;
+  height:           100%;
+  object-fit:       cover;
+  display:          block;
+}
+.badge-img-fallback {
+  font-size:        38px;
+  line-height:      1;
+  align-items:      center;
+  justify-content:  center;
+}
+
+.badge-name {
+  font-size:        9px;
+  font-weight:      700;
+  text-align:       center;
+  color:            #5F6F4C;
+  line-height:      1.25;
+  padding:          0 2px;
+  word-break:       break-word;
+}
+.badge-card--locked .badge-name { color: #9ca3af; }
+.badge-card--hidden { display: none !important; }
+
+/* ── Country Pin Markers ─────────────────────────── */
+.country-pin-icon { background: none !important; border: none !important; }
+.country-pin-tooltip {
+  background:    #fff;
+  border:        1px solid #e5e7eb;
+  border-radius: 8px;
+  padding:       3px 8px;
+  font-size:     11px;
+  font-weight:   700;
+  color:         #1a1a1a;
+  box-shadow:    0 2px 8px rgba(0,0,0,0.12);
+  white-space:   nowrap;
+}
+.country-pin-tooltip::before { display: none; }
+
+/* ── Badge Detail Modal ──────────────────────────── */
+.badge-detail-modal {
+  position:         fixed;
+  inset:            0;
+  background:       rgba(0,0,0,0.45);
+  z-index:          10000;
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  padding:          24px;
+}
+.badge-detail-inner {
+  background:       #fff;
+  border-radius:    24px;
+  padding:          28px 24px 24px;
+  width:            100%;
+  max-width:        300px;
+  display:          flex;
+  flex-direction:   column;
+  align-items:      center;
+  gap:              10px;
+  position:         relative;
+  box-shadow:       0 20px 60px rgba(0,0,0,0.18);
+}
+.badge-detail-close {
+  position:         absolute;
+  top:              12px;
+  right:            14px;
+  background:       none;
+  border:           none;
+  font-size:        16px;
+  color:            #9ca3af;
+  cursor:           pointer;
+  line-height:      1;
+}
+.badge-detail-close:hover { color: #1a1a1a; }
+.badge-detail-img-wrap {
+  width:            96px;
+  height:           96px;
+  border-radius:    22px;
+  overflow:         hidden;
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  border:           2px solid #A3C14A;
+  background:       rgba(163,193,74,0.08);
+}
+.badge-detail-locked { filter: grayscale(100%); opacity: 0.5; }
+.badge-detail-img { width: 100%; height: 100%; object-fit: cover; }
+.badge-detail-fallback {
+  font-size: 44px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.badge-detail-status {
+  font-size:        11px;
+  font-weight:      800;
+  letter-spacing:   0.05em;
+  text-transform:   uppercase;
+  padding:          3px 12px;
+  border-radius:    99px;
+}
+.badge-detail-status--unlocked { background: rgba(163,193,74,0.15); color: #5F6F4C; }
+.badge-detail-status--locked   { background: rgba(0,0,0,0.06);      color: #9ca3af; }
+.badge-detail-name {
+  font-size:        18px;
+  font-weight:      800;
+  color:            #1a1a1a;
+  text-align:       center;
+}
+.badge-detail-desc {
+  font-size:        13px;
+  color:            #6b7280;
+  text-align:       center;
+  line-height:      1.5;
+}
+
+/* ── Star Rating ───────────────────────────────── */
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #d1d5db;
+  transition: color 0.15s, transform 0.1s;
+  padding: 0 1px;
+}
+.star-btn:hover,
+.star-btn.active {
+  color: #f59e0b;
+  transform: scale(1.2);
+}
+
+/* ── AI Itinerary Cards ─────────────────────────── */
+#ai-itinerary-result {
+  -webkit-overflow-scrolling: touch;
+}
+
+#ai-itinerary-result [id^="ai-day-card-"] {
+  animation: aiCardIn .35s ease both;
+}
+#ai-itinerary-result [id^="ai-day-card-"]:nth-child(2) { animation-delay:.06s; }
+#ai-itinerary-result [id^="ai-day-card-"]:nth-child(3) { animation-delay:.12s; }
+#ai-itinerary-result [id^="ai-day-card-"]:nth-child(4) { animation-delay:.18s; }
+#ai-itinerary-result [id^="ai-day-card-"]:nth-child(5) { animation-delay:.24s; }
+#ai-itinerary-result [id^="ai-day-card-"]:nth-child(6) { animation-delay:.30s; }
+#ai-itinerary-result [id^="ai-day-card-"]:nth-child(7) { animation-delay:.36s; }
+#ai-itinerary-result [id^="ai-day-card-"]:nth-child(8) { animation-delay:.42s; }
+
+@keyframes aiCardIn {
+  from { opacity:0; transform:translateY(18px); }
+  to   { opacity:1; transform:translateY(0);    }
+}
