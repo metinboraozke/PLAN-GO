@@ -1,0 +1,11 @@
+{
+  "name": "PLANİGO",
+  "short_name": "PLANİGO",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#7a8a2e",
+  "icons": [
+    { "src": "/public/assets/logo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

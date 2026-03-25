@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#7a8a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
     <title>PLANİGO - Akıllı Seyahat Planlayıcı</title>
 
     <!-- Tailwind CSS -->
@@ -26,15 +29,104 @@
 
     <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- ES Module Shims (importmap polyfill for older browsers) -->
+    <script async src="https://ga.jspm.io/npm:es-module-shims@1.8.0/dist/es-module-shims.js"></script>
+
+    <!-- Import Map: bare specifiers → module paths -->
+    <script type="importmap">
+    {
+      "imports": {
+        "config":                    "./js/config.js",
+        "store":                     "./js/core/store.js",
+        "router":                    "./js/core/router.js",
+        "toast":                     "./js/core/toast.js",
+        "http":                      "./js/services/http.js",
+        "auth-service":              "./js/services/auth.service.js",
+        "discovery-service":         "./js/services/discovery.service.js",
+        "map-service":               "./js/services/map.service.js",
+        "event-service":             "./js/services/event.service.js",
+        "planner-service":           "./js/services/planner.service.js",
+        "profile-service":           "./js/services/profile.service.js",
+        "notification-service":      "./js/services/notification.service.js",
+        "chat-service":              "./js/services/chat.service.js",
+        "ai-service":                "./js/services/ai.service.js",
+        "utils/format":              "./js/utils/format.js",
+        "utils/dom":                 "./js/utils/dom.js",
+        "utils/geo":                 "./js/utils/geo.js",
+        "utils/storage":             "./js/utils/storage.js",
+        "utils/confetti":            "./js/utils/confetti.js",
+        "screens/auth":              "./js/screens/auth/auth.screen.js",
+        "screens/discovery":         "./js/screens/discovery/discovery.screen.js",
+        "screens/planner":           "./js/screens/planner/planner.screen.js",
+        "screens/profile":           "./js/screens/profile/profile.screen.js",
+        "screens/map":               "./js/screens/map/map.screen.js",
+        "components/modal":          "./js/components/modal.js",
+        "components/notifications":  "./js/components/notifications.js",
+        "components/autocomplete":   "./js/components/autocomplete.js",
+        "components/ai-itinerary":   "./js/components/ai-itinerary.js",
+        "components/public-profile":  "./js/components/public-profile.js",
+        "components/new-plan-form":   "./js/components/new-plan-form.js",
+        "core/event-listeners":            "./js/core/event-listeners.js",
+        "components/account-settings":    "./js/components/account-settings.js",
+        "screens/planner-detail":         "./js/screens/planner/planner-detail/detail.screen.js",
+        "screens/planner-confirm":        "./js/screens/planner/planner-detail/detail.confirm.js"
+      }
+    }
+    </script>
     <style>
         .hide-scrollbar::-webkit-scrollbar {
             display: none !important;
+        }
+
+        /* Auth modal placeholder styling */
+        #auth-username::placeholder,
+        #auth-email::placeholder,
+        #auth-password::placeholder {
+            color: #B0C4B8;
+        }
+        #auth-username:focus::placeholder,
+        #auth-email:focus::placeholder,
+        #auth-password:focus::placeholder {
+            color: #C8D8CC;
         }
 
         .hide-scrollbar {
             -ms-overflow-style: none !important;
             scrollbar-width: none !important;
         }
+
+        /* ── Rezervasyon Butonları ─────────────────────────────────── */
+        .pd-booking-btn {
+            display: block;
+            margin: 10px 12px 12px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            letter-spacing: 0.2px;
+            color: #fff;
+            transition: opacity 0.15s;
+        }
+        .pd-booking-btn:hover { opacity: 0.88; }
+        .pd-booking-btn--flight { background: #7a8a2e; }
+        .pd-booking-btn--hotel  { background: #003580; }
+
+        /* Onaylanan seyahat kartı — "Rezervasyona Git" butonu */
+        .upcoming-trip-book-btn {
+            padding: 6px 12px;
+            background: #7a8a2e;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .upcoming-trip-book-btn:hover { opacity: 0.88; }
     </style>
 
     <!-- Tailwind Config -->
@@ -211,47 +303,6 @@
                                 </div>
                                 <button class="btn-book-now">Rezervasyon ➝</button>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Viral Pin Hikayeleri -->
-                <div id="viral-stories-section">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-bold text-main">Viral Pin Hikayeleri</h2>
-                        <a href="#" class="text-xs font-bold text-sage">SOSYAL HARİTA</a>
-                    </div>
-                    <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" id="viral-stories">
-                        <div class="story-wrapper">
-                            <div class="story-circle">
-                                <img src="https://images.unsplash.com/photo-1512453979798-5ea904ac6605?w=500&auto=format&fit=crop&q=60"
-                                    alt="Dubai">
-                            </div>
-                            <span class="story-count-badge">615k</span>
-                            <span class="story-circle-label">Dubai</span>
-                        </div>
-                        <div class="story-wrapper">
-                            <div class="story-circle">
-                                <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=500&auto=format&fit=crop&q=60"
-                                    alt="Paris">
-                            </div>
-                            <span class="story-count-badge">420k</span>
-                            <span class="story-circle-label">Paris</span>
-                        </div>
-                        <div class="story-wrapper">
-                            <div class="story-circle">
-                                <img src="https://images.unsplash.com/photo-1641128324972-af3208f0ddfa?w=500&auto=format&fit=crop&q=60"
-                                    alt="Kapadokya">
-                            </div>
-                            <span class="story-count-badge">53k</span>
-                            <span class="story-circle-label">Kapadokya</span>
-                        </div>
-                        <div class="story-wrapper">
-                            <button
-                                class="w-[68px] h-[68px] rounded-full bg-sage/10 flex items-center justify-center border-2 border-sage border-dashed">
-                                <i data-lucide="plus" class="w-6 h-6 text-sage"></i>
-                            </button>
-                            <span class="story-circle-label">Ekle</span>
                         </div>
                     </div>
                 </div>
@@ -552,7 +603,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="form-add-pin" onsubmit="handleAddPin(event)" class="space-y-4">
+                    <form id="form-add-pin" class="space-y-4">
                         <!-- Title -->
                         <div>
                             <label class="text-xs font-semibold text-gray-500 block mb-1">Mekan Adı *</label>
@@ -824,7 +875,7 @@
                             <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
                         </button>
                     </div>
-                    <form id="form-add-event" onsubmit="handleAddEvent(event)" class="flex flex-col gap-4">
+                    <form id="form-add-event" class="flex flex-col gap-4">
                         <!-- Title -->
                         <div>
                             <label class="text-xs font-bold text-main mb-1.5 block">Etkinlik Adı *</label>
@@ -1335,22 +1386,30 @@
             <div class="px-4 space-y-8 pb-32 pt-2">
                 <!-- 1. Profile Info -->
                 <div class="flex flex-col items-center text-center">
-                    <!-- Avatar + upload trigger -->
-                    <div class="relative mb-3 cursor-pointer" onclick="document.getElementById('avatar-file-input').click()">
-                        <img src="" alt="Profile"
-                            class="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover bg-[#e8e6e1]"
-                            id="profile-avatar"
-                            onerror="this.src=''; this.style.display='none'; document.getElementById('profile-avatar-initials').style.display='flex'">
-                        <!-- Initials fallback -->
-                        <div id="profile-avatar-initials"
-                            class="w-24 h-24 rounded-full border-4 border-white shadow-md bg-[#9CAF88] text-white text-2xl font-bold items-center justify-center hidden">
-                        </div>
-                        <!-- Camera overlay -->
-                        <div class="absolute inset-0 rounded-full bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                            <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+                    <!-- Avatar + story ring wrapper -->
+                    <div id="story-ring-wrapper" class="relative mb-3 p-[3px] rounded-full cursor-pointer"
+                         onclick="openOwnStories()">
+                        <!-- Story ring (kırmızı halka — JS ile aktif edilir) -->
+                        <div id="story-ring" class="absolute inset-0 rounded-full hidden"
+                             style="background: conic-gradient(#ef4444, #f97316, #ef4444); padding: 3px;"></div>
+                        <!-- Inner white gap -->
+                        <div class="relative w-24 h-24">
+                            <img src="" alt="Profile"
+                                class="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover bg-[#e8e6e1]"
+                                id="profile-avatar"
+                                onerror="this.src=''; this.style.display='none'; document.getElementById('profile-avatar-initials').style.display='flex'">
+                            <!-- Initials fallback -->
+                            <div id="profile-avatar-initials"
+                                class="w-24 h-24 rounded-full border-4 border-white shadow-md bg-[#9CAF88] text-white text-2xl font-bold items-center justify-center hidden">
+                            </div>
+                            <!-- Camera overlay (upload için ayrı buton) -->
+                            <div class="absolute inset-0 rounded-full bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                                 onclick="event.stopPropagation(); document.getElementById('avatar-file-input').click()">
+                                <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+                            </div>
                         </div>
                         <span id="profile-level-badge"
-                            class="absolute bottom-0 right-0 bg-[#9CAF88] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm border border-white">Lvl 1</span>
+                            class="absolute bottom-0 right-0 bg-[#9CAF88] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm border border-white z-10">Lvl 1</span>
                     </div>
                     <!-- Hidden file input -->
                     <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)">
@@ -1374,7 +1433,25 @@
                     </div>
                 </div>
 
-                <!-- 3. World Map -->
+                <!-- 3. Hikayeler -->
+                <div id="profile-stories-section">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-serif font-bold text-xl text-[#1a1a1a]">Hikayeler</h3>
+                    </div>
+                    <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" id="stories-scroll">
+                        <!-- + Ekle butonu (her zaman solda) -->
+                        <div onclick="openStoryAdd()" class="flex-shrink-0 flex flex-col items-center gap-1.5 cursor-pointer">
+                            <div class="w-16 h-16 rounded-full border-2 border-dashed border-[#9CAF88] bg-[#9CAF88]/5 flex items-center justify-center">
+                                <span class="text-3xl text-[#9CAF88] leading-none">+</span>
+                            </div>
+                            <span class="text-[10px] text-[#9ca3af]">Ekle</span>
+                        </div>
+                        <!-- Ülke story grupları — JS render -->
+                        <div id="story-groups-container" class="flex gap-4"></div>
+                    </div>
+                </div>
+
+                <!-- 4. World Map -->
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center gap-2">
@@ -1406,7 +1483,7 @@
                     </div>
                 </div>
 
-                <!-- 4. Digital Passport -->
+                <!-- 5. Digital Passport -->
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="font-serif font-bold text-xl text-[#1a1a1a]">Dijital Pasaport</h3>
@@ -1484,38 +1561,42 @@
                 </div>
             </div>
 
-            <!-- Fullscreen Map Overlay -->
-            <div id="map-fullscreen-overlay" class="fixed inset-0 z-[60] bg-[#F9F7F2] hidden flex-col animate-fade-in">
-                <!-- Overlay Header -->
-                <div
-                    class="px-6 py-6 flex items-center justify-between bg-white/50 backdrop-blur-sm border-b border-gray-100">
-                    <div>
-                        <h2 class="text-2xl font-serif font-bold text-[#1a1a1a]">Dünya Haritası</h2>
-                        <p class="text-xs text-[#9CAF88] font-bold uppercase tracking-wide" id="overlay-stats">5
-                            Ülke Ziyaret Edildi</p>
-                    </div>
-                    <button id="btn-close-map"
-                        class="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center hover:scale-105 transition-transform text-[#1a1a1a]">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-
-                <!-- Map Area -->
-                <div class="flex-1 relative bg-[#A8D0E6]/20 overflow-hidden" id="fullscreen-map-container">
-                    <!-- Leaflet map will move here on expand -->
-                </div>
-
-                <!-- Overlay Footer -->
-                <div class="bg-white/90 backdrop-blur-md p-6 pb-8 border-t border-gray-100">
-                    <p class="text-center text-xs text-[#6b7280]">Ziyaret ettiğin ülkeleri seçerek işaretle.</p>
-                </div>
-            </div>
         </section>
 
         <!-- ============================================ -->
         <!-- BOTTOM NAVIGATION -->
         <!-- ============================================ -->
 
+
+        <!-- ============================================ -->
+        <!-- WORLD MAP FULLSCREEN OVERLAY (body-level → overflow:hidden parent'ından bağımsız) -->
+        <!-- ============================================ -->
+        <div id="map-fullscreen-overlay" class="fixed inset-0 z-[10000] hidden overflow-hidden" style="touch-action:none;">
+            <!-- Harita: tüm overlay'i kaplar. z-0 → Leaflet iç pane'larını izole eder, X butonu üstte kalır -->
+            <div id="fullscreen-map-container" class="absolute inset-0 z-0"></div>
+
+            <!-- Header gradient -->
+            <div class="absolute top-0 left-0 right-0 z-10 px-4 pt-10 pb-6
+                        bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
+                <h2 class="text-lg font-serif font-bold text-white drop-shadow">Dünya Haritası</h2>
+                <p class="text-xs text-white/80 font-bold uppercase tracking-wide" id="overlay-stats">5 Ülke Ziyaret Edildi</p>
+            </div>
+
+            <!-- X Butonu: absolute (artık overflow-hidden parent yok, çalışır) -->
+            <button id="btn-close-map"
+                    class="absolute top-4 right-4 z-20 w-11 h-11 rounded-full
+                           bg-white shadow-lg border border-gray-200
+                           flex items-center justify-center
+                           text-[#1a1a1a] active:scale-95 transition-transform">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <!-- Footer gradient -->
+            <div class="absolute bottom-0 left-0 right-0 z-10 pb-8 pt-6 px-4
+                        bg-gradient-to-t from-black/50 to-transparent text-center pointer-events-none">
+                <p class="text-xs text-white/80">Ziyaret ettiğin ülkeleri seçerek işaretle.</p>
+            </div>
+        </div>
 
         <!-- ============================================ -->
         <!-- NEW PLAN MODAL -->
@@ -1553,21 +1634,16 @@
 
                     <!-- ═══ DATE TYPE TOGGLE ═══ -->
                     <div style="display:flex; gap:8px; margin-bottom:24px;">
-                        <label style="cursor:pointer;">
-                            <input type="radio" name="date_type" value="flexible" style="display:none;" checked>
-                            <div id="dt-flexible"
-                                style="padding:10px 22px; border-radius:50px; font-size:14px; font-weight:600; transition:all 0.3s; border:2px solid #7a8a2e; background:#7a8a2e; color:#fff;">
-                                Esnek Tarih
-                            </div>
-                        </label>
-                        <label style="cursor:pointer;">
-                            <input type="radio" name="date_type" value="fixed" style="display:none;">
-                            <div id="dt-fixed"
-                                style="padding:10px 22px; border-radius:50px; font-size:14px; font-weight:600; transition:all 0.3s; border:2px solid #d1d5c8; background:transparent; color:#6b7280;">
-                                Kesin Tarih
-                            </div>
-                        </label>
+                        <div id="dt-flexible" onclick="setDateType('flexible')"
+                            style="padding:10px 22px; border-radius:50px; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.3s; border:2px solid #9CAF88; background:#9CAF88; color:#fff; user-select:none;">
+                            Esnek Tarih
+                        </div>
+                        <div id="dt-fixed" onclick="setDateType('fixed')"
+                            style="padding:10px 22px; border-radius:50px; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.3s; border:2px solid #d1d5c8; background:transparent; color:#6b7280; user-select:none;">
+                            Kesin Tarih
+                        </div>
                     </div>
+                    <input type="hidden" name="date_type" id="date-type-val" value="flexible">
 
                     <!-- ═══ FLEXIBLE DATE FIELDS ═══ -->
                     <div id="field-flexible-dates">
@@ -1593,29 +1669,14 @@
                                 </svg>
                             </div>
                             <div style="flex:1;">
-                                <select name="flexible_month" id="flexible-month-select"
-                                    style="font-size:16px; font-weight:700; color:#1a1a1a; background:transparent; border:none; outline:none; cursor:pointer; width:100%; appearance:none; -webkit-appearance:none;">
-                                    <option value="jan">Ocak'ta</option>
-                                    <option value="feb">Şubat'ta</option>
-                                    <option value="mar">Mart'ta</option>
-                                    <option value="apr">Nisan'da</option>
-                                    <option value="may">Mayıs'ta</option>
-                                    <option value="jun">Haziran'da</option>
-                                    <option value="jul" selected>Temmuz'da</option>
-                                    <option value="aug">Ağustos'ta</option>
-                                    <option value="sep">Eylül'de</option>
-                                    <option value="oct">Ekim'de</option>
-                                    <option value="nov">Kasım'da</option>
-                                    <option value="dec">Aralık'ta</option>
-                                </select>
-                                <p id="month-subtitle" style="font-size:12px; color:#9ca3af; margin:2px 0 0;">Yaz
-                                    tatili
-                                    için ideal</p>
+                                <input type="hidden" name="flexible_month" id="flexible-month-val" value="jul">
+                                <div id="flexible-month-label" style="font-size:16px; font-weight:700; color:#1a1a1a;">Temmuz'da</div>
+                                <p id="month-subtitle" style="font-size:12px; color:#9ca3af; margin:2px 0 0;">Yaz tatili için ideal</p>
                             </div>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af"
-                                stroke-width="2" style="flex-shrink:0;">
-                                <path d="M6 9l6 6 6-6" />
-                            </svg>
+                        </div>
+                        <!-- Month pills -->
+                        <div id="month-pills-container"
+                            style="display:flex; gap:8px; overflow-x:auto; padding:12px 0 4px; scrollbar-width:none; -ms-overflow-style:none; margin:0 -4px; padding-left:4px;">
                         </div>
 
                         <!-- Süre -->
@@ -1653,12 +1714,36 @@
                         <div style="margin-bottom:10px;">
                             <span style="font-size:14px; font-weight:500; color:#6b7280;">Tarih Seçin</span>
                         </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;">
-                            <input type="date" name="start_date"
-                                style="padding:14px 16px; border-radius:16px; border:1px solid #e8e6e1; background:#fff; font-size:14px; color:#1a1a1a; outline:none;">
-                            <input type="date" name="end_date"
-                                style="padding:14px 16px; border-radius:16px; border:1px solid #e8e6e1; background:#fff; font-size:14px; color:#1a1a1a; outline:none;">
+                        <!-- Gidiş Kartı -->
+                        <div onclick="openDatePicker('start')"
+                            style="background:#fff; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:14px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,0.06); border:1px solid #e8e6e1; cursor:pointer; user-select:none;">
+                            <div style="width:40px; height:40px; border-radius:12px; background:#f0f5ec; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9CAF88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                                </svg>
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Gidiş Tarihi</div>
+                                <div id="start-date-display" style="font-size:16px; font-weight:700; color:#9ca3af;">Tarih seçin</div>
+                            </div>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5c8" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
                         </div>
+                        <input type="hidden" name="start_date" id="start-date-val" value="">
+                        <!-- Dönüş Kartı -->
+                        <div onclick="openDatePicker('end')"
+                            style="background:#fff; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:14px; margin-bottom:24px; box-shadow:0 1px 4px rgba(0,0,0,0.06); border:1px solid #e8e6e1; cursor:pointer; user-select:none;">
+                            <div style="width:40px; height:40px; border-radius:12px; background:#f0f5ec; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9CAF88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                                </svg>
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Dönüş Tarihi</div>
+                                <div id="end-date-display" style="font-size:16px; font-weight:700; color:#9ca3af;">Tarih seçin</div>
+                            </div>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5c8" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                        </div>
+                        <input type="hidden" name="end_date" id="end-date-val" value="">
                     </div>
 
                     <!-- ═══ NEREDEN? ═══ -->
@@ -1889,7 +1974,7 @@
         </div>
 
         <div id="modal-wishlist"
-            class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+            class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
             <div class="bg-white w-full max-w-md rounded-2xl p-6 relative h-[70vh] flex flex-col">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-lg font-bold text-slate-900">İstek Listem 💖</h2>
@@ -1908,7 +1993,7 @@
 
         <!-- Delete Confirmation Modal (Stylish) -->
         <div id="modal-confirm-delete"
-            class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4 transition-opacity duration-300">
+            class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4 transition-opacity duration-300">
             <div
                 class="bg-white w-full max-w-sm rounded-2xl p-6 relative text-center shadow-2xl transform transition-all scale-100">
                 <div
@@ -1940,104 +2025,122 @@
     <!-- AUTH MODAL (Login / Register) -->
     <!-- ============================================ -->
     <div id="modal-auth"
-        class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-md px-4 transition-opacity duration-300">
-        <div class="w-full max-w-sm rounded-3xl relative overflow-hidden shadow-2xl"
-            style="background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+        class="hidden fixed inset-0 z-[10000] flex items-center justify-center px-5"
+        style="background: rgba(44,62,53,0.72); backdrop-filter: blur(18px);">
 
-            <!-- Decorative circles -->
-            <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-10"
-                style="background: radial-gradient(circle, #e94560, transparent);"></div>
-            <div class="absolute -bottom-10 -left-10 w-32 h-32 rounded-full opacity-10"
-                style="background: radial-gradient(circle, #0ea5e9, transparent);"></div>
+        <div class="w-full max-w-sm relative overflow-hidden"
+            style="background: #FAF7F2; border-radius: 28px; box-shadow: 0 32px 64px rgba(44,62,53,0.28), 0 0 0 1px rgba(123,158,135,0.15);">
 
-            <div class="relative p-8">
+            <!-- Top sage gradient band -->
+            <div style="height: 5px; background: linear-gradient(90deg, #4A7A5D, #7B9E87, #A8C5B0); border-radius: 28px 28px 0 0;"></div>
+
+            <!-- Decorative leaf shapes -->
+            <div class="absolute top-0 right-0 pointer-events-none" style="opacity:0.07;">
+                <svg width="140" height="140" viewBox="0 0 140 140" fill="none">
+                    <ellipse cx="105" cy="35" rx="60" ry="40" fill="#4A7A5D" transform="rotate(-30 105 35)"/>
+                    <ellipse cx="120" cy="60" rx="40" ry="25" fill="#7B9E87" transform="rotate(-15 120 60)"/>
+                </svg>
+            </div>
+            <div class="absolute bottom-0 left-0 pointer-events-none" style="opacity:0.06;">
+                <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
+                    <ellipse cx="20" cy="80" rx="50" ry="30" fill="#4A7A5D" transform="rotate(20 20 80)"/>
+                </svg>
+            </div>
+
+            <div class="relative px-8 pt-7 pb-8">
                 <!-- Logo / Header -->
-                <div class="text-center mb-6">
-                    <div class="w-16 h-16 mx-auto mb-3 rounded-2xl flex items-center justify-center"
-                        style="background: linear-gradient(135deg, #e94560, #0ea5e9);">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                            <path d="M2 17l10 5 10-5" />
-                            <path d="M2 12l10 5 10-5" />
-                        </svg>
-                    </div>
-                    <h2 id="auth-title" class="text-2xl font-bold text-white">Giriş Yap</h2>
-                    <p id="auth-subtitle" class="text-sm text-slate-400 mt-1">Hesabına giriş yap ve keşfetmeye başla</p>
+                <div class="text-center mb-7">
+                    <img src="/public/assets/logo.png" alt="PLANİGO"
+                        class="mx-auto mb-4"
+                        style="width:90px; height:auto; object-fit:contain; filter: drop-shadow(0 4px 12px rgba(74,122,93,0.2));">
+                    <h2 id="auth-title" class="text-2xl font-bold" style="color:#2C3E35; letter-spacing:-0.3px;">Giriş Yap</h2>
+                    <p id="auth-subtitle" class="text-sm mt-1" style="color:#7A8C82;">Hesabına giriş yap ve keşfetmeye başla</p>
                 </div>
 
                 <!-- Auth Form -->
                 <form id="auth-form" onsubmit="return false;" class="space-y-4">
                     <!-- Username (only register) -->
                     <div id="auth-username-group" class="hidden">
-                        <label
-                            class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Kullanıcı
-                            Adı</label>
+                        <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color:#7A8C82;">Kullanıcı Adı</label>
                         <div class="relative">
                             <input id="auth-username" type="text" placeholder="gezgin_ali"
-                                class="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 border border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 outline-none transition-all"
-                                style="background: rgba(255,255,255,0.05);">
-                            <svg class="absolute right-3 top-3.5 text-slate-500" xmlns="http://www.w3.org/2000/svg"
-                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
+                                class="w-full pl-4 pr-10 py-3.5 outline-none transition-all"
+                                style="background:#F0EBE3; border: 1.5px solid #D8E5DC; border-radius:14px; color:#2C3E35; font-size:15px;"
+                                onfocus="this.style.borderColor='#4A7A5D'; this.style.background='#fff'; this.style.boxShadow='0 0 0 3px rgba(74,122,93,0.1)'"
+                                onblur="this.style.borderColor='#D8E5DC'; this.style.background='#F0EBE3'; this.style.boxShadow='none'">
+                            <svg class="absolute right-3 top-3.5" xmlns="http://www.w3.org/2000/svg"
+                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A8C5B0" stroke-width="2">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
                             </svg>
                         </div>
                     </div>
 
                     <!-- Email -->
                     <div>
-                        <label
-                            class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">E-posta</label>
+                        <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color:#7A8C82;">E-posta</label>
                         <div class="relative">
                             <input id="auth-email" type="email" placeholder="ali@ornek.com" required
-                                class="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 border border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 outline-none transition-all"
-                                style="background: rgba(255,255,255,0.05);">
-                            <svg class="absolute right-3 top-3.5 text-slate-500" xmlns="http://www.w3.org/2000/svg"
-                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <rect width="20" height="16" x="2" y="4" rx="2" />
-                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                                class="w-full pl-4 pr-10 py-3.5 outline-none transition-all"
+                                style="background:#F0EBE3; border: 1.5px solid #D8E5DC; border-radius:14px; color:#2C3E35; font-size:15px;"
+                                onfocus="this.style.borderColor='#4A7A5D'; this.style.background='#fff'; this.style.boxShadow='0 0 0 3px rgba(74,122,93,0.1)'"
+                                onblur="this.style.borderColor='#D8E5DC'; this.style.background='#F0EBE3'; this.style.boxShadow='none'">
+                            <svg class="absolute right-3 top-3.5" xmlns="http://www.w3.org/2000/svg"
+                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A8C5B0" stroke-width="2">
+                                <rect width="20" height="16" x="2" y="4" rx="2"/>
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
                             </svg>
                         </div>
                     </div>
 
                     <!-- Password -->
                     <div>
-                        <label
-                            class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Şifre</label>
+                        <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color:#7A8C82;">Şifre</label>
                         <div class="relative">
                             <input id="auth-password" type="password" placeholder="••••••••" required minlength="6"
-                                class="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 border border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 outline-none transition-all"
-                                style="background: rgba(255,255,255,0.05);">
-                            <svg class="absolute right-3 top-3.5 text-slate-500" xmlns="http://www.w3.org/2000/svg"
-                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                class="w-full pl-4 pr-10 py-3.5 outline-none transition-all"
+                                style="background:#F0EBE3; border: 1.5px solid #D8E5DC; border-radius:14px; color:#2C3E35; font-size:15px;"
+                                onfocus="this.style.borderColor='#4A7A5D'; this.style.background='#fff'; this.style.boxShadow='0 0 0 3px rgba(74,122,93,0.1)'"
+                                onblur="this.style.borderColor='#D8E5DC'; this.style.background='#F0EBE3'; this.style.boxShadow='none'">
+                            <svg class="absolute right-3 top-3.5" xmlns="http://www.w3.org/2000/svg"
+                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A8C5B0" stroke-width="2">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                             </svg>
                         </div>
                     </div>
 
                     <!-- Error message -->
                     <div id="auth-error"
-                        class="hidden text-red-400 text-sm text-center bg-red-500/10 rounded-xl py-2 px-3"></div>
+                        class="hidden text-sm text-center py-2.5 px-3"
+                        style="color:#B85450; background:rgba(184,84,80,0.08); border-radius:12px; border:1px solid rgba(184,84,80,0.15);"></div>
 
                     <!-- Submit Button -->
                     <button id="auth-submit" type="submit" onclick="handleAuthSubmit()"
-                        class="w-full py-3.5 rounded-xl text-white font-bold text-base shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
-                        style="background: linear-gradient(135deg, #e94560, #c62368);">
+                        class="w-full font-bold text-base transition-all duration-200 mt-1"
+                        style="background: linear-gradient(135deg, #4A7A5D 0%, #6A9E7A 100%); color:#FAF7F2; padding: 14px; border-radius:16px; border:none; box-shadow: 0 6px 20px rgba(74,122,93,0.38); letter-spacing:0.2px;"
+                        onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 10px 28px rgba(74,122,93,0.45)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 20px rgba(74,122,93,0.38)'">
                         <span id="auth-btn-text">Giriş Yap</span>
                     </button>
                 </form>
 
+                <!-- Divider -->
+                <div class="flex items-center gap-3 my-5">
+                    <div class="flex-1 h-px" style="background:#E2EBE5;"></div>
+                    <span class="text-xs" style="color:#A8C5B0; font-weight:600;">veya</span>
+                    <div class="flex-1 h-px" style="background:#E2EBE5;"></div>
+                </div>
+
                 <!-- Toggle Login/Register -->
-                <div class="text-center mt-5">
-                    <p class="text-slate-400 text-sm">
+                <div class="text-center">
+                    <p class="text-sm" style="color:#7A8C82;">
                         <span id="auth-toggle-text">Hesabın yok mu?</span>
                         <button id="auth-toggle-btn" onclick="toggleAuthMode()"
-                            class="text-cyan-400 font-semibold hover:text-cyan-300 transition-colors ml-1">
+                            class="font-bold ml-1.5 transition-all"
+                            style="color:#4A7A5D; background:none; border:none; cursor:pointer; padding:2px 6px; border-radius:6px;"
+                            onmouseover="this.style.background='rgba(74,122,93,0.1)'"
+                            onmouseout="this.style.background='none'">
                             Kayıt Ol
                         </button>
                     </p>
@@ -2074,7 +2177,7 @@
 
     <!-- ========== EVENT GROUP CHAT SCREEN ========== -->
     <div id="modal-event-chat" class="hidden fixed inset-0 z-[10000]" style="font-family:'Plus Jakarta Sans',sans-serif;">
-        <div style="max-width:480px; margin:0 auto; height:100%; display:flex; flex-direction:column; background:#fff; overflow:hidden;">
+        <div style="max-width:480px; margin:0 auto; height:100%; display:flex; flex-direction:column; background:#fff; overflow:hidden; position:relative;">
 
             <!-- Header -->
             <div style="display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid #f3f4f6; flex-shrink:0; background:#fff;">
@@ -2085,9 +2188,9 @@
                     <h2 id="chat-event-title" style="font-size:14px;font-weight:700;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></h2>
                     <p id="chat-participant-count" style="font-size:11px;color:#9ca3af;margin-top:1px;"></p>
                 </div>
-                <div style="width:32px;height:32px;border-radius:50%;background:rgba(163,193,74,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <button onclick="toggleParticipantsList()" style="width:36px;height:36px;border-radius:50%;border:none;background:rgba(163,193,74,0.12);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.2s;" title="Katılımcılar">
                     <i data-lucide="users" class="w-4 h-4 text-[#A3C14A]"></i>
-                </div>
+                </button>
             </div>
 
             <!-- Messages -->
@@ -2118,11 +2221,30 @@
                 </button>
             </div>
 
+            <!-- Katılımcılar Paneli (sağdan açılır) -->
+            <div id="chat-participants-panel" style="position:absolute;top:0;right:0;bottom:0;width:260px;background:#fff;box-shadow:-4px 0 20px rgba(0,0,0,0.12);transform:translateX(100%);transition:transform 0.25s ease;z-index:10;display:flex;flex-direction:column;">
+                <!-- Panel Header -->
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid #f3f4f6;flex-shrink:0;">
+                    <div>
+                        <p style="font-weight:700;font-size:14px;color:#1a1a1a;margin:0;">Katılımcılar</p>
+                        <p id="participants-panel-count" style="font-size:11px;color:#9ca3af;margin:2px 0 0;"></p>
+                    </div>
+                    <button onclick="toggleParticipantsList()" style="width:30px;height:30px;border-radius:50%;border:none;background:#f3f4f6;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#6b7280;line-height:1;">&times;</button>
+                </div>
+                <!-- Panel List -->
+                <div id="chat-participants-list" style="flex:1;overflow-y:auto;padding:12px 8px;">
+                    <div style="text-align:center;padding:32px 16px;color:#9ca3af;font-size:13px;">Yükleniyor...</div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-        <!-- App Script -->
-    <script src="app.js"></script>
+        <!-- app.js devre dışı — bootstrap.js (ES modules) tek giriş noktası -->
+    <!-- <script src="app.js"></script> -->
+
+    <!-- Module Bootstrap — tek giriş noktası (ES modules) -->
+    <script type="module" src="js/bootstrap.js"></script>
 
     <!-- ========== PLAN DETAIL AI DETAIL MODAL ========== -->
     <div id="modal-pd-ai-detail" class="hidden fixed inset-0 z-[10000]" style="font-family:'Plus Jakarta Sans',sans-serif;">
@@ -2187,6 +2309,141 @@
             </div>
             <!-- Result -->
             <div id="ai-itinerary-result" class="flex-1 overflow-y-auto px-5 pb-6" style="min-height:0;"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         CUSTOM DATE PICKER OVERLAY
+         ═══════════════════════════════════════════════════════════════ -->
+    <div id="custom-cal-overlay"
+        style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; padding:20px;"
+        onclick="if(event.target===this) closeCalendar()">
+        <div style="background:#fff; border-radius:24px; padding:20px 16px; width:100%; max-width:340px;">
+            <!-- Header -->
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+                <button type="button" onclick="calNav(-1)"
+                    style="width:36px;height:36px;border-radius:50%;border:none;background:#f5f5f0;cursor:pointer;font-size:20px;color:#1a1a1a;display:flex;align-items:center;justify-content:center;">‹</button>
+                <span id="cal-month-label" style="font-size:16px;font-weight:700;color:#1a1a1a;"></span>
+                <button type="button" onclick="calNav(1)"
+                    style="width:36px;height:36px;border-radius:50%;border:none;background:#f5f5f0;cursor:pointer;font-size:20px;color:#1a1a1a;display:flex;align-items:center;justify-content:center;">›</button>
+            </div>
+            <!-- Day name headers -->
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;text-align:center;">
+                <div style="font-size:11px;font-weight:600;color:#9ca3af;">Pt</div>
+                <div style="font-size:11px;font-weight:600;color:#9ca3af;">Sa</div>
+                <div style="font-size:11px;font-weight:600;color:#9ca3af;">Ça</div>
+                <div style="font-size:11px;font-weight:600;color:#9ca3af;">Pe</div>
+                <div style="font-size:11px;font-weight:600;color:#9ca3af;">Cu</div>
+                <div style="font-size:11px;font-weight:600;color:#9ca3af;">Ct</div>
+                <div style="font-size:11px;font-weight:600;color:#9ca3af;">Pa</div>
+            </div>
+            <!-- Day grid — JS rendered -->
+            <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;"></div>
+            <!-- Footer -->
+            <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+                <button type="button" onclick="closeCalendar()"
+                    style="padding:8px 20px;border-radius:50px;border:none;background:#f5f5f0;font-size:14px;font-weight:600;color:#6b7280;cursor:pointer;">
+                    İptal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         STORY VIEWER OVERLAY
+         ═══════════════════════════════════════════════════════════════ -->
+    <div id="story-viewer-overlay" class="fixed inset-0 z-[10000] bg-black hidden flex-col">
+        <!-- Progress bars -->
+        <div id="story-progress-bars" class="flex gap-1 px-3 pt-4 pb-2"></div>
+        <!-- Header -->
+        <div class="flex items-center justify-between px-3 pb-2">
+            <div class="flex items-center gap-2">
+                <span id="sv-country-name" class="text-white font-bold text-sm"></span>
+                <span id="sv-story-index" class="text-white/60 text-xs"></span>
+            </div>
+            <div class="flex items-center gap-1">
+                <!-- 3 nokta menü -->
+                <div class="relative">
+                    <button id="sv-menu-btn" onclick="toggleStoryMenu()"
+                        class="text-white w-8 h-8 flex items-center justify-center">
+                        <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                    </button>
+                    <div id="sv-menu-dropdown"
+                        class="hidden absolute right-0 top-9 bg-white rounded-xl shadow-xl overflow-hidden min-w-[150px] z-10">
+                        <button onclick="deleteCurrentStory()"
+                            class="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-500 hover:bg-red-50 active:bg-red-100">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            Hikayeyi Sil
+                        </button>
+                    </div>
+                </div>
+                <button onclick="closeStoryViewer()" class="text-white w-8 h-8 flex items-center justify-center">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Story image -->
+        <div class="relative flex-1 flex items-center justify-center overflow-hidden">
+            <img id="sv-media" src="" alt="" class="max-w-full max-h-full object-contain">
+            <!-- Tap left -->
+            <div class="absolute left-0 top-0 w-1/3 h-full cursor-pointer" onclick="storyPrev()"></div>
+            <!-- Tap right -->
+            <div class="absolute right-0 top-0 w-1/3 h-full cursor-pointer" onclick="storyNext()"></div>
+        </div>
+        <!-- Caption -->
+        <div class="px-4 pb-6">
+            <p id="sv-caption" class="text-white/80 text-sm text-center"></p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         STORY ADD MODAL — TAM EKRAN
+         ═══════════════════════════════════════════════════════════════ -->
+    <div id="story-add-modal" class="fixed inset-0 z-[10000] bg-black hidden flex-col">
+        <!-- Top bar -->
+        <div class="flex items-center px-4 pt-10 pb-3">
+            <button onclick="closeStoryAdd()" class="text-white w-8 h-8 flex items-center justify-center">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <span class="flex-1 text-center text-white font-bold text-sm">Hikaye Ekle</span>
+            <div class="w-8"></div>
+        </div>
+
+        <!-- Photo area -->
+        <div class="relative flex-1 flex items-center justify-center overflow-hidden cursor-pointer bg-[#111]"
+             onclick="document.getElementById('story-file-input').click()">
+            <img id="story-preview-img" src="" alt="" class="w-full h-full object-cover hidden">
+            <div id="story-upload-placeholder" class="flex flex-col items-center gap-3 text-white/50">
+                <i data-lucide="image-plus" class="w-16 h-16"></i>
+                <span class="text-base font-medium text-white/70">Fotoğraf seç</span>
+                <span class="text-xs">veya galerinden yükle</span>
+            </div>
+        </div>
+        <input type="file" id="story-file-input" accept="image/*" class="hidden" onchange="onStoryFileSelected(event)">
+
+        <!-- Bottom controls -->
+        <div class="px-4 pt-4 pb-24 bg-black">
+            <!-- Country -->
+            <div class="flex gap-2 mb-3">
+                <input id="story-country-name" type="text" placeholder="Konum algılanıyor…"
+                    class="flex-1 bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/40 outline-none focus:border-white/60">
+                <input id="story-country-code" type="hidden" value="">
+                <button onclick="detectStoryLocation()"
+                    class="bg-white/10 text-white px-3 py-2.5 rounded-xl border border-white/20">
+                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <!-- Caption -->
+            <div class="mb-4">
+                <input id="story-caption-input" type="text" maxlength="300"
+                    placeholder="Ne hissediyorsun?"
+                    class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/40 outline-none focus:border-white/60">
+            </div>
+            <!-- Submit -->
+            <button onclick="submitStory()" id="story-submit-btn"
+                class="w-full bg-[#9CAF88] text-white font-bold py-3.5 rounded-xl text-base active:scale-95 transition-transform disabled:opacity-50">
+                Yayınla
+            </button>
         </div>
     </div>
 </body>

@@ -1,0 +1,13 @@
+{
+  "appId": "com.planigo.app",
+  "appName": "PLANİGO",
+  "webDir": "frontend",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
+}

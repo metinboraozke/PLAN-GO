@@ -1360,6 +1360,12 @@ p, span, li, label { font-weight: 400; }
   overflow-x: hidden;
 }
 
+/* Dünya Haritası fullscreen overlay — Leaflet tam doldursun */
+#fullscreen-map-container .leaflet-container {
+  width:  100% !important;
+  height: 100% !important;
+}
+
 /* Profile content vertical spacing */
 #screen-profile .space-y-8 > * + * {
   margin-top: 2rem; /* 32px — prevent overlap */

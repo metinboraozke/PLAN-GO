@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Firebase service account — NEVER commit
+firebase-service-account.json
+
 # Python
 __pycache__/
 *.pyc
@@ -27,3 +30,16 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Android build artifacts
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+
+# Misc
+null
