@@ -11,8 +11,13 @@ _firebase_app = None
 def _get_firebase_app():
     global _firebase_app
     if _firebase_app is None:
-        sa_path = os.getenv("FIREBASE_SERVICE_ACCOUNT", "firebase-service-account.json")
-        cred = credentials.Certificate(sa_path)
+        sa_env = os.getenv("FIREBASE_SERVICE_ACCOUNT", "firebase-service-account.json")
+        # Env var JSON string mi yoksa dosya yolu mu?
+        if sa_env.strip().startswith("{"):
+            import json
+            cred = credentials.Certificate(json.loads(sa_env))
+        else:
+            cred = credentials.Certificate(sa_env)
         _firebase_app = firebase_admin.initialize_app(cred)
     return _firebase_app
 
