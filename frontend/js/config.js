@@ -2,7 +2,7 @@
  * PLANİGO - Global Configuration Constants
  */
 
-export const API_BASE = 'http://localhost:8025/api/v1';
+export const API_BASE = 'https://resplendent-abundance-pax.up.railway.app/api/v1';
 
 export const DEFAULT_LOCATION = { lat: 41.0082, lng: 28.9784 };
 export const DEFAULT_ZOOM = 13;
