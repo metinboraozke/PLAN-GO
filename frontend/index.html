@@ -3,9 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#7a8a2e">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="manifest" href="/manifest.json">
     <title>PLANİGO - Akıllı Seyahat Planlayıcı</title>
 
@@ -2446,6 +2447,21 @@
             </button>
         </div>
     </div>
+
+    <!-- ═══════════════════════════════════════════════
+         CAPACITOR NATIVE BRIDGE
+         window.Capacitor is injected automatically by
+         the native WebView — no CDN import needed
+         ═══════════════════════════════════════════════ -->
+    <script>
+      (function() {
+        // Capacitor injects window.Capacitor before page load on native
+        if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+          document.documentElement.classList.add('native-app');
+          console.log('[Capacitor] Running on:', window.Capacitor.getPlatform());
+        }
+      })();
+    </script>
 </body>
 
 </html>

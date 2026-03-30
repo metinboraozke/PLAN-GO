@@ -105,6 +105,54 @@ export async function initializeMap() {
 // ── Geolocation ───────────────────────────────────────────────────────────────
 
 async function getUserLocation() {
+    // Capacitor native platform → use Capacitor Geolocation plugin for proper permission dialog
+    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        return _getLocationNative();
+    }
+    return _getLocationWeb();
+}
+
+async function _getLocationNative() {
+    try {
+        // Capacitor injects plugins into window.Capacitor.Plugins — no CDN import needed
+        const Geolocation = window.Capacitor.Plugins.Geolocation;
+        if (!Geolocation) throw new Error('Geolocation plugin not found');
+
+        // Request permission — shows Android system dialog
+        const perm = await Geolocation.requestPermissions();
+        if (perm.location !== 'granted' && perm.coarseLocation !== 'granted') {
+            _showLocationError();
+            return DEFAULT_LOCATION;
+        }
+
+        // Get initial position
+        const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000 });
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        _userLocation = loc;
+        if (_map) _map.setView([loc.lat, loc.lng], 15);
+        addUserMarker(loc);
+        _updateLocationStatus(true);
+
+        // Watch for updates
+        _watchId = await Geolocation.watchPosition(
+            { enableHighAccuracy: true },
+            (position, err) => {
+                if (err || !position) return;
+                const updated = { lat: position.coords.latitude, lng: position.coords.longitude };
+                _userLocation = updated;
+                addUserMarker(updated);
+            }
+        );
+
+        return loc;
+    } catch (e) {
+        console.warn('[Capacitor Geolocation] error:', e);
+        _showLocationError();
+        return DEFAULT_LOCATION;
+    }
+}
+
+function _getLocationWeb() {
     return new Promise((resolve) => {
         if (!navigator.geolocation) {
             _showLocationError();
@@ -112,7 +160,6 @@ async function getUserLocation() {
             return;
         }
 
-        // Önceki watch varsa temizle
         if (_watchId != null) {
             navigator.geolocation.clearWatch(_watchId);
             _watchId = null;
@@ -124,12 +171,7 @@ async function getUserLocation() {
             (position) => {
                 const loc = { lat: position.coords.latitude, lng: position.coords.longitude };
                 _userLocation = loc;
-
-                const statusEl = document.getElementById('location-status');
-                if (statusEl) {
-                    statusEl.textContent = '📍 Konumunuz';
-                    statusEl.className = 'text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full font-medium';
-                }
+                _updateLocationStatus(true);
 
                 if (firstUpdate) {
                     if (_map) _map.setView([loc.lat, loc.lng], 15);
@@ -157,6 +199,15 @@ async function getUserLocation() {
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
         );
     });
+}
+
+function _updateLocationStatus(granted) {
+    const statusEl = document.getElementById('location-status');
+    if (!statusEl) return;
+    if (granted) {
+        statusEl.textContent = '📍 Konumunuz';
+        statusEl.className = 'text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full font-medium';
+    }
 }
 
 function _showLocationError() {
