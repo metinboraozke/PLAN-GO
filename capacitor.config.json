@@ -1,6 +1,6 @@
 {
   "appId": "com.planigo.app",
-  "appName": "PLANİGO",
+  "appName": "PAX",
   "webDir": "frontend",
   "server": {
     "androidScheme": "https",

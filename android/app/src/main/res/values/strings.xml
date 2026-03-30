@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">PLANİGO</string>
-    <string name="title_activity_main">PLANİGO</string>
+    <string name="app_name">PAX</string>
+    <string name="title_activity_main">PAX</string>
     <string name="package_name">com.planigo.app</string>
     <string name="custom_url_scheme">com.planigo.app</string>
 </resources>
