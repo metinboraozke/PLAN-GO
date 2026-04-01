@@ -597,7 +597,8 @@ class UserProfileInDB(UserProfileBase):
     """Internal model for database operations."""
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    
+    fcm_token: Optional[str] = None   # Firebase Cloud Messaging device token
+
     def to_dict(self) -> dict:
         return {
             "username": self.username,
@@ -676,14 +677,14 @@ class FlightLeg(BaseModel):
     arrival_code: str = Field(..., description="Varış havalimanı kodu (CDG)")
     departure_city: Optional[str] = Field(None, description="Kalkış şehri")
     arrival_city: Optional[str] = Field(None, description="Varış şehri")
-    departure_time: str = Field(..., description="Kalkış saati HH:MM")
-    arrival_time: str = Field(..., description="Varış saati HH:MM")
+    departure_time: Optional[str] = Field(None, description="Kalkış saati HH:MM")
+    arrival_time: Optional[str] = Field(None, description="Varış saati HH:MM")
     duration: Optional[str] = Field(None, description="Uçuş süresi (ör. 3s 30dk)")
     stops: int = Field(default=0, ge=0, description="Aktarma sayısı")
-    airline: str = Field(..., description="Havayolu adı")
+    airline: Optional[str] = Field(None, description="Havayolu adı")
     airline_logo_url: Optional[str] = Field(None, description="Havayolu logo URL")
     flight_number: Optional[str] = Field(None, description="Uçuş numarası")
-    price: float = Field(..., gt=0, description="Uçuş fiyatı")
+    price: float = Field(default=0.0, ge=0, description="Uçuş fiyatı")
     currency: str = Field(default="TRY")
     cabin_class: str = Field(default="economy")
 
@@ -691,12 +692,12 @@ class FlightLeg(BaseModel):
 class HotelOption(BaseModel):
     """Otel alternatifi — Seyahat Detay Ekranı (en fazla 3 seçenek)."""
     hotel_name: str = Field(..., description="Otel adı")
-    stars: int = Field(default=3, ge=1, le=5, description="Yıldız sayısı")
+    stars: int = Field(default=3, ge=0, le=5, description="Yıldız sayısı")
     rating: Optional[float] = Field(None, ge=0, le=10, description="Kullanıcı puanı (0-10)")
     image_url: Optional[str] = Field(None, description="Otel görseli URL")
     address: Optional[str] = Field(None, description="Otel adresi")
-    price_per_night: float = Field(..., gt=0, description="Gecelik fiyat")
-    total_price: float = Field(..., gt=0, description="Toplam konaklama fiyatı")
+    price_per_night: float = Field(default=0.0, ge=0, description="Gecelik fiyat")
+    total_price: float = Field(default=0.0, ge=0, description="Toplam konaklama fiyatı")
     currency: str = Field(default="TRY")
     nights: int = Field(..., ge=1, description="Konaklama gece sayısı")
     room_type: str = Field(default="Standard Oda")
@@ -773,8 +774,8 @@ class WishlistBase(BaseModel):
     start_date: Optional[date] = Field(None, description="Trip start date")
     end_date: Optional[date] = Field(None, description="Trip end date")
     date_type: DateType = Field(default=DateType.FIXED, description="Date flexibility type")
-    target_price: Optional[float] = Field(None, gt=0, description="Target total budget (Legacy)")
-    budget: Optional[float] = Field(None, gt=0, description="User defined budget")
+    target_price: Optional[float] = Field(None, ge=0, description="Target total budget (Legacy)")
+    budget: Optional[float] = Field(None, ge=0, description="User defined budget")
     currency: str = Field(default="TRY", max_length=3)
     is_active: bool = Field(default=True, description="Whether price tracking is active")
     status: TripStatus = Field(default=TripStatus.TRACKING)
@@ -798,6 +799,7 @@ class WishlistCreate(BaseModel):
     destination_lng: Optional[float] = Field(None, description="Longitude coordinate")
     destination_country: Optional[str] = Field(None, max_length=100, description="Country name")
     destination_country_code: Optional[str] = Field(None, max_length=3, description="ISO country code")
+    destination_iata: Optional[str] = Field(None, max_length=3, description="Destination airport IATA code (e.g. ADB, CDG)")
     
     start_date: Optional[date] = None
     end_date: Optional[date] = None
@@ -821,13 +823,16 @@ class WishlistResponse(WishlistBase):
     """Model for wishlist response with database ID and itinerary."""
     id: Optional[str] = Field(None, alias="_id", description="MongoDB document ID")
     itinerary_items: List[ItineraryItem] = Field(default_factory=list)
-    trip_details: Optional[TripDetail] = Field(None, description="Zengin seyahat detay verisi (scraper sonrası)")
+    trip_details: Optional[Dict[str, Any]] = Field(None, description="Zengin seyahat detay verisi (scraper sonrası)")
+    current_price: Optional[float] = Field(None, description="En güncel bulunan fiyat")
+    scrape_status: Optional[str] = Field(None, description="Tarama durumu: pending/ready/no_data/error")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     last_scraped_at: Optional[datetime] = Field(None)
-    
+
     class Config:
         populate_by_name = True
+        extra = 'ignore'
         json_encoders = {
             ObjectId: str,
             datetime: lambda v: v.isoformat(),
@@ -868,6 +873,37 @@ class WishlistInDB(WishlistBase):
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "last_scraped_at": self.last_scraped_at
+        }
+
+
+# ============================================================================
+#                         STORY MODELS — Hikayeler
+# ============================================================================
+
+class StoryCreate(BaseModel):
+    """Yeni story oluşturma modeli."""
+    country_code: str = Field(..., description="ISO 2-harf ülke kodu (FR, TR vb.)")
+    country_name: str = Field(..., description="Türkçe ülke adı")
+    media_url: str    = Field(..., description="Base64 data URL (image/jpeg;base64,...)")
+    caption: Optional[str] = Field(None, max_length=300, description="Açıklama (opsiyonel)")
+
+
+class StoryResponse(BaseModel):
+    """Story response modeli."""
+    id: Optional[str] = Field(None, alias="_id")
+    user_id: str
+    country_code: str
+    country_name: str
+    media_url: str
+    caption: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        populate_by_name = True
+        extra = 'ignore'
+        json_encoders = {
+            ObjectId: str,
+            datetime: lambda v: v.isoformat(),
         }
 
 
@@ -924,6 +960,9 @@ class PlanDetailsResponse(BaseModel):
     end_date: Optional[str] = None
     image_url: Optional[str] = None
 
+    # Kullanıcının girdiği hedef bütçe (scraper bağımsız)
+    budget: Optional[float] = None
+
     # Trip detail fields (scraper sonrası)
     trip_type: str = "bireysel"
     nights: int = 0
@@ -939,7 +978,7 @@ class PlanDetailsResponse(BaseModel):
     # Durum bilgisi
     scrape_status: str = Field(
         default="pending",
-        description="Scraper durumu: 'ready' | 'pending' | 'error'"
+        description="Scraper durumu: 'ready' | 'pending' | 'error' | 'no_data'"
     )
     last_scraped_at: Optional[str] = None
 
@@ -1024,4 +1063,5 @@ class TokenResponse(BaseModel):
     user_id: str = Field(..., description="User ID")
     username: str = Field(..., description="Username")
     email: str = Field(..., description="User email")
+    avatar_url: Optional[str] = Field(None, description="Profile picture URL")
 

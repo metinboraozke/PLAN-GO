@@ -1,0 +1,59 @@
+{
+  "appId": "com.planigo.app",
+  "appName": "PAX",
+  "webDir": "frontend",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": false,
+    "allowNavigation": [
+      "resplendent-abundance-pax.up.railway.app",
+      "*.googleapis.com",
+      "*.gstatic.com",
+      "fonts.googleapis.com",
+      "unpkg.com",
+      "cdn.jsdelivr.net",
+      "cdn.tailwindcss.com",
+      "tile.openstreetmap.org",
+      "*.basemaps.cartocdn.com",
+      "source.unsplash.com",
+      "images.unsplash.com"
+    ]
+  },
+  "ios": {
+    "scheme": "planigo",
+    "contentInset": "automatic",
+    "allowsLinkPreview": false,
+    "scrollEnabled": true,
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#FDFCF8",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#FDFCF8",
+      "overlaysWebView": true
+    },
+    "Camera": {
+      "ios": {
+        "usageDescription": "PLANİGO fotoğraflarını paylaşmak ve profil fotoğrafı yüklemek için kameraya erişim gerekiyor."
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "869041581130",
+    "project_id": "planigo-21b00",
+    "storage_bucket": "planigo-21b00.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:869041581130:android:72ac36909d04e6c1524ab3",
+        "android_client_info": {
+          "package_name": "com.planigo.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAtf8q6wgeSRdxTjkiSTrDLPj6bJ-Mf_0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -214,6 +214,12 @@ const api = {
 // ============================================
 
 function navigate(screenName) {
+    // Modül router varsa ona devret
+    if (window._moduleNavigate) {
+        window._moduleNavigate(screenName);
+        return;
+    }
+    // Legacy fallback
     console.log(`🧭 Navigating to: ${screenName}`);
 
     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
@@ -6399,12 +6405,17 @@ document.addEventListener('DOMContentLoaded', () => {
     initDestinationAutocomplete();
     setupDeleteModalListeners();
 
-    // AUTH GATE: Check if user is logged in
-    if (!isAuthenticated()) {
-        showAuthModal();
+    // AUTH GATE: Modül varsa o yönetir; yoksa legacy fallback
+    if (window._authModuleReady) {
+        // bootstrap.js'deki auth modülü auth gate'i kendi DOMContentLoaded'ında yönetir
+        console.log('[app.js] Auth gate modüle devredildi.');
     } else {
-        syncProfileFromAuth();
-        navigate('planner');
+        if (!isAuthenticated()) {
+            showAuthModal();
+        } else {
+            syncProfileFromAuth();
+            navigate('planner');
+        }
     }
 });
 

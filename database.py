@@ -58,9 +58,9 @@ class DatabaseManager:
                 cls._client.close()
                 cls._client = None
                 cls._database = None
-                print("🔌 MongoDB bağlantısı kapatıldı")
+                print("[OK] MongoDB baglantisi kapatildi")
         except Exception as e:
-            print(f"❌ Bağlantı kapatma hatası: {e}")
+            print("[ERR] Baglanti kapatma hatasi: " + str(e))
             raise e
     
     @classmethod
@@ -117,8 +117,8 @@ class DatabaseManager:
             return documents
             
         except Exception as e:
-            print(f"❌ find_all hatası ({collection_name}): {e}")
-            return []
+            # Exception'ı fırlat — sessiz [] dönüşü planların "kaybolmasına" yol açar
+            raise RuntimeError(f"[DB] find_all hatası ({collection_name}): {e}") from e
     
     @classmethod
     async def find_one(
@@ -300,6 +300,7 @@ COLLECTIONS = {
     "join_requests": "join_requests",
     "event_chat":    "event_chat",
     "notifications": "notifications",
+    "stories":       "stories",
 }
 
 
@@ -448,6 +449,16 @@ class UserService:
         )
         return result.modified_count > 0
 
+    @staticmethod
+    async def find_with_fcm_tokens() -> List[Dict]:
+        """FCM token'ı olan tüm kullanıcıları döner (push notification için)."""
+        collection = DatabaseManager.get_collection(COLLECTIONS["users"])
+        cursor = collection.find(
+            {"fcm_token": {"$exists": True, "$ne": ""}},
+            {"_id": 1, "fcm_token": 1, "username": 1},
+        )
+        return [doc async for doc in cursor]
+
 
 class EventPinService:
     """Service class for PAX EventPin operations."""
@@ -488,6 +499,18 @@ class EventPinService:
         return await DatabaseManager.count(
             COLLECTIONS["join_requests"], {"event_id": event_id}
         )
+
+    @staticmethod
+    async def batch_count_join_requests(event_ids: list) -> dict:
+        collection = DatabaseManager.get_collection(COLLECTIONS["join_requests"])
+        pipeline = [
+            {"$match": {"event_id": {"$in": event_ids}}},
+            {"$group": {"_id": "$event_id", "count": {"$sum": 1}}}
+        ]
+        counts = {}
+        async for doc in collection.aggregate(pipeline):
+            counts[doc["_id"]] = doc["count"]
+        return counts
 
 
 class JoinRequestService:
@@ -559,6 +582,36 @@ class NotificationService:
         )
 
 
+class StoryService:
+    """Service class for user story operations."""
+
+    @staticmethod
+    async def find_by_user(user_id: str) -> List[Dict]:
+        """Kullanıcının tüm story'lerini en yeniden eskiye sırala."""
+        collection = DatabaseManager.get_collection(COLLECTIONS["stories"])
+        cursor = collection.find({"user_id": user_id}).sort("created_at", -1)
+        results = []
+        async for doc in cursor:
+            doc["_id"] = str(doc["_id"])
+            results.append(doc)
+        return results
+
+    @staticmethod
+    async def create(data: Dict) -> Optional[str]:
+        return await DatabaseManager.insert_one(COLLECTIONS["stories"], data)
+
+    @staticmethod
+    async def delete(story_id: str, user_id: str) -> bool:
+        """Sadece kendi story'sini silebilir."""
+        if not ObjectId.is_valid(story_id):
+            return False
+        collection = DatabaseManager.get_collection(COLLECTIONS["stories"])
+        result = await collection.delete_one(
+            {"_id": ObjectId(story_id), "user_id": user_id}
+        )
+        return result.deleted_count > 0
+
+
 # ============== SEED DATA FUNCTION (DISABLED) ==============
 
 async def seed_data():
@@ -566,8 +619,7 @@ async def seed_data():
     Seed function disabled - Application starts with empty database.
     All data is created dynamically by the user.
     """
-    print("\n✅ Uygulama boş veritabanı ile başlıyor - seed verisi eklenmedi.")
-    print("   📝 Kullanıcılar kendi planlarını oluşturabilir.")
+    print("[OK] Uygulama bos veritabani ile basliyor - seed verisi eklenmedi.")
     return None
 
 

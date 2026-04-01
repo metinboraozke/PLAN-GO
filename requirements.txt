@@ -2,6 +2,11 @@
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
 
+# Authentication
+python-jose[cryptography]>=3.3.0
+bcrypt>=4.0.0
+passlib[bcrypt]>=1.7.4
+
 # MongoDB async driver
 motor>=3.3.2
 
@@ -11,12 +16,17 @@ pydantic>=2.5.0
 # Environment variables
 python-dotenv>=1.0.0
 
-# Web scraping with stealth
-playwright>=1.41.0
-playwright-stealth>=1.0.6
-
 # MongoDB connection (for srv support)
 pymongo[srv]>=4.6.0
 
 # Gemini AI
 google-genai>=1.0.0
+
+# Periodic scheduling (4-hour rescrape)
+apscheduler>=3.10.4
+
+# Testing
+httpx>=0.27.0
+
+# Firebase push notifications
+firebase-admin>=6.4.0
