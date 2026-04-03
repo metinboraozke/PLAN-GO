@@ -1008,7 +1008,7 @@ async function renderProfileWishlist() {
         container.innerHTML = wishlists.slice(0, 3).map(w => `
             <div class="wishlist-card group cursor-pointer"
                  onclick="navigate('planner'); openPlannerDetail('${escapeHtml(w._id || w.id || '')}')">
-                <img src="${escapeHtml(w.image_url || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=200&q=80')}"
+                <img src="${escapeHtml(w.image_url || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=200&q=80&fm=jpg')}"
                      class="wishlist-thumb"
                      alt="${escapeHtml(w.destination || '')}">
                 <div class="flex-1">

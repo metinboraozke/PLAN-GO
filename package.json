@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "sync:android": "npx cap sync android",
+    "vendor": "node -e \"const fs=require('fs');fs.mkdirSync('frontend/public/vendor',{recursive:true});['leaflet/dist/leaflet.css','leaflet/dist/leaflet.js'].forEach(f=>fs.copyFileSync('node_modules/'+f,'frontend/public/vendor/'+f.split('/').pop()));fs.copyFileSync('node_modules/lucide/dist/umd/lucide.min.js','frontend/public/vendor/lucide.min.js');console.log('Vendor OK')\"",
+    "build:css": "tailwindcss -i ./frontend/input.css -o ./frontend/tailwind.css --minify",
+    "build": "npm run vendor && npm run build:css",
+    "dev": "tailwindcss -i ./frontend/input.css -o ./frontend/tailwind.css --watch",
+    "sync": "npm run build && npx cap sync",
+    "sync:android": "npm run build && npx cap sync android",
+    "sync:ios": "npm run build && npx cap sync ios",
     "open:android": "npx cap open android"
   },
   "dependencies": {
@@ -15,9 +21,14 @@
     "@capacitor/haptics": "^6.0.3",
     "@capacitor/push-notifications": "^6.0.0",
     "@capacitor/splash-screen": "^6.0.4",
-    "@capacitor/status-bar": "^6.0.3"
+    "@capacitor/status-bar": "^6.0.3",
+    "leaflet": "^1.9.4",
+    "lucide": "^1.7.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.0.0"
+    "@capacitor/cli": "^6.0.0",
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.19"
   }
 }

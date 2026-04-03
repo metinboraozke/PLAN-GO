@@ -298,7 +298,7 @@ export function buildFlightCardHtml(f, isReturn = false, planDate = null) {
  * @returns {string} HTML string
  */
 export function buildHotelCardHtml(h, nights) {
-    const img      = h.image_url   || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80';
+    const img      = h.image_url   || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80&fm=jpg';
     const name     = h.hotel_name  || 'Otel';
     const addr     = h.address     || '';
     const stars    = h.stars       || 3;
@@ -307,7 +307,7 @@ export function buildHotelCardHtml(h, nights) {
 
     return `
     <div class="pd-hotel-card">
-        <img src="${img}" class="pd-hotel-image" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80'">
+        <img src="${img}" class="pd-hotel-image" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80&fm=jpg'">
         <div class="pd-hotel-overlay">
             <div class="pd-hotel-stars" style="color:#F59E0B;font-size:13px">${starsHtml}</div>
             <div class="pd-hotel-name">${escapeHtml(name)}</div>
@@ -333,7 +333,7 @@ export function renderHotelOptions(hotels, selectedIdx) {
     if (!hotels.length) { container.innerHTML = ''; return; }
 
     container.innerHTML = hotels.map((h, i) => {
-        const img   = h.image_url   || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=60';
+        const img   = h.image_url   || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=60&fm=jpg';
         const name  = h.hotel_name  || 'Otel';
         const stars = '★'.repeat(h.stars || 3);
         const price = formatPrice(h.total_price || 0, h.currency || 'TRY');
@@ -341,7 +341,7 @@ export function renderHotelOptions(hotels, selectedIdx) {
 
         return `
         <div class="pd-hotel-opt ${sel}" onclick="window._pdSelectHotelOption(${i})">
-            <img src="${img}" class="pd-hotel-opt-thumb" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=60'">
+            <img src="${img}" class="pd-hotel-opt-thumb" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=60&fm=jpg'">
             <div class="pd-hotel-opt-info">
                 <div class="pd-hotel-opt-name">${escapeHtml(name)}</div>
                 <div class="pd-hotel-opt-stars">${stars}</div>

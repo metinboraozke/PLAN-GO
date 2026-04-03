@@ -10,8 +10,8 @@
     <link rel="manifest" href="/manifest.json">
     <title>PLANİGO - Akıllı Seyahat Planlayıcı</title>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS — local build (no CDN, works in iOS WebView) -->
+    <link rel="stylesheet" href="tailwind.css">
 
     <!-- Google Fonts — Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,14 +19,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
         rel="stylesheet">
 
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Lucide Icons — local vendor bundle -->
+    <script src="public/vendor/lucide.min.js"></script>
 
-    <!-- Leaflet.js Map Library -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Leaflet.js Map Library — local vendor bundle -->
+    <link rel="stylesheet" href="public/vendor/leaflet.css">
+    <script src="public/vendor/leaflet.js"></script>
 
     <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css">
@@ -283,7 +281,7 @@
                     </div>
 
                     <div class="deal-card-wide" id="deal-of-day-card">
-                        <img src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?q=80&w=2071&auto=format&fit=crop"
+                        <img src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?q=80&w=2071&fit=crop&fm=jpg"
                             alt="Istanbul">
                         <div class="deal-card-overlay-gradient"></div>
                         <!-- Top badges row -->
@@ -329,7 +327,7 @@
                         <!-- Atina -->
                         <div class="escape-card escape-stagger" style="animation-delay:0ms">
                             <div class="escape-card-img">
-                                <img src="https://images.unsplash.com/photo-1616489953121-042239c4ca94?w=500&auto=format&fit=crop&q=60" alt="Atina">
+                                <img src="https://images.unsplash.com/photo-1616489953121-042239c4ca94?w=500&fit=crop&q=60&fm=jpg" alt="Atina">
                                 <span class="escape-card-city">Atina</span>
                                 <span class="escape-card-duration">✈️ 1sa 20dk &nbsp;·&nbsp; 🌙 3 Gece</span>
                             </div>
@@ -344,7 +342,7 @@
                         <!-- Tokyo -->
                         <div class="escape-card escape-stagger" style="animation-delay:80ms">
                             <div class="escape-card-img">
-                                <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=500&auto=format&fit=crop&q=60" alt="Tokyo">
+                                <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=500&fit=crop&q=60&fm=jpg" alt="Tokyo">
                                 <span class="escape-card-city">Tokyo</span>
                                 <span class="escape-card-duration">✈️ 11sa 30dk &nbsp;·&nbsp; 🌙 7 Gece</span>
                             </div>
@@ -1827,7 +1825,7 @@
                             <!-- Antalya -->
                             <div class="popular-route-chip" data-dest="Antalya"
                                 style="flex-shrink:0; width:140px; height:100px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer; scroll-snap-align:start;">
-                                <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-4.0.3&fit=crop&w=600&q=80&fm=jpg"
                                     alt="Antalya" style="width:100%; height:100%; object-fit:cover;">
                                 <div
                                     style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);">
@@ -1847,7 +1845,7 @@
                             <!-- Paris -->
                             <div class="popular-route-chip" data-dest="Paris"
                                 style="flex-shrink:0; width:140px; height:100px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer; scroll-snap-align:start;">
-                                <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?ixlib=rb-4.0.3&fit=crop&w=600&q=80&fm=jpg"
                                     alt="Paris" style="width:100%; height:100%; object-fit:cover;">
                                 <div
                                     style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);">
@@ -1867,7 +1865,7 @@
                             <!-- Roma -->
                             <div class="popular-route-chip" data-dest="Roma"
                                 style="flex-shrink:0; width:140px; height:100px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer; scroll-snap-align:start;">
-                                <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?ixlib=rb-4.0.3&fit=crop&w=600&q=80&fm=jpg"
                                     alt="Roma" style="width:100%; height:100%; object-fit:cover;">
                                 <div
                                     style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);">
@@ -1887,7 +1885,7 @@
                             <!-- Bali -->
                             <div class="popular-route-chip" data-dest="Bali"
                                 style="flex-shrink:0; width:140px; height:100px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer; scroll-snap-align:start;">
-                                <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&fit=crop&w=600&q=80&fm=jpg"
                                     alt="Bali" style="width:100%; height:100%; object-fit:cover;">
                                 <div
                                     style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);">

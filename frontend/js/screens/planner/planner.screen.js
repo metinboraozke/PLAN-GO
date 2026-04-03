@@ -222,13 +222,13 @@ export function renderWishlists() {
 
 // ── Card Builders ──────────────────────────────────────────────────────────
 const _CITY_IMAGES = {
-    'paris':     'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=300&q=80',
-    'london':    'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=300&q=80',
-    'rome':      'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=300&q=80',
-    'barcelona': 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=300&q=80',
-    'amsterdam': 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=300&q=80',
-    'dubai':     'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&q=80',
-    'istanbul':  'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=300&q=80',
+    'paris':     'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=300&q=80&fm=jpg',
+    'london':    'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=300&q=80&fm=jpg',
+    'rome':      'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=300&q=80&fm=jpg',
+    'barcelona': 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=300&q=80&fm=jpg',
+    'amsterdam': 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=300&q=80&fm=jpg',
+    'dubai':     'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&q=80&fm=jpg',
+    'istanbul':  'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=300&q=80&fm=jpg',
 };
 
 export function createConfirmedTripCard(w) {
@@ -238,7 +238,7 @@ export function createConfirmedTripCard(w) {
     const destKey = dest.toLowerCase();
     const imgUrl  = w.image_url ||
         Object.entries(_CITY_IMAGES).find(([k]) => destKey.includes(k))?.[1] ||
-        'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=300&q=80';
+        'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=300&q=80&fm=jpg';
 
     const budget       = w.target_budget || w.budget || null;
     const budgetDisplay = budget ? `₺${Number(budget).toLocaleString('tr-TR')}` : '—';
@@ -655,7 +655,7 @@ export async function openWishlistModal() {
         <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-lg bg-slate-200 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=100" class="w-full h-full object-cover">
+                    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=100&fm=jpg" class="w-full h-full object-cover">
                 </div>
                 <div>
                     <p class="font-bold text-slate-800 text-sm">${escapeHtml(w.trip_name)}</p>
