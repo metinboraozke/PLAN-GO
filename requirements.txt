@@ -18,6 +18,8 @@ python-dotenv>=1.0.0
 
 # MongoDB connection (for srv support)
 pymongo[srv]>=4.6.0
+cryptography>=41.0.0
+pyopenssl>=23.2.0
 
 # Gemini AI
 google-genai>=1.0.0
