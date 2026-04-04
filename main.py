@@ -136,9 +136,16 @@ async def root():
 @app.get("/api/v1/health", tags=["Health"])
 async def health_check():
     """Detailed health check."""
+    db_status = "disconnected"
+    try:
+        if DatabaseManager._client is not None:
+            await DatabaseManager._client.admin.command("ping")
+            db_status = "connected"
+    except Exception:
+        db_status = "error"
     return {
         "status": "healthy",
-        "database": "connected",
+        "database": db_status,
         "scraper": "standby",
         "ai_planner": "skeleton_mode",
         "timestamp": datetime.utcnow().isoformat()

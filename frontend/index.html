@@ -29,9 +29,6 @@
     <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- ES Module Shims (importmap polyfill for older browsers) -->
-    <script async src="https://ga.jspm.io/npm:es-module-shims@1.8.0/dist/es-module-shims.js"></script>
-
     <!-- Import Map: bare specifiers → module paths -->
     <script type="importmap">
     {
@@ -128,38 +125,6 @@
         .upcoming-trip-book-btn:hover { opacity: 0.88; }
     </style>
 
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        dark: {
-                            900: '#0F172A',
-                            800: '#1E293B',
-                            700: '#334155',
-                            600: '#475569',
-                        },
-                        accent: {
-                            orange: '#F97316',
-                            purple: '#8B5CF6',
-                            blue: '#3B82F6',
-                            green: '#10B981',
-                            pink: '#EC4899',
-                        },
-                        sage:  '#9CAF88',
-                        cream: '#FDFCF8',
-                        main:  '#1a1a1a',
-                        muted: '#9ca3af',
-                    },
-                    fontFamily: {
-                        sans:  ['"Plus Jakarta Sans"', 'sans-serif'],
-                        serif: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         /* Map Fullscreen Transition */
         #world-map-container {
@@ -2115,7 +2080,7 @@
                         style="color:#B85450; background:rgba(184,84,80,0.08); border-radius:12px; border:1px solid rgba(184,84,80,0.15);"></div>
 
                     <!-- Submit Button -->
-                    <button id="auth-submit" type="submit" onclick="handleAuthSubmit()"
+                    <button id="auth-submit" type="submit"
                         class="w-full font-bold text-base transition-all duration-200 mt-1"
                         style="background: linear-gradient(135deg, #4A7A5D 0%, #6A9E7A 100%); color:#FAF7F2; padding: 14px; border-radius:16px; border:none; box-shadow: 0 6px 20px rgba(74,122,93,0.38); letter-spacing:0.2px;"
                         onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 10px 28px rgba(74,122,93,0.45)'"
@@ -2135,7 +2100,7 @@
                 <div class="text-center">
                     <p class="text-sm" style="color:#7A8C82;">
                         <span id="auth-toggle-text">Hesabın yok mu?</span>
-                        <button id="auth-toggle-btn" onclick="toggleAuthMode()"
+                        <button id="auth-toggle-btn"
                             class="font-bold ml-1.5 transition-all"
                             style="color:#4A7A5D; background:none; border:none; cursor:pointer; padding:2px 6px; border-radius:6px;"
                             onmouseover="this.style.background='rgba(74,122,93,0.1)'"
