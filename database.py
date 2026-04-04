@@ -38,12 +38,7 @@ class DatabaseManager:
         Should be called during application startup.
         """
         try:
-            cls._client = AsyncIOMotorClient(
-                MONGODB_URL,
-                tlsInsecure=True,
-                serverSelectionTimeoutMS=30000,
-                socketTimeoutMS=20000,
-            )
+            cls._client = AsyncIOMotorClient(MONGODB_URL)
             cls._database = cls._client[DB_NAME]
             # Verify connection
             await cls._client.admin.command("ping")
