@@ -40,7 +40,6 @@ class DatabaseManager:
         try:
             cls._client = AsyncIOMotorClient(
                 MONGODB_URL,
-                tls=True,
                 tlsAllowInvalidCertificates=True,
                 serverSelectionTimeoutMS=30000,
                 socketTimeoutMS=20000,
