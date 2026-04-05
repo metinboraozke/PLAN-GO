@@ -3,6 +3,10 @@
    Cream & Sage Premium Design System
    ===================================================== */
 
+/* Tailwind'in .hidden kuralı display:flex'den önce geldiği için
+   ezilebiliyor — !important ile garantiye alıyoruz. */
+.hidden { display: none !important; }
+
 /* ===================================================
    0. CAPACITOR / NATIVE APP SAFE AREA
    iPhone notch, Dynamic Island, Android status bar
@@ -1643,7 +1647,7 @@ p, span, li, label { font-weight: 400; }
    PLAN DETAIL SCREEN  (screen-planner-detail)
    ============================================================ */
 
-.pd-screen:not(.hidden) {
+.pd-screen {
   background: var(--cream);
   min-height: 100vh;
   display: flex;
