@@ -1643,7 +1643,7 @@ p, span, li, label { font-weight: 400; }
    PLAN DETAIL SCREEN  (screen-planner-detail)
    ============================================================ */
 
-.pd-screen {
+.pd-screen:not(.hidden) {
   background: var(--cream);
   min-height: 100vh;
   display: flex;
