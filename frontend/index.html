@@ -804,25 +804,6 @@
                 </div>
             </div>
 
-            <!-- ========== MAP ADD CHOICE CARD ========== -->
-            <div id="map-add-choice-backdrop" onclick="closeMapAddChoice()"></div>
-            <div id="map-add-choice-card">
-                <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
-                <h3 class="text-base font-bold text-main text-center mb-4">Haritaya ne eklemek istiyorsun?</h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <button class="choice-btn" onclick="chooseAddPin()">
-                        <span class="text-3xl">📌</span>
-                        <p class="font-bold text-sm text-main">Normal Pin</p>
-                        <p class="text-[11px] text-muted">Mekan, kafe, manzara…</p>
-                    </button>
-                    <button class="choice-btn event" onclick="chooseAddEvent()">
-                        <span class="text-3xl">🌟</span>
-                        <p class="font-bold text-sm text-main">Etkinlik Pini</p>
-                        <p class="text-[11px] text-muted">Buluşma, aktivite…</p>
-                    </button>
-                </div>
-            </div>
-
             <!-- ========== ADD EVENT MODAL ========== -->
             <div id="modal-add-event" class="hidden fixed inset-0 z-[600] flex items-end justify-center">
                 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAddEventModal()"></div>
@@ -1986,6 +1967,25 @@
 
 
     <!-- ============================================ -->
+    <!-- ========== MAP ADD CHOICE CARD (global — fixed element must be outside overflow:hidden section) ========== -->
+    <div id="map-add-choice-backdrop" onclick="closeMapAddChoice()"></div>
+    <div id="map-add-choice-card">
+        <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+        <h3 class="text-base font-bold text-main text-center mb-4">Haritaya ne eklemek istiyorsun?</h3>
+        <div class="grid grid-cols-2 gap-3">
+            <button class="choice-btn" onclick="chooseAddPin()">
+                <span class="text-3xl">📌</span>
+                <p class="font-bold text-sm text-main">Normal Pin</p>
+                <p class="text-[11px] text-muted">Mekan, kafe, manzara…</p>
+            </button>
+            <button class="choice-btn event" onclick="chooseAddEvent()">
+                <span class="text-3xl">🌟</span>
+                <p class="font-bold text-sm text-main">Etkinlik Pini</p>
+                <p class="text-[11px] text-muted">Buluşma, aktivite…</p>
+            </button>
+        </div>
+    </div>
+
     <!-- AUTH MODAL (Login / Register) -->
     <!-- ============================================ -->
     <div id="modal-auth"
