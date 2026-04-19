@@ -67,6 +67,12 @@ body:has(#screen-map:not(.hidden)) {
   overflow: hidden;
   height: 100vh;
 }
+/* iOS: body overflow:hidden modal scroll'unu kilitler — modal açıkken serbest bırak */
+body:has(#modal-add-pin:not(.hidden)),
+body:has(#modal-add-event:not(.hidden)),
+body:has(#modal-edit-pin:not(.hidden)) {
+  overflow: auto !important;
+}
 /* Map must not use the slide-up transition — translateY shifts tiles visually */
 #screen-map.screen-transition,
 #screen-map.animate-fade-in {

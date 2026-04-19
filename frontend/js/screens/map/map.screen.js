@@ -86,8 +86,8 @@ export async function initializeMap() {
         setupMapLongPress();
     }
 
-    // Tiles'ı ağ requestlerinden önce hemen düzelt — animate:false kayma engeller
-    _map?.invalidateSize({ animate: false });
+    // rAF: browser layout tamamlandıktan sonra Leaflet boyutu okusun — senkron çağrı stale boyut alır
+    requestAnimationFrame(() => _map?.invalidateSize({ animate: false }));
 
     await Promise.all([getUserLocation(), loadMapPins()]);
     // _userLocation artık kesinlikle set edildi → yakındakiler filtresini yeniden uygula
