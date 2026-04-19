@@ -616,7 +616,11 @@ function openAddPinModal(lat, lng) {
     lucide?.createIcons();
 }
 
-export function closeAddPinModal() { document.getElementById('modal-add-pin').classList.add('hidden'); }
+export function closeAddPinModal() {
+    document.getElementById('modal-add-pin').classList.add('hidden');
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+}
 
 export async function handleAddPin(e) {
     e.preventDefault();
@@ -733,7 +737,11 @@ function openAddEventModal(lat, lng) {
     lucide?.createIcons();
 }
 
-export function closeAddEventModal() { document.getElementById('modal-add-event').classList.add('hidden'); }
+export function closeAddEventModal() {
+    document.getElementById('modal-add-event').classList.add('hidden');
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+}
 
 export async function handleAddEvent(e) {
     e.preventDefault();
@@ -1173,7 +1181,11 @@ export function openEditPin() {
     lucide?.createIcons();
 }
 
-export function closeEditPinModal() { document.getElementById('modal-edit-pin').classList.add('hidden'); }
+export function closeEditPinModal() {
+    document.getElementById('modal-edit-pin').classList.add('hidden');
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+}
 
 export async function handleEditPin(e) {
     e.preventDefault();
