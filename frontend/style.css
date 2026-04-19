@@ -30,15 +30,36 @@ nav.fixed.bottom-0 {
   padding-bottom: calc(0.5rem + var(--safe-area-bottom));
 }
 
-/* Sticky headers account for status bar */
+/* Sticky headers — body padding-top already clears the status bar */
 header.sticky {
-  padding-top: calc(1rem + var(--safe-area-top));
+  padding-top: 0.5rem;
+}
+/* Profile screen: tighter header to reduce perceived safe-area height */
+#screen-profile header.sticky {
+  padding-top: 0.25rem;
+  padding-bottom: 0.5rem;
 }
 
-/* Map screen: full height minus safe areas */
+/* Map screen: FIXED edge-to-edge, independent of body safe-area padding
+   AND #app pb-20. Leaflet tiles fill the whole screen including behind the
+   notch and home indicator. */
 #screen-map {
-  height: calc(100vh - var(--safe-area-top) - var(--safe-area-bottom));
-  margin-top: var(--safe-area-top);
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 30;
+}
+/* Keep the bottom nav visible above the map */
+#screen-map ~ nav.fixed.bottom-0,
+body > nav.fixed.bottom-0 {
+  z-index: 40;
+}
+/* When the map screen is active, lock body scroll so only the Leaflet map
+   pans — the page itself must not move (user feedback). */
+body:has(#screen-map:not(.hidden)) {
+  overflow: hidden;
+  height: 100vh;
 }
 
 /* ===================================================
@@ -484,9 +505,9 @@ p, span, li, label { font-weight: 400; }
 
 /* Each card */
 #nearby-vibes-scroll > div {
-  min-width:      230px !important;
-  max-width:      260px !important;
-  height:         76px !important;
+  min-width:      170px !important;
+  max-width:      200px !important;
+  height:         60px !important;
   flex-shrink:    0 !important;
   scroll-snap-align: center;
   border-radius:  var(--radius-md);
@@ -494,8 +515,8 @@ p, span, li, label { font-weight: 400; }
   box-shadow:     var(--shadow-card);
   display:        flex !important;
   align-items:    center !important;
-  gap:            10px;
-  padding:        10px 12px !important;
+  gap:            8px;
+  padding:        8px 10px !important;
   cursor:         pointer;
   transition:     box-shadow 0.18s, transform 0.18s;
   pointer-events: auto;
@@ -2116,10 +2137,13 @@ p, span, li, label { font-weight: 400; }
   border: 1px solid var(--border);
 }
 
-/* ---- Combined Action Bar (Budget + Confirm Button) ---- */
+/* ---- Combined Action Bar (Budget + Confirm Button) ----
+   Pinned just above the bottom nav. Bottom nav height ≈ 4rem + safe-area-bottom,
+   so we stack the action bar immediately above it so it stays on-screen as the
+   body scrolls. */
 .pd-action-bar {
   position: fixed;
-  bottom: 70px; /* just above bottom nav */
+  bottom: calc(4rem + var(--safe-area-bottom));
   left: 0;
   right: 0;
   max-width: 448px;   /* matches #app max-w-md — stays within mobile frame */
@@ -3471,5 +3495,8 @@ p, span, li, label { font-weight: 400; }
 
 /* Pull-to-refresh guard */
 .native-app .screen {
+  overscroll-behavior-y: contain;
+}
+
   overscroll-behavior-y: contain;
 }

@@ -188,7 +188,7 @@
     </style>
 </head>
 
-<body class="bg-slate-50 font-sans text-slate-900 min-h-screen">
+<body class="bg-cream font-sans text-slate-900 min-h-screen">
 
     <!-- App Container (Mobile First) -->
     <div id="app" class="max-w-md mx-auto bg-white min-h-screen relative pb-20 overflow-x-hidden">
@@ -360,7 +360,8 @@
         <!-- ============================================ -->
         <section id="screen-map" class="screen hidden animate-fade-in relative h-screen overflow-hidden">
             <!-- Header (Floating Premium Panel) -->
-            <div class="absolute top-0 left-0 right-0 z-[400] px-3 pt-3 pointer-events-none">
+            <div style="padding-top: calc(var(--safe-area-top) + 0.5rem)"
+                 class="absolute top-0 left-0 right-0 z-[400] px-3 pointer-events-none">
                 <div
                     class="pointer-events-auto bg-white/95 backdrop-blur-lg rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-3 flex flex-col gap-2.5 border border-white/60">
                     <div class="flex items-center justify-between px-0.5">
@@ -411,18 +412,19 @@
             <!-- Map Container -->
             <div id="leaflet-map" class="w-full h-full z-0 bg-cream"></div>
 
-            <!-- Bottom Sheet (Nearby Vibes + Pin Detail) -->
+            <!-- Bottom Sheet (Nearby Vibes + Pin Detail) — pinned just above bottom nav with breathing room -->
             <div id="map-bottom-sheet"
-                class="absolute bottom-24 left-0 right-0 z-[400] px-4 pointer-events-none transition-all duration-300 ease-out">
+                style="bottom: calc(4.5rem + var(--safe-area-bottom) + 0.5rem)"
+                class="absolute left-0 right-0 z-[400] px-4 pointer-events-none transition-all duration-300 ease-out">
 
                 <!-- DEFAULT: Nearby Vibes Scroll -->
                 <div id="nearby-vibes-default">
-                    <div class="flex items-center justify-between mb-2 px-2">
+                    <div class="flex items-center justify-between mb-1.5 px-2">
                         <h2
-                            class="text-sm font-bold text-main shadow-sm bg-white/50 px-2 py-1 rounded-lg backdrop-blur pointer-events-auto">
+                            class="text-xs font-bold text-main shadow-sm bg-white/50 px-1.5 py-0.5 rounded-lg backdrop-blur pointer-events-auto">
                             Yakındakiler</h2>
                         <button
-                            class="text-xs font-bold text-sage bg-white/50 px-2 py-1 rounded-lg backdrop-blur pointer-events-auto">Tümünü
+                            class="text-[10px] font-bold text-sage bg-white/50 px-1.5 py-0.5 rounded-lg backdrop-blur pointer-events-auto">Tümünü
                             Gör</button>
                     </div>
                     <div id="nearby-vibes-scroll"
@@ -1520,16 +1522,18 @@
             <!-- Harita: tüm overlay'i kaplar. z-0 → Leaflet iç pane'larını izole eder, X butonu üstte kalır -->
             <div id="fullscreen-map-container" class="absolute inset-0 z-0"></div>
 
-            <!-- Header gradient -->
-            <div class="absolute top-0 left-0 right-0 z-10 px-4 pt-10 pb-6
+            <!-- Header gradient — uses CSS var so it clears the Dynamic Island/notch -->
+            <div style="padding-top: calc(var(--safe-area-top) + 1rem)"
+                 class="absolute top-0 left-0 right-0 z-10 px-4 pb-6
                         bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
                 <h2 class="text-lg font-serif font-bold text-white drop-shadow">Dünya Haritası</h2>
                 <p class="text-xs text-white/80 font-bold uppercase tracking-wide" id="overlay-stats">5 Ülke Ziyaret Edildi</p>
             </div>
 
-            <!-- X Butonu: absolute (artık overflow-hidden parent yok, çalışır) -->
+            <!-- X Butonu — cleared below status bar via CSS var -->
             <button id="btn-close-map"
-                    class="absolute top-4 right-4 z-20 w-11 h-11 rounded-full
+                    style="top: calc(var(--safe-area-top) + 1rem)"
+                    class="absolute right-4 z-20 w-11 h-11 rounded-full
                            bg-white shadow-lg border border-gray-200
                            flex items-center justify-center
                            text-[#1a1a1a] active:scale-95 transition-transform">

@@ -266,9 +266,25 @@ export function renderProfile(passport = {}) {
     // 10. Recent Trips
     renderRecentTrips(passport.recent_trips);
 
-    // 11. Money Saved
+    // 11. Money Saved — Σ(plan.budget - plan.total_cost) over confirmed plans
+    _renderTotalSaved();
+}
+
+async function _renderTotalSaved() {
     const savedEl = document.getElementById('profile-saved');
-    if (savedEl) savedEl.textContent = passport.total_saved_formatted || `₺${passport.total_saved || 0}`;
+    if (!savedEl) return;
+    try {
+        const { data: wishlists = [] } = await getWishlists();
+        const totalSaved = (wishlists || []).reduce((sum, w) => {
+            const budget = Number(w.budget ?? w.target_price ?? 0);
+            const cost   = Number(w.total_cost ?? 0);
+            const diff   = budget - cost;
+            return sum + (diff > 0 ? diff : 0);
+        }, 0);
+        savedEl.textContent = `₺${totalSaved.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}`;
+    } catch {
+        savedEl.textContent = '₺0';
+    }
 }
 
 /**

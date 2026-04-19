@@ -191,18 +191,22 @@ def _build_tp_link(origin: str, dest: str, date: str) -> str:
         return build_affiliate_link(f"https://www.aviasales.com/?marker={_TP_MARKER}")
 
 def _build_kiwi_search_link(origin: str, dest: str, date: str) -> str:
-    """Kiwi.com link wrapped in Travelpayouts affiliate redirect (marker, p=4114)."""
-    from urllib.parse import quote
+    """Direct kiwi.com search link.
+
+    We used to wrap this in a tp.media affiliate redirect
+    (`tp.media/r?marker=710551&p=4114&u=...`), but CloudFront now returns
+    403 Forbidden for that partner code — users hit a dead page. Return the
+    bare kiwi.com URL; it opens reliably (affiliate commission is lost on
+    Kiwi, but the Aviasales fallback still carries the marker).
+    """
     try:
         dt = datetime.strptime(str(date)[:10], "%Y-%m-%d")
-        kiwi_url = (
+        return (
             f"https://www.kiwi.com/en/search/results"
             f"/{origin.upper()}/{dest.upper()}/{dt.strftime('%Y-%m-%d')}/no-return"
         )
     except Exception:
-        kiwi_url = f"https://www.kiwi.com/en/search/results/{origin.upper()}/{dest.upper()}"
-    m = _TP_MARKER or "710551"
-    return f"https://tp.media/r?marker={m}&p=4114&u={quote(kiwi_url, safe='')}"
+        return f"https://www.kiwi.com/en/search/results/{origin.upper()}/{dest.upper()}"
 
 def _map_tp_flight(item: dict, origin: str, dest: str, date: str) -> dict:
     return {

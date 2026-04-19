@@ -11,6 +11,26 @@ import { formatPrice, formatDateRange }  from '../../../utils/format.js';
 import { escapeHtml, scheduleIconRefresh } from '../../../utils/dom.js';
 import { getCityImage }                  from '../../../utils/image-cache.js';
 
+// Body-level delegation: any [data-external-url] click opens via Capacitor
+// Browser on native (iOS/Android) or falls back to window.open on web.
+// Inline onclick="window.open(...)" handlers were failing in iOS WebView.
+if (!window.__externalLinkDelegationInstalled) {
+    window.__externalLinkDelegationInstalled = true;
+    document.addEventListener('click', async (e) => {
+        const el = e.target.closest?.('[data-external-url]');
+        if (!el) return;
+        const url = el.getAttribute('data-external-url');
+        if (!url) return;
+        e.preventDefault();
+        const Browser = window.Capacitor?.Plugins?.Browser;
+        if (Browser?.open) {
+            try { await Browser.open({ url, presentationStyle: 'popover' }); return; }
+            catch (err) { console.warn('[browser] plugin failed, falling back', err); }
+        }
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }, true);
+}
+
 // ============================================
 // MODULE STATE
 // ============================================
@@ -286,8 +306,8 @@ export function buildFlightCardHtml(f, isReturn = false, planDate = null) {
                 <div class="pd-flight-city">${escapeHtml(arrCity)}</div>
             </div>
         </div>
-        ${flightLink ? `<a href="${flightLink}" target="_blank" rel="noopener noreferrer"
-            class="pd-booking-btn pd-booking-btn--flight">✈ Uçuşu Rezerve Et →</a>` : ''}
+        ${flightLink ? `<button type="button" data-external-url="${escapeHtml(flightLink)}"
+            class="pd-booking-btn pd-booking-btn--flight">✈ Uçuşu Rezerve Et →</button>` : ''}
     </div>`;
 }
 
@@ -315,10 +335,10 @@ export function buildHotelCardHtml(h, nights) {
         </div>
         ${nights ? `<div class="pd-hotel-nights">${nights} Gece</div>` : ''}
         ${bookLink ? `
-        <a href="${bookLink}" target="_blank" rel="noopener noreferrer"
+        <button type="button" data-external-url="${escapeHtml(bookLink)}"
            class="pd-booking-btn pd-booking-btn--hotel">
             🏨 Booking.com'da Rezerve Et →
-        </a>` : ''}
+        </button>` : ''}
     </div>`;
 }
 
