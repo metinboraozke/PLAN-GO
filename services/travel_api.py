@@ -191,22 +191,22 @@ def _build_tp_link(origin: str, dest: str, date: str) -> str:
         return build_affiliate_link(f"https://www.aviasales.com/?marker={_TP_MARKER}")
 
 def _build_kiwi_search_link(origin: str, dest: str, date: str) -> str:
-    """Direct kiwi.com search link.
+    """Direct kiwi.com search link using airport: prefix for IATA codes.
 
-    We used to wrap this in a tp.media affiliate redirect
-    (`tp.media/r?marker=710551&p=4114&u=...`), but CloudFront now returns
-    403 Forbidden for that partner code — users hit a dead page. Return the
-    bare kiwi.com URL; it opens reliably (affiliate commission is lost on
-    Kiwi, but the Aviasales fallback still carries the marker).
+    Bare IATA codes (e.g. /IST/FCO/) are not recognised by Kiwi's router —
+    the from/to fields render empty. The airport: prefix resolves correctly.
     """
     try:
         dt = datetime.strptime(str(date)[:10], "%Y-%m-%d")
         return (
             f"https://www.kiwi.com/en/search/results"
-            f"/{origin.upper()}/{dest.upper()}/{dt.strftime('%Y-%m-%d')}/no-return"
+            f"/airport:{origin.upper()}/airport:{dest.upper()}/{dt.strftime('%Y-%m-%d')}/"
         )
     except Exception:
-        return f"https://www.kiwi.com/en/search/results/{origin.upper()}/{dest.upper()}"
+        return (
+            f"https://www.kiwi.com/en/search/results"
+            f"/airport:{origin.upper()}/airport:{dest.upper()}/"
+        )
 
 def _map_tp_flight(item: dict, origin: str, dest: str, date: str) -> dict:
     return {

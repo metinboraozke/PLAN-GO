@@ -86,6 +86,9 @@ export async function initializeMap() {
         setupMapLongPress();
     }
 
+    // Tiles'ı ağ requestlerinden önce hemen düzelt — animate:false kayma engeller
+    _map?.invalidateSize({ animate: false });
+
     await Promise.all([getUserLocation(), loadMapPins()]);
     // _userLocation artık kesinlikle set edildi → yakındakiler filtresini yeniden uygula
     renderNearbyVibes(_pins);
@@ -97,9 +100,7 @@ export async function initializeMap() {
 
     if (loadingEl) loadingEl.classList.add('hidden');
 
-    // Sekme geçişlerinde Leaflet eski boyutu sanabilir — her açılışta yenile
-    _map?.invalidateSize();
-    setTimeout(() => _map?.invalidateSize(), 250);
+    setTimeout(() => _map?.invalidateSize({ animate: false }), 300);
 }
 
 // ── Geolocation ───────────────────────────────────────────────────────────────
