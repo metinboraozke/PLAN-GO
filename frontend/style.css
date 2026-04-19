@@ -67,10 +67,12 @@ body:has(#screen-map:not(.hidden)) {
   overflow: hidden;
   height: 100vh;
 }
-/* Modal content: iOS'ta body scroll değil, modal kendi scroll context'i — overscroll propagate etmez */
+/* Modal content: fixed height scroll context — max-h sadece içerik taşarsa çalışır,
+   height:80vh her zaman scroll context oluşturur (iOS WKWebView) */
 #modal-add-pin > div:last-child,
 #modal-edit-pin > div:last-child,
 #modal-add-event > div:last-child {
+  height: 80vh;
   overflow-y: scroll;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;

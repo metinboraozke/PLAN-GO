@@ -18,6 +18,28 @@ import { openPublicProfile } from '../../components/public-profile.js';
 // ── Module-level state ────────────────────────────────────────────────────────
 let _map = null;
 let _userMarker = null;
+
+// ── Modal scroll helpers (iOS rubber-band prevention) ─────────────────────────
+function _modalTouchMove(e) {
+    const el = e.currentTarget;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    if (scrollHeight <= clientHeight + 1) { e.preventDefault(); return; }
+    const atTop = scrollTop <= 0;
+    const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+    if ((atTop && e.touches[0].clientY > (el._lastY || 0)) ||
+        (atBottom && e.touches[0].clientY < (el._lastY || 0))) {
+        e.preventDefault();
+    }
+    el._lastY = e.touches[0].clientY;
+}
+function _attachModalScroll(modalId) {
+    const c = document.querySelector(`#${modalId} > div:last-child`);
+    if (c) c.addEventListener('touchmove', _modalTouchMove, { passive: false });
+}
+function _detachModalScroll(modalId) {
+    const c = document.querySelector(`#${modalId} > div:last-child`);
+    if (c) c.removeEventListener('touchmove', _modalTouchMove);
+}
 let _userLocation = null;
 let _watchId = null;
 let _pins = [];
@@ -614,10 +636,12 @@ function openAddPinModal(lat, lng) {
     document.getElementById('image-preview-container').classList.add('hidden');
     document.getElementById('modal-add-pin').classList.remove('hidden');
     lucide?.createIcons();
+    _attachModalScroll('modal-add-pin');
 }
 
 export function closeAddPinModal() {
     document.getElementById('modal-add-pin').classList.add('hidden');
+    _detachModalScroll('modal-add-pin');
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
 }
@@ -735,10 +759,12 @@ function openAddEventModal(lat, lng) {
     document.getElementById('new-event-creator-id').value = sessionStorage.getItem('pax_creator_id');
     document.getElementById('modal-add-event').classList.remove('hidden');
     lucide?.createIcons();
+    _attachModalScroll('modal-add-event');
 }
 
 export function closeAddEventModal() {
     document.getElementById('modal-add-event').classList.add('hidden');
+    _detachModalScroll('modal-add-event');
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
 }
@@ -1179,10 +1205,12 @@ export function openEditPin() {
     document.getElementById('edit-pin-secret').checked    = !!pin.is_secret_spot;
     document.getElementById('modal-edit-pin').classList.remove('hidden');
     lucide?.createIcons();
+    _attachModalScroll('modal-edit-pin');
 }
 
 export function closeEditPinModal() {
     document.getElementById('modal-edit-pin').classList.add('hidden');
+    _detachModalScroll('modal-edit-pin');
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
 }
