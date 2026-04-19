@@ -252,20 +252,11 @@ def _map_kiwi_flight(item: dict, origin: str, dest: str, dep_date: str) -> dict:
     duration_sec = sector.get("duration", 0) or 0
     duration_min = duration_sec // 60
 
-    # link -> bookingOptions.edges[0].node.bookingUrl
-    link = None
-    edges = (item.get("bookingOptions") or {}).get("edges") or []
-    if edges:
-        node    = (edges[0] or {}).get("node") or {}
-        raw_url = node.get("bookingUrl") or ""
-        if raw_url.startswith("/"):
-            link = f"https://www.kiwi.com{raw_url}"
-        elif raw_url:
-            link = raw_url
-    if not link:
-        link = build_affiliate_link(
-            f"https://www.kiwi.com/en/search/results/airport:{origin}/airport:{dest}/{dep_date}/no-return"
-        )
+    # session-based bookingUrl expires → always use a fresh search link
+    link = (
+        f"https://www.kiwi.com/en/search/results"
+        f"/airport:{origin.upper()}/airport:{dest.upper()}/{dep_date}/"
+    )
 
     return {
         "price":          price_try,

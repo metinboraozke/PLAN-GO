@@ -72,7 +72,7 @@ export async function initializeMap() {
 
     if (!_map) {
         _map = L.map('leaflet-map', {
-            zoomControl: true,
+            zoomControl: false,
             attributionControl: false
         }).setView([DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng], DEFAULT_ZOOM);
 
@@ -82,7 +82,8 @@ export async function initializeMap() {
             maxZoom: 19
         }).addTo(_map);
 
-        _map.zoomControl.setPosition('topright');
+        _map.on('click', () => { deselectPin(); deselectEvent(); });
+        setupMapLongPress();
     }
 
     await Promise.all([getUserLocation(), loadMapPins()]);
@@ -96,10 +97,9 @@ export async function initializeMap() {
 
     if (loadingEl) loadingEl.classList.add('hidden');
 
-    setTimeout(() => _map?.invalidateSize(), 100);
-
-    _map.on('click', () => { deselectPin(); deselectEvent(); });
-    setupMapLongPress();
+    // Sekme geçişlerinde Leaflet eski boyutu sanabilir — her açılışta yenile
+    _map?.invalidateSize();
+    setTimeout(() => _map?.invalidateSize(), 250);
 }
 
 // ── Geolocation ───────────────────────────────────────────────────────────────
