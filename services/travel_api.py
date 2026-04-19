@@ -210,14 +210,16 @@ def _build_kiwi_search_link(origin: str, dest: str, date: str) -> str:
 
 def _map_tp_flight(item: dict, origin: str, dest: str, date: str) -> dict:
     return {
-        "price":     item.get("value", 0),
-        "currency":  "TRY",
-        "airline":   item.get("gate", "?"),   # "Aviakassa", "Kupi.com" vb.
-        "departure": item.get("depart_date"),
-        "return":    item.get("return_date") or None,
-        "duration":  item.get("duration", 0),  # dakika
-        "stops":     item.get("number_of_changes", 0),
-        "link":      _build_tp_link(origin, dest, date),
+        "price":          item.get("value", 0),
+        "currency":       "TRY",
+        "airline":        item.get("gate", "?"),
+        "departure":      item.get("depart_date"),
+        "departure_code": origin.upper() if origin else "",
+        "arrival_code":   dest.upper()   if dest   else "",
+        "return":         item.get("return_date") or None,
+        "duration":       item.get("duration", 0),
+        "stops":          item.get("number_of_changes", 0),
+        "link":           _build_tp_link(origin, dest, date),
     }
 
 def _map_kiwi_flight(item: dict, origin: str, dest: str, dep_date: str) -> dict:
@@ -266,14 +268,16 @@ def _map_kiwi_flight(item: dict, origin: str, dest: str, dep_date: str) -> dict:
         )
 
     return {
-        "price":     price_try,
-        "currency":  "TRY",
-        "airline":   airline or "?",
-        "departure": departure,
-        "return":    None,
-        "duration":  duration_min,
-        "stops":     0,
-        "link":      link,
+        "price":          price_try,
+        "currency":       "TRY",
+        "airline":        airline or "?",
+        "departure":      departure,
+        "departure_code": origin.upper() if origin else "",
+        "arrival_code":   dest.upper()   if dest   else "",
+        "return":         None,
+        "duration":       duration_min,
+        "stops":          0,
+        "link":           link,
     }
 
 async def _search_kiwi(origin: str, destination: str, dep_date: str,

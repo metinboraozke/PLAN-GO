@@ -26,6 +26,16 @@ export function navigate(screenName) {
     if (targetScreen) {
         targetScreen.classList.remove('hidden');
         targetScreen.classList.add('screen-transition');
+
+        // Reset scroll position so every screen opens from the top.
+        // body + app container (for non-fixed screens) + inner scrollable areas.
+        window.scrollTo(0, 0);
+        document.getElementById('app')?.scrollTo?.(0, 0);
+        targetScreen.scrollTop = 0;
+        // Also reset any inner scrollable pane (plan detail body, etc.)
+        targetScreen.querySelectorAll('[class*="overflow-y"], .pd-body').forEach(el => {
+            el.scrollTop = 0;
+        });
     }
 
     document.querySelectorAll('.nav-btn').forEach(btn => {
