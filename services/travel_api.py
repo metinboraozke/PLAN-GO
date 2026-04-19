@@ -191,22 +191,24 @@ def _build_tp_link(origin: str, dest: str, date: str) -> str:
         return build_affiliate_link(f"https://www.aviasales.com/?marker={_TP_MARKER}")
 
 def _build_kiwi_search_link(origin: str, dest: str, date: str) -> str:
-    """Direct kiwi.com search link using airport: prefix for IATA codes.
+    """Direct kiwi.com search link using city-country slugs (e.g. istanbul-turkey).
 
-    Bare IATA codes (e.g. /IST/FCO/) are not recognised by Kiwi's router —
-    the from/to fields render empty. The airport: prefix resolves correctly.
+    City-country slugs are the most reliable Kiwi URL format — airport: prefix
+    and bare IATA codes both left from/to fields empty in practice.
+    Falls back to airport: prefix if slug not in the mapping.
     """
+    o = origin.upper()
+    d = dest.upper()
+    origin_slug = _IATA_TO_KIWI_SLUG.get(o, f"airport:{o}")
+    dest_slug   = _IATA_TO_KIWI_SLUG.get(d, f"airport:{d}")
     try:
         dt = datetime.strptime(str(date)[:10], "%Y-%m-%d")
         return (
             f"https://www.kiwi.com/en/search/results"
-            f"/airport:{origin.upper()}/airport:{dest.upper()}/{dt.strftime('%Y-%m-%d')}/"
+            f"/{origin_slug}/{dest_slug}/{dt.strftime('%Y-%m-%d')}/"
         )
     except Exception:
-        return (
-            f"https://www.kiwi.com/en/search/results"
-            f"/airport:{origin.upper()}/airport:{dest.upper()}/"
-        )
+        return f"https://www.kiwi.com/en/search/results/{origin_slug}/{dest_slug}/"
 
 def _map_tp_flight(item: dict, origin: str, dest: str, date: str) -> dict:
     return {

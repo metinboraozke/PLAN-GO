@@ -67,6 +67,11 @@ body:has(#screen-map:not(.hidden)) {
   overflow: hidden;
   height: 100vh;
 }
+/* Map must not use the slide-up transition — translateY shifts tiles visually */
+#screen-map.screen-transition,
+#screen-map.animate-fade-in {
+  animation: none;
+}
 
 /* ===================================================
    1. CSS CUSTOM PROPERTIES (Design Tokens)
