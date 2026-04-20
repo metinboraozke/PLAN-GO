@@ -863,19 +863,17 @@
                                 placeholder="Etkinliği kısaca anlat…"
                                 class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm resize-none focus:border-[#A3C14A] focus:outline-none"></textarea>
                         </div>
-                        <!-- Date & participants row -->
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="col-span-2">
-                                <label class="text-xs font-bold text-main mb-1.5 block">Tarih & Saat *</label>
-                                <input name="event_date" type="datetime-local" required
-                                    class="w-full px-2 py-2.5 rounded-xl border border-gray-200 text-xs focus:border-[#A3C14A] focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-main mb-1.5 block">Katılımcı</label>
-                                <input name="max_participants" type="number" min="2" max="500" value="10"
-                                    class="w-full px-2 py-2.5 rounded-xl border border-gray-200 text-sm text-center focus:border-[#A3C14A] focus:outline-none">
-                            </div>
+                        <!-- Date -->
+                        <div>
+                            <label class="text-xs font-bold text-main mb-1.5 block">Tarih & Saat *</label>
+                            <input name="event_date" type="datetime-local" required
+                                class="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:border-[#A3C14A] focus:outline-none">
                         </div>
+                        <!-- Participants -->
+                        <div class="flex items-center justify-between gap-4">
+                            <label class="text-xs font-bold text-main whitespace-nowrap">Maks Katılımcı</label>
+                            <input name="max_participants" type="number" min="2" max="500" value="10"
+                                class="w-24 px-3 py-2 rounded-xl border border-gray-200 text-sm text-center focus:border-[#A3C14A] focus:outline-none"></div>
                         <!-- Address (optional) -->
                         <div>
                             <label class="text-xs font-bold text-main mb-1.5 block">Adres / Yer <span class="text-muted font-normal">(opsiyonel)</span></label>
