@@ -67,6 +67,13 @@ body:has(#screen-map:not(.hidden)) {
   overflow: hidden;
   height: 100vh;
 }
+/* Creation modal açıkken nav bar'ı screen-map stacking context'inin altına al
+   (#screen-map z-index:30, nav z-index:40 → modal nav arkasında kalıyor) */
+body:has(#modal-add-pin:not(.hidden)) nav.fixed.bottom-0,
+body:has(#modal-add-event:not(.hidden)) nav.fixed.bottom-0,
+body:has(#modal-edit-pin:not(.hidden)) nav.fixed.bottom-0 {
+  z-index: 20 !important;
+}
 /* Modal content: fixed height scroll context — max-h sadece içerik taşarsa çalışır,
    height:80vh her zaman scroll context oluşturur (iOS WKWebView) */
 #modal-add-pin > div:last-child,
