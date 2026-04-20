@@ -24,21 +24,31 @@ function _modalTouchMove(e) {
     const el = e.currentTarget;
     const { scrollTop, scrollHeight, clientHeight } = el;
     if (scrollHeight <= clientHeight + 1) { e.preventDefault(); return; }
-    const atTop = scrollTop <= 0;
+    const atTop    = scrollTop <= 0;
     const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
-    if ((atTop && e.touches[0].clientY > (el._lastY || 0)) ||
+    if ((atTop    && e.touches[0].clientY > (el._lastY || 0)) ||
         (atBottom && e.touches[0].clientY < (el._lastY || 0))) {
         e.preventDefault();
     }
     el._lastY = e.touches[0].clientY;
 }
+function _modalScrollClamp() {
+    // momentum-driven scroll can push past [0, max] on iOS — clamp immediately
+    const max = Math.max(0, this.scrollHeight - this.clientHeight);
+    if (this.scrollTop < 0)   this.scrollTop = 0;
+    if (this.scrollTop > max) this.scrollTop = max;
+}
 function _attachModalScroll(modalId) {
     const c = document.querySelector(`#${modalId} > div:last-child`);
-    if (c) c.addEventListener('touchmove', _modalTouchMove, { passive: false });
+    if (!c) return;
+    c.addEventListener('touchmove', _modalTouchMove,   { passive: false });
+    c.addEventListener('scroll',    _modalScrollClamp, { passive: true  });
 }
 function _detachModalScroll(modalId) {
     const c = document.querySelector(`#${modalId} > div:last-child`);
-    if (c) c.removeEventListener('touchmove', _modalTouchMove);
+    if (!c) return;
+    c.removeEventListener('touchmove', _modalTouchMove);
+    c.removeEventListener('scroll',    _modalScrollClamp);
 }
 let _userLocation = null;
 let _watchId = null;

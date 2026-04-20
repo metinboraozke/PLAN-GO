@@ -74,7 +74,7 @@ body:has(#screen-map:not(.hidden)) {
 #modal-add-event > div:last-child {
   height: 80vh;
   overflow-y: scroll;
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
 }
 /* Map must not use the slide-up transition — translateY shifts tiles visually */
