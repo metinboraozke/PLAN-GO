@@ -26,6 +26,12 @@ export function init() {
     const toggleBtn = document.getElementById('auth-toggle-btn');
     if (toggleBtn) toggleBtn.addEventListener('click', toggleAuthMode);
 
+    const forgotBtn = document.getElementById('auth-forgot-btn');
+    if (forgotBtn) forgotBtn.addEventListener('click', handleForgotPassword);
+
+    const resendBtn = document.getElementById('auth-resend-btn');
+    if (resendBtn) resendBtn.addEventListener('click', handleResendVerification);
+
     // Expose to global for onclick attributes still in HTML (migration bridge)
     window.handleAuthSubmit = handleAuthSubmit;
     window.toggleAuthMode   = toggleAuthMode;
@@ -62,8 +68,11 @@ export function toggleAuthMode() {
     const toggleBtn     = document.getElementById('auth-toggle-btn');
     const usernameGroup = document.getElementById('auth-username-group');
     const err           = document.getElementById('auth-error');
+    const forgotWrap    = document.getElementById('auth-forgot-wrap');
+    const verifyBanner  = document.getElementById('auth-verify-banner');
 
-    if (err) err.classList.add('hidden');
+    if (err)          err.classList.add('hidden');
+    if (verifyBanner) verifyBanner.classList.add('hidden');
 
     if (_authMode === 'register') {
         title.textContent       = 'Kayıt Ol';
@@ -72,6 +81,7 @@ export function toggleAuthMode() {
         toggleText.textContent  = 'Zaten hesabın var mı?';
         toggleBtn.textContent   = 'Giriş Yap';
         usernameGroup.classList.remove('hidden');
+        if (forgotWrap) forgotWrap.classList.add('hidden');
     } else {
         title.textContent       = 'Giriş Yap';
         subtitle.textContent    = 'Hesabına giriş yap ve keşfetmeye başla';
@@ -79,6 +89,7 @@ export function toggleAuthMode() {
         toggleText.textContent  = 'Hesabın yok mu?';
         toggleBtn.textContent   = 'Kayıt Ol';
         usernameGroup.classList.add('hidden');
+        if (forgotWrap) forgotWrap.classList.remove('hidden');
     }
 }
 
@@ -122,15 +133,59 @@ export async function handleAuthSubmit() {
             return;
         }
 
+        // Show email verification banner if needed (register or unverified login)
+        if (result.data.email_verified === false) {
+            errEl.classList.add('hidden');
+            const banner = document.getElementById('auth-verify-banner');
+            if (banner) banner.classList.remove('hidden');
+        }
+
         hideAuthModal();
         window.syncProfileFromAuth?.();
         navigate('planner');
-        showToast(`Hoş geldin, ${result.data.username}!`, 'success');
+        const greeting = _authMode === 'register'
+            ? `Hoş geldin, ${result.data.username}! E-postanı doğrulamayı unutma.`
+            : `Hoş geldin, ${result.data.username}!`;
+        showToast(greeting, 'success');
 
     } finally {
         btnText.textContent = originalText;
         submitBtn.disabled  = false;
     }
+}
+
+export async function handleForgotPassword() {
+    const email = document.getElementById('auth-email')?.value.trim();
+    if (!email) {
+        showToast('Önce e-posta adresini gir', 'error');
+        return;
+    }
+    const btn = document.getElementById('auth-forgot-btn');
+    if (btn) { btn.textContent = 'Gönderiliyor...'; btn.disabled = true; }
+
+    const result = await authService.forgotPassword(email);
+
+    if (btn) { btn.textContent = 'Şifremi unuttum'; btn.disabled = false; }
+
+    showToast(
+        result.ok
+            ? 'Eğer bu e-posta kayıtlıysa sıfırlama linki gönderildi.'
+            : (result.error || 'Bir hata oluştu.'),
+        result.ok ? 'success' : 'error',
+    );
+}
+
+export async function handleResendVerification() {
+    const email = localStorage.getItem('auth_email') || document.getElementById('auth-email')?.value.trim();
+    if (!email) { showToast('E-posta adresi bulunamadı', 'error'); return; }
+
+    const btn = document.getElementById('auth-resend-btn');
+    if (btn) { btn.textContent = 'Gönderiliyor...'; btn.disabled = true; }
+
+    const result = await authService.resendVerification(email);
+
+    if (btn) { btn.textContent = 'Tekrar gönder'; btn.disabled = false; }
+    showToast(result.ok ? 'Doğrulama emaili gönderildi!' : (result.error || 'Hata'), result.ok ? 'success' : 'error');
 }
 
 export function logout() {

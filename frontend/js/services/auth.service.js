@@ -79,6 +79,48 @@ export async function register(username, email, password) {
 }
 
 /**
+ * Şifremi unuttum — reset email gönder.
+ * @returns {{ ok: boolean, error: string|null }}
+ */
+export async function forgotPassword(email) {
+    try {
+        const r = await fetch(`${API_BASE}/auth/forgot-password`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ email }),
+        });
+        if (!r.ok) {
+            const err = await r.json().catch(() => ({}));
+            return { ok: false, error: err.detail || `HTTP ${r.status}` };
+        }
+        return { ok: true, error: null };
+    } catch (e) {
+        return { ok: false, error: e.message };
+    }
+}
+
+/**
+ * Doğrulama emailini tekrar gönder.
+ * @returns {{ ok: boolean, error: string|null }}
+ */
+export async function resendVerification(email) {
+    try {
+        const r = await fetch(`${API_BASE}/auth/resend-verification`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ email }),
+        });
+        if (!r.ok) {
+            const err = await r.json().catch(() => ({}));
+            return { ok: false, error: err.detail || `HTTP ${r.status}` };
+        }
+        return { ok: true, error: null };
+    } catch (e) {
+        return { ok: false, error: e.message };
+    }
+}
+
+/**
  * Logout: clear all auth storage and reset auth store slice.
  */
 export function logout() {
@@ -98,10 +140,11 @@ export function logout() {
 }
 
 function _persistSession(data) {
-    localStorage.setItem('auth_token',      data.access_token);
-    localStorage.setItem('auth_user_id',    data.user_id);
-    localStorage.setItem('auth_username',   data.username);
-    localStorage.setItem('auth_email',      data.email);
+    localStorage.setItem('auth_token',         data.access_token);
+    localStorage.setItem('auth_user_id',       data.user_id);
+    localStorage.setItem('auth_username',      data.username);
+    localStorage.setItem('auth_email',         data.email);
+    localStorage.setItem('auth_email_verified', String(data.email_verified ?? true));
     if (data.avatar_url) {
         localStorage.setItem('auth_avatar_url', data.avatar_url);
     } else {

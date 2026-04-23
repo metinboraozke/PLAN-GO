@@ -51,6 +51,10 @@ async def lifespan(app: FastAPI):
     try:
         await DatabaseManager.connect()
         await seed_data()
+        # auth_tokens TTL + unique index (email verification & password reset)
+        _db = DatabaseManager.get_database()
+        await _db["auth_tokens"].create_index("expires_at", expireAfterSeconds=0)
+        await _db["auth_tokens"].create_index("token", unique=True, sparse=True)
         print("[OK] MongoDB baglantisi kuruldu - canli veri kullaniliyor.")
     except Exception as e:
         # Non-fatal: server starts in mock-only mode when DB is unreachable

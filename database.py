@@ -3,7 +3,7 @@ Database module for MongoDB Atlas connection using Motor (async driver).
 SITA Smart Planner - Centralized Database Manager for all collections.
 """
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, List, Dict, Any, TypeVar, Generic
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase, AsyncIOMotorCollection
 from dotenv import load_dotenv
@@ -301,6 +301,7 @@ COLLECTIONS = {
     "event_chat":    "event_chat",
     "notifications": "notifications",
     "stories":       "stories",
+    "auth_tokens":   "auth_tokens",
 }
 
 
@@ -458,6 +459,37 @@ class UserService:
             {"_id": 1, "fcm_token": 1, "username": 1},
         )
         return [doc async for doc in cursor]
+
+
+class AuthTokenService:
+    """Email verification and password reset token service."""
+
+    @staticmethod
+    async def create(token: str, user_id: str, token_type: str, expires_seconds: int) -> None:
+        collection = DatabaseManager.get_collection(COLLECTIONS["auth_tokens"])
+        await collection.insert_one({
+            "token":      token,
+            "user_id":    user_id,
+            "type":       token_type,
+            "used":       False,
+            "expires_at": datetime.utcnow() + timedelta(seconds=expires_seconds),
+            "created_at": datetime.utcnow(),
+        })
+
+    @staticmethod
+    async def find_valid(token: str, token_type: str) -> Optional[Dict]:
+        collection = DatabaseManager.get_collection(COLLECTIONS["auth_tokens"])
+        return await collection.find_one({
+            "token":      token,
+            "type":       token_type,
+            "used":       False,
+            "expires_at": {"$gt": datetime.utcnow()},
+        })
+
+    @staticmethod
+    async def consume(token: str) -> None:
+        collection = DatabaseManager.get_collection(COLLECTIONS["auth_tokens"])
+        await collection.update_one({"token": token}, {"$set": {"used": True}})
 
 
 class EventPinService:

@@ -2078,6 +2078,17 @@
                         class="hidden text-sm text-center py-2.5 px-3"
                         style="color:#B85450; background:rgba(184,84,80,0.08); border-radius:12px; border:1px solid rgba(184,84,80,0.15);"></div>
 
+                    <!-- Email not verified banner -->
+                    <div id="auth-verify-banner"
+                        class="hidden text-sm py-2.5 px-3"
+                        style="color:#7A5C2A; background:rgba(255,193,7,0.1); border-radius:12px; border:1px solid rgba(255,193,7,0.25);">
+                        <span>E-postanı doğrulamadın.</span>
+                        <button id="auth-resend-btn"
+                            style="color:#4A7A5D; background:none; border:none; cursor:pointer; font-weight:700; padding:0 4px; font-size:13px;">
+                            Tekrar gönder
+                        </button>
+                    </div>
+
                     <!-- Submit Button -->
                     <button id="auth-submit" type="submit"
                         class="w-full font-bold text-base transition-all duration-200 mt-1"
@@ -2093,6 +2104,17 @@
                     <div class="flex-1 h-px" style="background:#E2EBE5;"></div>
                     <span class="text-xs" style="color:#A8C5B0; font-weight:600;">veya</span>
                     <div class="flex-1 h-px" style="background:#E2EBE5;"></div>
+                </div>
+
+                <!-- Forgot Password (only in login mode) -->
+                <div id="auth-forgot-wrap" class="text-center mb-1">
+                    <button id="auth-forgot-btn"
+                        class="text-xs transition-all"
+                        style="color:#7A8C82; background:none; border:none; cursor:pointer; padding:2px 6px; border-radius:6px;"
+                        onmouseover="this.style.color='#4A7A5D'"
+                        onmouseout="this.style.color='#7A8C82'">
+                        Şifremi unuttum
+                    </button>
                 </div>
 
                 <!-- Toggle Login/Register -->
