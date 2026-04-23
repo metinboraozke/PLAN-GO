@@ -276,8 +276,9 @@ async function _renderTotalSaved() {
     try {
         const { data: wishlists = [] } = await getWishlists();
         const totalSaved = (wishlists || []).reduce((sum, w) => {
+            const cost = Number(w.total_cost ?? 0);
+            if (!cost) return sum; // fiyat verisi olmayan planları atla (sadece bütçe sayılmasın)
             const budget = Number(w.budget ?? w.target_price ?? 0);
-            const cost   = Number(w.total_cost ?? 0);
             const diff   = budget - cost;
             return sum + (diff > 0 ? diff : 0);
         }, 0);

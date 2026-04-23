@@ -8,6 +8,7 @@ import { showToast }                                     from '../../../core/toa
 import { launchConfetti }                                from '../../../utils/confetti.js';
 import { loadWishlists }                                 from '../../planner/planner.screen.js';
 import { getCurrentPlanId }                              from './detail.screen.js';
+import { navigate }                                      from '../../../core/router.js';
 
 // ============================================
 // MODULE STATE
@@ -63,13 +64,9 @@ export async function confirmPlan() {
 
             // Navigate back to Planlarım after confetti finishes (~2.2 s)
             setTimeout(() => {
-                const detailScreen  = document.getElementById('screen-planner-detail');
-                const plannerScreen = document.getElementById('screen-planner');
-                const bar           = document.getElementById('pd-action-bar');
-                if (detailScreen)  detailScreen.classList.add('hidden');
-                if (plannerScreen) plannerScreen.classList.remove('hidden');
-                if (bar)           bar.style.display = 'none';
-                loadWishlists();
+                const bar = document.getElementById('pd-action-bar');
+                if (bar) bar.style.display = 'none';
+                navigate('planner'); // scroll reset + loadWishlists router üzerinden
             }, 2200);
         } else {
             showToast('Onaylama başarısız, tekrar dene.', 'error');
@@ -142,12 +139,8 @@ export async function confirmDeletePlan() {
                 modal.style.display = 'none';
             }
 
-            // Navigate back to planner list
-            document.getElementById('screen-planner-detail')?.classList.add('hidden');
-            document.getElementById('screen-planner')?.classList.remove('hidden');
-
-            // Refresh wishlist
-            await loadWishlists();
+            // Navigate back to planner list (scroll reset + loadWishlists router üzerinden)
+            navigate('planner');
         } else {
             throw new Error('Silme işlemi başarısız');
         }

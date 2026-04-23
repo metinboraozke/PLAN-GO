@@ -116,8 +116,19 @@ export async function openPlannerDetail(wishlistId, readOnly = false) {
     _pdData        = null;
     _pdAiItinerary = [];
 
+    // Scroll reset ÖNCE — planner'da aşağı scroll yapılmışsa sonra Harita'ya
+    // geçişte body scrollY map'i aşağı itiyor.
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.getElementById('app')?.scrollTo?.(0, 0);
+
     document.getElementById('screen-planner').classList.add('hidden');
-    document.getElementById('screen-planner-detail').classList.remove('hidden');
+    const detailScreen = document.getElementById('screen-planner-detail');
+    detailScreen.classList.remove('hidden');
+    detailScreen.scrollTop = 0;
+    detailScreen.querySelectorAll('[class*="overflow-y"], .pd-body').forEach(el => {
+        el.scrollTop = 0;
+    });
 
     // Show combined action bar
     const actionBar = document.getElementById('pd-action-bar');

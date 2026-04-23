@@ -205,10 +205,10 @@ def _build_kiwi_search_link(origin: str, dest: str, date: str) -> str:
         dt = datetime.strptime(str(date)[:10], "%Y-%m-%d")
         return (
             f"https://www.kiwi.com/en/search/results"
-            f"/{origin_slug}/{dest_slug}/{dt.strftime('%Y-%m-%d')}/"
+            f"/{origin_slug}/{dest_slug}/{dt.strftime('%Y-%m-%d')}/no-return/"
         )
     except Exception:
-        return f"https://www.kiwi.com/en/search/results/{origin_slug}/{dest_slug}/"
+        return f"https://www.kiwi.com/en/search/results/{origin_slug}/{dest_slug}/no-return/"
 
 def _map_tp_flight(item: dict, origin: str, dest: str, date: str) -> dict:
     return {

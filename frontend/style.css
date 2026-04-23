@@ -52,9 +52,14 @@ body:has(#screen-profile:not(.hidden)) {
 #screen-map {
   position: fixed;
   inset: 0;
+  top: 0 !important;
+  left: 0 !important;
   width: 100vw;
   height: 100vh;
   z-index: 30;
+  /* GPU katmanına alarak body scroll offset'inin layout'a sızmasını engelle */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 /* Keep the bottom nav visible above the map */
 #screen-map ~ nav.fixed.bottom-0,
@@ -2171,14 +2176,14 @@ p, span, li, label { font-weight: 400; }
    body scrolls. */
 .pd-action-bar {
   position: fixed;
-  bottom: calc(4rem + var(--safe-area-bottom));
+  bottom: calc(5rem + var(--safe-area-bottom));
   left: 0;
   right: 0;
   max-width: 448px;   /* matches #app max-w-md — stays within mobile frame */
   margin: 0 auto;     /* centers the bar on wide screens */
   border-radius: 20px 20px 0 0;
   background: #1a1a1a;
-  padding: 14px 20px 16px;
+  padding: 10px 16px 10px;
   z-index: 999;
   color: white;
   box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.22), 0 -1px 0 rgba(255,255,255,0.04);
@@ -2187,7 +2192,7 @@ p, span, li, label { font-weight: 400; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 .pd-action-right {
   display: flex;
@@ -2204,7 +2209,7 @@ p, span, li, label { font-weight: 400; }
   display: block;
 }
 .pd-budget-target {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.01em;
@@ -2222,7 +2227,7 @@ p, span, li, label { font-weight: 400; }
   letter-spacing: 0.01em;
 }
 .pd-budget-total {
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 900;
   color: #A3C14A;
   line-height: 1;
@@ -2240,12 +2245,12 @@ p, span, li, label { font-weight: 400; }
   gap: 10px;
   background: #A3C14A;
   color: white;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: 0.01em;
   border: none;
   border-radius: 20px;
-  padding: 17px 24px;
+  padding: 12px 20px;
   cursor: pointer;
   box-shadow: 0 6px 24px rgba(163, 193, 74, 0.38), 0 2px 8px rgba(0,0,0,0.1);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
