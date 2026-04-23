@@ -18,6 +18,45 @@ import { openPublicProfile } from '../../components/public-profile.js';
 // ── Module-level state ────────────────────────────────────────────────────────
 let _map = null;
 let _userMarker = null;
+
+// ── Modal scroll helpers (iOS rubber-band prevention) ─────────────────────────
+function _modalTouchStart(e) {
+    // _lastY must be seeded here — if seeded in touchmove with fallback 0,
+    // the first move compares clientY (~400px) > 0 and falsely blocks scroll.
+    e.currentTarget._lastY = e.touches[0].clientY;
+}
+function _modalTouchMove(e) {
+    const el = e.currentTarget;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    if (scrollHeight <= clientHeight + 1) { e.preventDefault(); return; }
+    const atTop    = scrollTop <= 0;
+    const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+    const curY     = e.touches[0].clientY;
+    if ((atTop    && curY > el._lastY) ||
+        (atBottom && curY < el._lastY)) {
+        e.preventDefault();
+    }
+    el._lastY = curY;
+}
+function _modalScrollClamp() {
+    const max = Math.max(0, this.scrollHeight - this.clientHeight);
+    if (this.scrollTop < 0)   this.scrollTop = 0;
+    if (this.scrollTop > max) this.scrollTop = max;
+}
+function _attachModalScroll(modalId) {
+    const c = document.querySelector(`#${modalId} > div:last-child`);
+    if (!c) return;
+    c.addEventListener('touchstart', _modalTouchStart,  { passive: true  });
+    c.addEventListener('touchmove',  _modalTouchMove,   { passive: false });
+    c.addEventListener('scroll',     _modalScrollClamp, { passive: true  });
+}
+function _detachModalScroll(modalId) {
+    const c = document.querySelector(`#${modalId} > div:last-child`);
+    if (!c) return;
+    c.removeEventListener('touchstart', _modalTouchStart);
+    c.removeEventListener('touchmove',  _modalTouchMove);
+    c.removeEventListener('scroll',     _modalScrollClamp);
+}
 let _userLocation = null;
 let _watchId = null;
 let _pins = [];
@@ -72,7 +111,7 @@ export async function initializeMap() {
 
     if (!_map) {
         _map = L.map('leaflet-map', {
-            zoomControl: true,
+            zoomControl: false,
             attributionControl: false
         }).setView([DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng], DEFAULT_ZOOM);
 
@@ -82,8 +121,12 @@ export async function initializeMap() {
             maxZoom: 19
         }).addTo(_map);
 
-        _map.zoomControl.setPosition('topright');
+        _map.on('click', () => { deselectPin(); deselectEvent(); });
+        setupMapLongPress();
     }
+
+    // rAF: browser layout tamamlandıktan sonra Leaflet boyutu okusun — senkron çağrı stale boyut alır
+    requestAnimationFrame(() => _map?.invalidateSize({ animate: false }));
 
     await Promise.all([getUserLocation(), loadMapPins()]);
     // _userLocation artık kesinlikle set edildi → yakındakiler filtresini yeniden uygula
@@ -96,10 +139,7 @@ export async function initializeMap() {
 
     if (loadingEl) loadingEl.classList.add('hidden');
 
-    setTimeout(() => _map?.invalidateSize(), 100);
-
-    _map.on('click', () => { deselectPin(); deselectEvent(); });
-    setupMapLongPress();
+    setTimeout(() => _map?.invalidateSize({ animate: false }), 300);
 }
 
 // ── Geolocation ───────────────────────────────────────────────────────────────
@@ -613,9 +653,15 @@ function openAddPinModal(lat, lng) {
     document.getElementById('image-preview-container').classList.add('hidden');
     document.getElementById('modal-add-pin').classList.remove('hidden');
     lucide?.createIcons();
+    _attachModalScroll('modal-add-pin');
 }
 
-export function closeAddPinModal() { document.getElementById('modal-add-pin').classList.add('hidden'); }
+export function closeAddPinModal() {
+    document.getElementById('modal-add-pin').classList.add('hidden');
+    _detachModalScroll('modal-add-pin');
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+}
 
 export async function handleAddPin(e) {
     e.preventDefault();
@@ -730,9 +776,15 @@ function openAddEventModal(lat, lng) {
     document.getElementById('new-event-creator-id').value = sessionStorage.getItem('pax_creator_id');
     document.getElementById('modal-add-event').classList.remove('hidden');
     lucide?.createIcons();
+    _attachModalScroll('modal-add-event');
 }
 
-export function closeAddEventModal() { document.getElementById('modal-add-event').classList.add('hidden'); }
+export function closeAddEventModal() {
+    document.getElementById('modal-add-event').classList.add('hidden');
+    _detachModalScroll('modal-add-event');
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+}
 
 export async function handleAddEvent(e) {
     e.preventDefault();
@@ -1170,9 +1222,15 @@ export function openEditPin() {
     document.getElementById('edit-pin-secret').checked    = !!pin.is_secret_spot;
     document.getElementById('modal-edit-pin').classList.remove('hidden');
     lucide?.createIcons();
+    _attachModalScroll('modal-edit-pin');
 }
 
-export function closeEditPinModal() { document.getElementById('modal-edit-pin').classList.add('hidden'); }
+export function closeEditPinModal() {
+    document.getElementById('modal-edit-pin').classList.add('hidden');
+    _detachModalScroll('modal-edit-pin');
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+}
 
 export async function handleEditPin(e) {
     e.preventDefault();

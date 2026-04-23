@@ -266,9 +266,26 @@ export function renderProfile(passport = {}) {
     // 10. Recent Trips
     renderRecentTrips(passport.recent_trips);
 
-    // 11. Money Saved
+    // 11. Money Saved — Σ(plan.budget - plan.total_cost) over confirmed plans
+    _renderTotalSaved();
+}
+
+async function _renderTotalSaved() {
     const savedEl = document.getElementById('profile-saved');
-    if (savedEl) savedEl.textContent = passport.total_saved_formatted || `₺${passport.total_saved || 0}`;
+    if (!savedEl) return;
+    try {
+        const { data: wishlists = [] } = await getWishlists();
+        const totalSaved = (wishlists || []).reduce((sum, w) => {
+            const cost = Number(w.total_cost ?? 0);
+            if (!cost) return sum; // fiyat verisi olmayan planları atla (sadece bütçe sayılmasın)
+            const budget = Number(w.budget ?? w.target_price ?? 0);
+            const diff   = budget - cost;
+            return sum + (diff > 0 ? diff : 0);
+        }, 0);
+        savedEl.textContent = `₺${totalSaved.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}`;
+    } catch {
+        savedEl.textContent = '₺0';
+    }
 }
 
 /**
@@ -473,6 +490,32 @@ export function openFullscreenMap() {
 }
 
 /**
+ * Resize + center-crop an image DataURL to `size`×`size` px using Canvas.
+ * Returns a JPEG DataURL (~quality 0.88) — always manageable size for MongoDB.
+ */
+function _resizeAvatar(dataUrl, size = 400) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width  = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            // Center-crop: scale so shortest side fills the square.
+            const scale = Math.max(size / img.width, size / img.height);
+            const sw = size / scale;
+            const sh = size / scale;
+            const sx = (img.width  - sw) / 2;
+            const sy = (img.height - sh) / 2;
+            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, size, size);
+            resolve(canvas.toDataURL('image/jpeg', 0.88));
+        };
+        img.onerror = () => resolve(dataUrl); // fallback: upload as-is
+        img.src = dataUrl;
+    });
+}
+
+/**
  * Handle avatar file input change — reads as base64 and PATCHes to backend.
  * @param {Event|HTMLInputElement} input - The file input element or its change event.
  */
@@ -484,16 +527,14 @@ export async function handleAvatarUpload(input) {
     const userId = localStorage.getItem('auth_user_id');
     if (!userId) { showToast('Önce giriş yapmalısın', 'error'); return; }
 
-    if (file.size > 2 * 1024 * 1024) {
-        showToast("Fotoğraf 2 MB'dan küçük olmalı", 'error');
-        return;
-    }
-
+    // Accept any size — we resize client-side before upload
     showToast('Fotoğraf yükleniyor...', 'info');
 
     const reader = new FileReader();
     reader.onload = async (e) => {
-        const dataUrl = e.target.result;
+        // Resize + center-crop to 400×400 regardless of original size/aspect ratio.
+        // This prevents oversized base64 payloads from failing at the backend.
+        const dataUrl = await _resizeAvatar(e.target.result, 400);
 
         // Optimistic update
         const passport = getSlice('profile').passport || {};
@@ -1008,7 +1049,7 @@ async function renderProfileWishlist() {
         container.innerHTML = wishlists.slice(0, 3).map(w => `
             <div class="wishlist-card group cursor-pointer"
                  onclick="navigate('planner'); openPlannerDetail('${escapeHtml(w._id || w.id || '')}')">
-                <img src="${escapeHtml(w.image_url || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=200&q=80')}"
+                <img src="${escapeHtml(w.image_url || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=200&q=80&fm=jpg')}"
                      class="wishlist-thumb"
                      alt="${escapeHtml(w.destination || '')}">
                 <div class="flex-1">

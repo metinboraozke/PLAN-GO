@@ -26,8 +26,18 @@ export function initEventListeners() {
     // ── Planner Back Button ────────────────────────────────────────────────
     document.getElementById('btn-back-planner')?.addEventListener('click', () => {
         cancelPlanDetailRefresh();
+
+        // Scroll reset — detayda aşağı inildiyse sonra Harita'ya geçişte
+        // body scrollY map'i aşağı itiyor.
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.getElementById('app')?.scrollTo?.(0, 0);
+
         document.getElementById('screen-planner-detail')?.classList.add('hidden');
-        document.getElementById('screen-planner')?.classList.remove('hidden');
+        const plannerScreen = document.getElementById('screen-planner');
+        plannerScreen?.classList.remove('hidden');
+        if (plannerScreen) plannerScreen.scrollTop = 0;
+
         const bar = document.getElementById('pd-action-bar');
         if (bar) bar.style.display = 'none';
         loadWishlists();

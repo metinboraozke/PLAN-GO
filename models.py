@@ -5,7 +5,7 @@ Supports: Discovery, Social Map, Smart Planner, Social Profile screens.
 from datetime import datetime, date
 from enum import Enum
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from bson import ObjectId
 
 
@@ -1046,13 +1046,13 @@ class PriceHistoryInDB(PriceHistoryBase):
 class UserRegister(BaseModel):
     """Model for user registration."""
     username: str = Field(..., min_length=3, max_length=50, description="Username")
-    email: str = Field(..., description="User email")
+    email: EmailStr = Field(..., description="User email")
     password: str = Field(..., min_length=6, description="User password")
 
 
 class UserLogin(BaseModel):
     """Model for user login."""
-    email: str = Field(..., description="User email")
+    email: EmailStr = Field(..., description="User email")
     password: str = Field(..., description="User password")
 
 
@@ -1064,4 +1064,18 @@ class TokenResponse(BaseModel):
     username: str = Field(..., description="Username")
     email: str = Field(..., description="User email")
     avatar_url: Optional[str] = Field(None, description="Profile picture URL")
+    email_verified: bool = Field(default=True, description="Email doğrulama durumu")
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(..., min_length=6)
+
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
 

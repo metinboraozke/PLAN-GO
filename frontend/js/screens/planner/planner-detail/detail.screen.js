@@ -11,6 +11,26 @@ import { formatPrice, formatDateRange }  from '../../../utils/format.js';
 import { escapeHtml, scheduleIconRefresh } from '../../../utils/dom.js';
 import { getCityImage }                  from '../../../utils/image-cache.js';
 
+// Body-level delegation: any [data-external-url] click opens via Capacitor
+// Browser on native (iOS/Android) or falls back to window.open on web.
+// Inline onclick="window.open(...)" handlers were failing in iOS WebView.
+if (!window.__externalLinkDelegationInstalled) {
+    window.__externalLinkDelegationInstalled = true;
+    document.addEventListener('click', async (e) => {
+        const el = e.target.closest?.('[data-external-url]');
+        if (!el) return;
+        const url = el.getAttribute('data-external-url');
+        if (!url) return;
+        e.preventDefault();
+        const Browser = window.Capacitor?.Plugins?.Browser;
+        if (Browser?.open) {
+            try { await Browser.open({ url, presentationStyle: 'popover' }); return; }
+            catch (err) { console.warn('[browser] plugin failed, falling back', err); }
+        }
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }, true);
+}
+
 // ============================================
 // MODULE STATE
 // ============================================
@@ -96,8 +116,19 @@ export async function openPlannerDetail(wishlistId, readOnly = false) {
     _pdData        = null;
     _pdAiItinerary = [];
 
+    // Scroll reset ÖNCE — planner'da aşağı scroll yapılmışsa sonra Harita'ya
+    // geçişte body scrollY map'i aşağı itiyor.
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.getElementById('app')?.scrollTo?.(0, 0);
+
     document.getElementById('screen-planner').classList.add('hidden');
-    document.getElementById('screen-planner-detail').classList.remove('hidden');
+    const detailScreen = document.getElementById('screen-planner-detail');
+    detailScreen.classList.remove('hidden');
+    detailScreen.scrollTop = 0;
+    detailScreen.querySelectorAll('[class*="overflow-y"], .pd-body').forEach(el => {
+        el.scrollTop = 0;
+    });
 
     // Show combined action bar
     const actionBar = document.getElementById('pd-action-bar');
@@ -286,8 +317,8 @@ export function buildFlightCardHtml(f, isReturn = false, planDate = null) {
                 <div class="pd-flight-city">${escapeHtml(arrCity)}</div>
             </div>
         </div>
-        ${flightLink ? `<a href="${flightLink}" target="_blank" rel="noopener noreferrer"
-            class="pd-booking-btn pd-booking-btn--flight">✈ Uçuşu Rezerve Et →</a>` : ''}
+        ${flightLink ? `<button type="button" data-external-url="${escapeHtml(flightLink)}"
+            class="pd-booking-btn pd-booking-btn--flight">✈ Uçuşu Rezerve Et →</button>` : ''}
     </div>`;
 }
 
@@ -298,7 +329,7 @@ export function buildFlightCardHtml(f, isReturn = false, planDate = null) {
  * @returns {string} HTML string
  */
 export function buildHotelCardHtml(h, nights) {
-    const img      = h.image_url   || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80';
+    const img      = h.image_url   || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80&fm=jpg';
     const name     = h.hotel_name  || 'Otel';
     const addr     = h.address     || '';
     const stars    = h.stars       || 3;
@@ -307,7 +338,7 @@ export function buildHotelCardHtml(h, nights) {
 
     return `
     <div class="pd-hotel-card">
-        <img src="${img}" class="pd-hotel-image" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80'">
+        <img src="${img}" class="pd-hotel-image" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80&fm=jpg'">
         <div class="pd-hotel-overlay">
             <div class="pd-hotel-stars" style="color:#F59E0B;font-size:13px">${starsHtml}</div>
             <div class="pd-hotel-name">${escapeHtml(name)}</div>
@@ -315,10 +346,10 @@ export function buildHotelCardHtml(h, nights) {
         </div>
         ${nights ? `<div class="pd-hotel-nights">${nights} Gece</div>` : ''}
         ${bookLink ? `
-        <a href="${bookLink}" target="_blank" rel="noopener noreferrer"
+        <button type="button" data-external-url="${escapeHtml(bookLink)}"
            class="pd-booking-btn pd-booking-btn--hotel">
             🏨 Booking.com'da Rezerve Et →
-        </a>` : ''}
+        </button>` : ''}
     </div>`;
 }
 
@@ -333,7 +364,7 @@ export function renderHotelOptions(hotels, selectedIdx) {
     if (!hotels.length) { container.innerHTML = ''; return; }
 
     container.innerHTML = hotels.map((h, i) => {
-        const img   = h.image_url   || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=60';
+        const img   = h.image_url   || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=60&fm=jpg';
         const name  = h.hotel_name  || 'Otel';
         const stars = '★'.repeat(h.stars || 3);
         const price = formatPrice(h.total_price || 0, h.currency || 'TRY');
@@ -341,7 +372,7 @@ export function renderHotelOptions(hotels, selectedIdx) {
 
         return `
         <div class="pd-hotel-opt ${sel}" onclick="window._pdSelectHotelOption(${i})">
-            <img src="${img}" class="pd-hotel-opt-thumb" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=60'">
+            <img src="${img}" class="pd-hotel-opt-thumb" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=60&fm=jpg'">
             <div class="pd-hotel-opt-info">
                 <div class="pd-hotel-opt-name">${escapeHtml(name)}</div>
                 <div class="pd-hotel-opt-stars">${stars}</div>

@@ -3,6 +3,10 @@
    Cream & Sage Premium Design System
    ===================================================== */
 
+/* Tailwind'in .hidden kuralı display:flex'den önce geldiği için
+   ezilebiliyor — !important ile garantiye alıyoruz. */
+.hidden { display: none !important; }
+
 /* ===================================================
    0. CAPACITOR / NATIVE APP SAFE AREA
    iPhone notch, Dynamic Island, Android status bar
@@ -26,15 +30,69 @@ nav.fixed.bottom-0 {
   padding-bottom: calc(0.5rem + var(--safe-area-bottom));
 }
 
-/* Sticky headers account for status bar */
+/* Sticky headers — body padding-top already clears the status bar */
 header.sticky {
-  padding-top: calc(1rem + var(--safe-area-top));
+  padding-top: 0.5rem;
+}
+/* Profile screen: tighter header + stronger visual anchor */
+#screen-profile header.sticky {
+  padding-top: 0.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+}
+/* Safe area background matches the profile screen's bg (#F9F7F2 = --cream-deep) */
+body:has(#screen-profile:not(.hidden)) {
+  background-color: #F9F7F2;
 }
 
-/* Map screen: full height minus safe areas */
+/* Map screen: FIXED edge-to-edge, independent of body safe-area padding
+   AND #app pb-20. Leaflet tiles fill the whole screen including behind the
+   notch and home indicator. */
 #screen-map {
-  height: calc(100vh - var(--safe-area-top) - var(--safe-area-bottom));
-  margin-top: var(--safe-area-top);
+  position: fixed;
+  inset: 0;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw;
+  height: 100vh;
+  z-index: 30;
+  /* GPU katmanına alarak body scroll offset'inin layout'a sızmasını engelle */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+/* Keep the bottom nav visible above the map */
+#screen-map ~ nav.fixed.bottom-0,
+body > nav.fixed.bottom-0 {
+  z-index: 40;
+}
+/* When the map screen is active, lock body scroll so only the Leaflet map
+   pans — the page itself must not move (user feedback). */
+body:has(#screen-map:not(.hidden)) {
+  overflow: hidden;
+  height: 100vh;
+}
+/* Creation modal açıkken nav bar'ı screen-map stacking context'inin altına al
+   (#screen-map z-index:30, nav z-index:40 → modal nav arkasında kalıyor) */
+body:has(#modal-add-pin:not(.hidden)) nav.fixed.bottom-0,
+body:has(#modal-add-event:not(.hidden)) nav.fixed.bottom-0,
+body:has(#modal-edit-pin:not(.hidden)) nav.fixed.bottom-0 {
+  z-index: 20 !important;
+}
+/* Modal content: fixed height scroll context — max-h sadece içerik taşarsa çalışır,
+   height:80vh her zaman scroll context oluşturur (iOS WKWebView) */
+#modal-add-pin > div:last-child,
+#modal-edit-pin > div:last-child,
+#modal-add-event > div:last-child {
+  height: 80vh;
+  overflow-y: scroll;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
+/* Map must not use the slide-up transition — translateY shifts tiles visually */
+#screen-map.screen-transition,
+#screen-map.animate-fade-in {
+  animation: none;
 }
 
 /* ===================================================
@@ -480,9 +538,9 @@ p, span, li, label { font-weight: 400; }
 
 /* Each card */
 #nearby-vibes-scroll > div {
-  min-width:      230px !important;
-  max-width:      260px !important;
-  height:         76px !important;
+  min-width:      170px !important;
+  max-width:      200px !important;
+  height:         60px !important;
   flex-shrink:    0 !important;
   scroll-snap-align: center;
   border-radius:  var(--radius-md);
@@ -490,8 +548,8 @@ p, span, li, label { font-weight: 400; }
   box-shadow:     var(--shadow-card);
   display:        flex !important;
   align-items:    center !important;
-  gap:            10px;
-  padding:        10px 12px !important;
+  gap:            8px;
+  padding:        8px 10px !important;
   cursor:         pointer;
   transition:     box-shadow 0.18s, transform 0.18s;
   pointer-events: auto;
@@ -969,7 +1027,7 @@ p, span, li, label { font-weight: 400; }
 #map-add-choice-backdrop {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.35);
-  z-index: 9997;
+  z-index: 10000;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
@@ -981,10 +1039,10 @@ p, span, li, label { font-weight: 400; }
 
 #map-add-choice-card {
   position: fixed; bottom: 0; left: 0; right: 0;
-  z-index: 9998;
+  z-index: 10001;
   background: #fff;
   border-radius: 22px 22px 0 0;
-  padding: 18px 16px 44px;
+  padding: 18px 16px calc(72px + env(safe-area-inset-bottom, 0px));
   box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
   transform: translateY(100%);
   transition: transform 0.32s cubic-bezier(0.34, 1.4, 0.64, 1);
@@ -2112,17 +2170,20 @@ p, span, li, label { font-weight: 400; }
   border: 1px solid var(--border);
 }
 
-/* ---- Combined Action Bar (Budget + Confirm Button) ---- */
+/* ---- Combined Action Bar (Budget + Confirm Button) ----
+   Pinned just above the bottom nav. Bottom nav height ≈ 4rem + safe-area-bottom,
+   so we stack the action bar immediately above it so it stays on-screen as the
+   body scrolls. */
 .pd-action-bar {
   position: fixed;
-  bottom: 70px; /* just above bottom nav */
+  bottom: calc(5rem + var(--safe-area-bottom));
   left: 0;
   right: 0;
   max-width: 448px;   /* matches #app max-w-md — stays within mobile frame */
   margin: 0 auto;     /* centers the bar on wide screens */
   border-radius: 20px 20px 0 0;
   background: #1a1a1a;
-  padding: 14px 20px 16px;
+  padding: 10px 16px 10px;
   z-index: 999;
   color: white;
   box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.22), 0 -1px 0 rgba(255,255,255,0.04);
@@ -2131,7 +2192,7 @@ p, span, li, label { font-weight: 400; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 .pd-action-right {
   display: flex;
@@ -2148,7 +2209,7 @@ p, span, li, label { font-weight: 400; }
   display: block;
 }
 .pd-budget-target {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.01em;
@@ -2166,7 +2227,7 @@ p, span, li, label { font-weight: 400; }
   letter-spacing: 0.01em;
 }
 .pd-budget-total {
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 900;
   color: #A3C14A;
   line-height: 1;
@@ -2184,12 +2245,12 @@ p, span, li, label { font-weight: 400; }
   gap: 10px;
   background: #A3C14A;
   color: white;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: 0.01em;
   border: none;
   border-radius: 20px;
-  padding: 17px 24px;
+  padding: 12px 20px;
   cursor: pointer;
   box-shadow: 0 6px 24px rgba(163, 193, 74, 0.38), 0 2px 8px rgba(0,0,0,0.1);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -3467,5 +3528,8 @@ p, span, li, label { font-weight: 400; }
 
 /* Pull-to-refresh guard */
 .native-app .screen {
+  overscroll-behavior-y: contain;
+}
+
   overscroll-behavior-y: contain;
 }

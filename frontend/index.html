@@ -10,8 +10,8 @@
     <link rel="manifest" href="/manifest.json">
     <title>PLANİGO - Akıllı Seyahat Planlayıcı</title>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS — local build (no CDN, works in iOS WebView) -->
+    <link rel="stylesheet" href="tailwind.css">
 
     <!-- Google Fonts — Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,20 +19,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
         rel="stylesheet">
 
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Lucide Icons — local vendor bundle -->
+    <script src="public/vendor/lucide.min.js"></script>
 
-    <!-- Leaflet.js Map Library -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Leaflet.js Map Library — local vendor bundle -->
+    <link rel="stylesheet" href="public/vendor/leaflet.css">
+    <script src="public/vendor/leaflet.js"></script>
 
     <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css">
-
-    <!-- ES Module Shims (importmap polyfill for older browsers) -->
-    <script async src="https://ga.jspm.io/npm:es-module-shims@1.8.0/dist/es-module-shims.js"></script>
 
     <!-- Import Map: bare specifiers → module paths -->
     <script type="importmap">
@@ -130,38 +125,6 @@
         .upcoming-trip-book-btn:hover { opacity: 0.88; }
     </style>
 
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        dark: {
-                            900: '#0F172A',
-                            800: '#1E293B',
-                            700: '#334155',
-                            600: '#475569',
-                        },
-                        accent: {
-                            orange: '#F97316',
-                            purple: '#8B5CF6',
-                            blue: '#3B82F6',
-                            green: '#10B981',
-                            pink: '#EC4899',
-                        },
-                        sage:  '#9CAF88',
-                        cream: '#FDFCF8',
-                        main:  '#1a1a1a',
-                        muted: '#9ca3af',
-                    },
-                    fontFamily: {
-                        sans:  ['"Plus Jakarta Sans"', 'sans-serif'],
-                        serif: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         /* Map Fullscreen Transition */
         #world-map-container {
@@ -225,7 +188,7 @@
     </style>
 </head>
 
-<body class="bg-slate-50 font-sans text-slate-900 min-h-screen">
+<body class="bg-cream font-sans text-slate-900 min-h-screen">
 
     <!-- App Container (Mobile First) -->
     <div id="app" class="max-w-md mx-auto bg-white min-h-screen relative pb-20 overflow-x-hidden">
@@ -283,7 +246,7 @@
                     </div>
 
                     <div class="deal-card-wide" id="deal-of-day-card">
-                        <img src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?q=80&w=2071&auto=format&fit=crop"
+                        <img src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?q=80&w=2071&fit=crop&fm=jpg"
                             alt="Istanbul">
                         <div class="deal-card-overlay-gradient"></div>
                         <!-- Top badges row -->
@@ -329,7 +292,7 @@
                         <!-- Atina -->
                         <div class="escape-card escape-stagger" style="animation-delay:0ms">
                             <div class="escape-card-img">
-                                <img src="https://images.unsplash.com/photo-1616489953121-042239c4ca94?w=500&auto=format&fit=crop&q=60" alt="Atina">
+                                <img src="https://images.unsplash.com/photo-1616489953121-042239c4ca94?w=500&fit=crop&q=60&fm=jpg" alt="Atina">
                                 <span class="escape-card-city">Atina</span>
                                 <span class="escape-card-duration">✈️ 1sa 20dk &nbsp;·&nbsp; 🌙 3 Gece</span>
                             </div>
@@ -344,7 +307,7 @@
                         <!-- Tokyo -->
                         <div class="escape-card escape-stagger" style="animation-delay:80ms">
                             <div class="escape-card-img">
-                                <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=500&auto=format&fit=crop&q=60" alt="Tokyo">
+                                <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=500&fit=crop&q=60&fm=jpg" alt="Tokyo">
                                 <span class="escape-card-city">Tokyo</span>
                                 <span class="escape-card-duration">✈️ 11sa 30dk &nbsp;·&nbsp; 🌙 7 Gece</span>
                             </div>
@@ -397,7 +360,8 @@
         <!-- ============================================ -->
         <section id="screen-map" class="screen hidden animate-fade-in relative h-screen overflow-hidden">
             <!-- Header (Floating Premium Panel) -->
-            <div class="absolute top-0 left-0 right-0 z-[400] px-3 pt-3 pointer-events-none">
+            <div style="padding-top: calc(var(--safe-area-top) + 0.5rem)"
+                 class="absolute top-0 left-0 right-0 z-[400] px-3 pointer-events-none">
                 <div
                     class="pointer-events-auto bg-white/95 backdrop-blur-lg rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-3 flex flex-col gap-2.5 border border-white/60">
                     <div class="flex items-center justify-between px-0.5">
@@ -448,18 +412,19 @@
             <!-- Map Container -->
             <div id="leaflet-map" class="w-full h-full z-0 bg-cream"></div>
 
-            <!-- Bottom Sheet (Nearby Vibes + Pin Detail) -->
+            <!-- Bottom Sheet (Nearby Vibes + Pin Detail) — pinned just above bottom nav with breathing room -->
             <div id="map-bottom-sheet"
-                class="absolute bottom-24 left-0 right-0 z-[400] px-4 pointer-events-none transition-all duration-300 ease-out">
+                style="bottom: calc(4.5rem + var(--safe-area-bottom) + 0.5rem)"
+                class="absolute left-0 right-0 z-[400] px-4 pointer-events-none transition-all duration-300 ease-out">
 
                 <!-- DEFAULT: Nearby Vibes Scroll -->
                 <div id="nearby-vibes-default">
-                    <div class="flex items-center justify-between mb-2 px-2">
+                    <div class="flex items-center justify-between mb-1.5 px-2">
                         <h2
-                            class="text-sm font-bold text-main shadow-sm bg-white/50 px-2 py-1 rounded-lg backdrop-blur pointer-events-auto">
+                            class="text-xs font-bold text-main shadow-sm bg-white/50 px-1.5 py-0.5 rounded-lg backdrop-blur pointer-events-auto">
                             Yakındakiler</h2>
                         <button
-                            class="text-xs font-bold text-sage bg-white/50 px-2 py-1 rounded-lg backdrop-blur pointer-events-auto">Tümünü
+                            class="text-[10px] font-bold text-sage bg-white/50 px-1.5 py-0.5 rounded-lg backdrop-blur pointer-events-auto">Tümünü
                             Gör</button>
                     </div>
                     <div id="nearby-vibes-scroll"
@@ -585,7 +550,7 @@
                 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAddPinModal()"></div>
 
                 <!-- Modal Content -->
-                <div class="relative w-full max-w-md bg-white rounded-t-3xl p-6 pb-8 animate-slide-up shadow-2xl">
+                <div class="relative w-full max-w-md bg-white rounded-t-3xl p-6 pb-8 animate-slide-up shadow-2xl overflow-y-auto max-h-[90vh]">
                     <!-- Handle -->
                     <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
 
@@ -701,7 +666,7 @@
             <!-- ========== EDIT PIN MODAL ========== -->
             <div id="modal-edit-pin" class="hidden fixed inset-0 z-[600] flex items-end justify-center">
                 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeEditPinModal()"></div>
-                <div class="relative w-full max-w-md bg-white rounded-t-3xl p-6 pb-8 animate-slide-up shadow-2xl">
+                <div class="relative w-full max-w-md bg-white rounded-t-3xl p-6 pb-8 animate-slide-up shadow-2xl overflow-y-auto max-h-[90vh]">
                     <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
                     <div class="flex items-center justify-between mb-5">
                         <div class="flex items-center gap-2">
@@ -841,25 +806,6 @@
                 </div>
             </div>
 
-            <!-- ========== MAP ADD CHOICE CARD ========== -->
-            <div id="map-add-choice-backdrop" onclick="closeMapAddChoice()"></div>
-            <div id="map-add-choice-card">
-                <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
-                <h3 class="text-base font-bold text-main text-center mb-4">Haritaya ne eklemek istiyorsun?</h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <button class="choice-btn" onclick="chooseAddPin()">
-                        <span class="text-3xl">📌</span>
-                        <p class="font-bold text-sm text-main">Normal Pin</p>
-                        <p class="text-[11px] text-muted">Mekan, kafe, manzara…</p>
-                    </button>
-                    <button class="choice-btn event" onclick="chooseAddEvent()">
-                        <span class="text-3xl">🌟</span>
-                        <p class="font-bold text-sm text-main">Etkinlik Pini</p>
-                        <p class="text-[11px] text-muted">Buluşma, aktivite…</p>
-                    </button>
-                </div>
-            </div>
-
             <!-- ========== ADD EVENT MODAL ========== -->
             <div id="modal-add-event" class="hidden fixed inset-0 z-[600] flex items-end justify-center">
                 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAddEventModal()"></div>
@@ -917,17 +863,17 @@
                                 placeholder="Etkinliği kısaca anlat…"
                                 class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm resize-none focus:border-[#A3C14A] focus:outline-none"></textarea>
                         </div>
-                        <!-- Date & participants row -->
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
+                        <!-- Date & participants — flex: date takes remaining space, participants fixed width -->
+                        <div class="flex items-end gap-3">
+                            <div class="flex-1 min-w-0">
                                 <label class="text-xs font-bold text-main mb-1.5 block">Tarih & Saat *</label>
                                 <input name="event_date" type="datetime-local" required
-                                    class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#A3C14A] focus:outline-none">
+                                    class="w-full px-2 py-2 rounded-xl border border-gray-200 text-xs focus:border-[#A3C14A] focus:outline-none">
                             </div>
-                            <div>
-                                <label class="text-xs font-bold text-main mb-1.5 block">Maks Katılımcı</label>
+                            <div class="w-20 shrink-0">
+                                <label class="text-xs font-bold text-main mb-1.5 block">Katılımcı</label>
                                 <input name="max_participants" type="number" min="2" max="500" value="10"
-                                    class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#A3C14A] focus:outline-none">
+                                    class="w-full px-2 py-2 rounded-xl border border-gray-200 text-sm text-center focus:border-[#A3C14A] focus:outline-none">
                             </div>
                         </div>
                         <!-- Address (optional) -->
@@ -1552,12 +1498,7 @@
                     <p class="text-[10px] text-white/60 font-bold uppercase tracking-[0.2em] mb-3">Toplam Tasarruf
                     </p>
                     <div class="flex items-center justify-center gap-1 mb-4">
-                        <span class="text-4xl font-serif text-white font-bold">₺12,450</span>
-                    </div>
-                    <div
-                        class="inline-flex items-center gap-2 bg-[#ffffff]/10 backdrop-blur border border-white/10 px-4 py-1.5 rounded-full">
-                        <i data-lucide="trending-up" class="w-3 h-3 text-[#9CAF88]"></i>
-                        <span class="text-xs text-[#9CAF88] font-bold">+8% bu ay</span>
+                        <span id="profile-saved" class="text-4xl font-serif text-white font-bold">₺0</span>
                     </div>
                 </div>
             </div>
@@ -1576,16 +1517,18 @@
             <!-- Harita: tüm overlay'i kaplar. z-0 → Leaflet iç pane'larını izole eder, X butonu üstte kalır -->
             <div id="fullscreen-map-container" class="absolute inset-0 z-0"></div>
 
-            <!-- Header gradient -->
-            <div class="absolute top-0 left-0 right-0 z-10 px-4 pt-10 pb-6
+            <!-- Header gradient — uses CSS var so it clears the Dynamic Island/notch -->
+            <div style="padding-top: calc(var(--safe-area-top) + 1rem)"
+                 class="absolute top-0 left-0 right-0 z-10 px-4 pb-6
                         bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
                 <h2 class="text-lg font-serif font-bold text-white drop-shadow">Dünya Haritası</h2>
                 <p class="text-xs text-white/80 font-bold uppercase tracking-wide" id="overlay-stats">5 Ülke Ziyaret Edildi</p>
             </div>
 
-            <!-- X Butonu: absolute (artık overflow-hidden parent yok, çalışır) -->
+            <!-- X Butonu — cleared below status bar via CSS var -->
             <button id="btn-close-map"
-                    class="absolute top-4 right-4 z-20 w-11 h-11 rounded-full
+                    style="top: calc(var(--safe-area-top) + 1rem)"
+                    class="absolute right-4 z-20 w-11 h-11 rounded-full
                            bg-white shadow-lg border border-gray-200
                            flex items-center justify-center
                            text-[#1a1a1a] active:scale-95 transition-transform">
@@ -1827,7 +1770,7 @@
                             <!-- Antalya -->
                             <div class="popular-route-chip" data-dest="Antalya"
                                 style="flex-shrink:0; width:140px; height:100px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer; scroll-snap-align:start;">
-                                <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-4.0.3&fit=crop&w=600&q=80&fm=jpg"
                                     alt="Antalya" style="width:100%; height:100%; object-fit:cover;">
                                 <div
                                     style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);">
@@ -1847,7 +1790,7 @@
                             <!-- Paris -->
                             <div class="popular-route-chip" data-dest="Paris"
                                 style="flex-shrink:0; width:140px; height:100px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer; scroll-snap-align:start;">
-                                <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?ixlib=rb-4.0.3&fit=crop&w=600&q=80&fm=jpg"
                                     alt="Paris" style="width:100%; height:100%; object-fit:cover;">
                                 <div
                                     style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);">
@@ -1867,7 +1810,7 @@
                             <!-- Roma -->
                             <div class="popular-route-chip" data-dest="Roma"
                                 style="flex-shrink:0; width:140px; height:100px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer; scroll-snap-align:start;">
-                                <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?ixlib=rb-4.0.3&fit=crop&w=600&q=80&fm=jpg"
                                     alt="Roma" style="width:100%; height:100%; object-fit:cover;">
                                 <div
                                     style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);">
@@ -1887,7 +1830,7 @@
                             <!-- Bali -->
                             <div class="popular-route-chip" data-dest="Bali"
                                 style="flex-shrink:0; width:140px; height:100px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer; scroll-snap-align:start;">
-                                <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&fit=crop&w=600&q=80&fm=jpg"
                                     alt="Bali" style="width:100%; height:100%; object-fit:cover;">
                                 <div
                                     style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);">
@@ -2023,6 +1966,25 @@
 
 
     <!-- ============================================ -->
+    <!-- ========== MAP ADD CHOICE CARD (global — fixed element must be outside overflow:hidden section) ========== -->
+    <div id="map-add-choice-backdrop" onclick="closeMapAddChoice()"></div>
+    <div id="map-add-choice-card">
+        <div class="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+        <h3 class="text-base font-bold text-main text-center mb-4">Haritaya ne eklemek istiyorsun?</h3>
+        <div class="grid grid-cols-2 gap-3">
+            <button class="choice-btn" onclick="chooseAddPin()">
+                <span class="text-3xl">📌</span>
+                <p class="font-bold text-sm text-main">Normal Pin</p>
+                <p class="text-[11px] text-muted">Mekan, kafe, manzara…</p>
+            </button>
+            <button class="choice-btn event" onclick="chooseAddEvent()">
+                <span class="text-3xl">🌟</span>
+                <p class="font-bold text-sm text-main">Etkinlik Pini</p>
+                <p class="text-[11px] text-muted">Buluşma, aktivite…</p>
+            </button>
+        </div>
+    </div>
+
     <!-- AUTH MODAL (Login / Register) -->
     <!-- ============================================ -->
     <div id="modal-auth"
@@ -2116,8 +2078,19 @@
                         class="hidden text-sm text-center py-2.5 px-3"
                         style="color:#B85450; background:rgba(184,84,80,0.08); border-radius:12px; border:1px solid rgba(184,84,80,0.15);"></div>
 
+                    <!-- Email not verified banner -->
+                    <div id="auth-verify-banner"
+                        class="hidden text-sm py-2.5 px-3"
+                        style="color:#7A5C2A; background:rgba(255,193,7,0.1); border-radius:12px; border:1px solid rgba(255,193,7,0.25);">
+                        <span>E-postanı doğrulamadın.</span>
+                        <button id="auth-resend-btn"
+                            style="color:#4A7A5D; background:none; border:none; cursor:pointer; font-weight:700; padding:0 4px; font-size:13px;">
+                            Tekrar gönder
+                        </button>
+                    </div>
+
                     <!-- Submit Button -->
-                    <button id="auth-submit" type="submit" onclick="handleAuthSubmit()"
+                    <button id="auth-submit" type="submit"
                         class="w-full font-bold text-base transition-all duration-200 mt-1"
                         style="background: linear-gradient(135deg, #4A7A5D 0%, #6A9E7A 100%); color:#FAF7F2; padding: 14px; border-radius:16px; border:none; box-shadow: 0 6px 20px rgba(74,122,93,0.38); letter-spacing:0.2px;"
                         onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 10px 28px rgba(74,122,93,0.45)'"
@@ -2133,11 +2106,22 @@
                     <div class="flex-1 h-px" style="background:#E2EBE5;"></div>
                 </div>
 
+                <!-- Forgot Password (only in login mode) -->
+                <div id="auth-forgot-wrap" class="text-center mb-1">
+                    <button id="auth-forgot-btn"
+                        class="text-xs transition-all"
+                        style="color:#7A8C82; background:none; border:none; cursor:pointer; padding:2px 6px; border-radius:6px;"
+                        onmouseover="this.style.color='#4A7A5D'"
+                        onmouseout="this.style.color='#7A8C82'">
+                        Şifremi unuttum
+                    </button>
+                </div>
+
                 <!-- Toggle Login/Register -->
                 <div class="text-center">
                     <p class="text-sm" style="color:#7A8C82;">
                         <span id="auth-toggle-text">Hesabın yok mu?</span>
-                        <button id="auth-toggle-btn" onclick="toggleAuthMode()"
+                        <button id="auth-toggle-btn"
                             class="font-bold ml-1.5 transition-all"
                             style="color:#4A7A5D; background:none; border:none; cursor:pointer; padding:2px 6px; border-radius:6px;"
                             onmouseover="this.style.background='rgba(74,122,93,0.1)'"

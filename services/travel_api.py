@@ -191,29 +191,37 @@ def _build_tp_link(origin: str, dest: str, date: str) -> str:
         return build_affiliate_link(f"https://www.aviasales.com/?marker={_TP_MARKER}")
 
 def _build_kiwi_search_link(origin: str, dest: str, date: str) -> str:
-    """Kiwi.com link wrapped in Travelpayouts affiliate redirect (marker, p=4114)."""
-    from urllib.parse import quote
+    """Direct kiwi.com search link using city-country slugs (e.g. istanbul-turkey).
+
+    City-country slugs are the most reliable Kiwi URL format — airport: prefix
+    and bare IATA codes both left from/to fields empty in practice.
+    Falls back to airport: prefix if slug not in the mapping.
+    """
+    o = origin.upper()
+    d = dest.upper()
+    origin_slug = _IATA_TO_KIWI_SLUG.get(o, f"airport:{o}")
+    dest_slug   = _IATA_TO_KIWI_SLUG.get(d, f"airport:{d}")
     try:
         dt = datetime.strptime(str(date)[:10], "%Y-%m-%d")
-        kiwi_url = (
+        return (
             f"https://www.kiwi.com/en/search/results"
-            f"/{origin.upper()}/{dest.upper()}/{dt.strftime('%Y-%m-%d')}/no-return"
+            f"/{origin_slug}/{dest_slug}/{dt.strftime('%Y-%m-%d')}/no-return/"
         )
     except Exception:
-        kiwi_url = f"https://www.kiwi.com/en/search/results/{origin.upper()}/{dest.upper()}"
-    m = _TP_MARKER or "710551"
-    return f"https://tp.media/r?marker={m}&p=4114&u={quote(kiwi_url, safe='')}"
+        return f"https://www.kiwi.com/en/search/results/{origin_slug}/{dest_slug}/no-return/"
 
 def _map_tp_flight(item: dict, origin: str, dest: str, date: str) -> dict:
     return {
-        "price":     item.get("value", 0),
-        "currency":  "TRY",
-        "airline":   item.get("gate", "?"),   # "Aviakassa", "Kupi.com" vb.
-        "departure": item.get("depart_date"),
-        "return":    item.get("return_date") or None,
-        "duration":  item.get("duration", 0),  # dakika
-        "stops":     item.get("number_of_changes", 0),
-        "link":      _build_tp_link(origin, dest, date),
+        "price":          item.get("value", 0),
+        "currency":       "TRY",
+        "airline":        item.get("gate", "?"),
+        "departure":      item.get("depart_date"),
+        "departure_code": origin.upper() if origin else "",
+        "arrival_code":   dest.upper()   if dest   else "",
+        "return":         item.get("return_date") or None,
+        "duration":       item.get("duration", 0),
+        "stops":          item.get("number_of_changes", 0),
+        "link":           _build_tp_link(origin, dest, date),
     }
 
 def _map_kiwi_flight(item: dict, origin: str, dest: str, dep_date: str) -> dict:
@@ -246,30 +254,23 @@ def _map_kiwi_flight(item: dict, origin: str, dest: str, dep_date: str) -> dict:
     duration_sec = sector.get("duration", 0) or 0
     duration_min = duration_sec // 60
 
-    # link -> bookingOptions.edges[0].node.bookingUrl
-    link = None
-    edges = (item.get("bookingOptions") or {}).get("edges") or []
-    if edges:
-        node    = (edges[0] or {}).get("node") or {}
-        raw_url = node.get("bookingUrl") or ""
-        if raw_url.startswith("/"):
-            link = f"https://www.kiwi.com{raw_url}"
-        elif raw_url:
-            link = raw_url
-    if not link:
-        link = build_affiliate_link(
-            f"https://www.kiwi.com/en/search/results/airport:{origin}/airport:{dest}/{dep_date}/no-return"
-        )
+    # session-based bookingUrl expires → always use a fresh search link
+    link = (
+        f"https://www.kiwi.com/en/search/results"
+        f"/airport:{origin.upper()}/airport:{dest.upper()}/{dep_date}/"
+    )
 
     return {
-        "price":     price_try,
-        "currency":  "TRY",
-        "airline":   airline or "?",
-        "departure": departure,
-        "return":    None,
-        "duration":  duration_min,
-        "stops":     0,
-        "link":      link,
+        "price":          price_try,
+        "currency":       "TRY",
+        "airline":        airline or "?",
+        "departure":      departure,
+        "departure_code": origin.upper() if origin else "",
+        "arrival_code":   dest.upper()   if dest   else "",
+        "return":         None,
+        "duration":       duration_min,
+        "stops":          0,
+        "link":           link,
     }
 
 async def _search_kiwi(origin: str, destination: str, dep_date: str,
