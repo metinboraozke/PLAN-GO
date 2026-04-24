@@ -3192,12 +3192,13 @@ p, span, li, label { font-weight: 400; }
 
 /* Chat message bubbles */
 .chat-bubble {
-  max-width:     75%;
-  padding:       8px 12px;
-  border-radius: 16px;
-  font-size:     13px;
-  line-height:   1.45;
-  word-break:    break-word;
+  max-width:       min(280px, 75vw);
+  padding:         8px 12px;
+  border-radius:   16px;
+  font-size:       13px;
+  line-height:     1.45;
+  overflow-wrap:   anywhere;
+  word-break:      normal;
 }
 .chat-bubble--mine {
   background:    #A3C14A;
