@@ -56,9 +56,16 @@ async def _assert_event_access(event_id: str, user_id: str, requests_col) -> Non
 # ── Event Pin CRUD ─────────────────────────────────────────────────────────────
 
 @router.post("", response_model=EventPinResponse, status_code=201, summary="Yeni PAX etkinlik pini oluştur")
-async def create_event_pin(event: EventPinCreate):
+async def create_event_pin(
+    event:        EventPinCreate,
+    current_user: dict = Depends(get_current_user),
+):
     try:
-        db_obj   = EventPinInDB(**event.model_dump())
+        # creator_id / creator_name JWT'den override — body yoksayılır
+        payload = event.model_dump()
+        payload["creator_id"]   = current_user["user_id"]
+        payload["creator_name"] = current_user.get("username") or payload.get("creator_name")
+        db_obj   = EventPinInDB(**payload)
         doc      = db_obj.to_dict()
         event_id = await EventPinService.create(doc)
         if not event_id:

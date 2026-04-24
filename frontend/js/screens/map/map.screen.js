@@ -768,12 +768,11 @@ function openAddEventModal(lat, lng) {
     const center = _map ? _map.getCenter() : { lat: DEFAULT_LOCATION.lat, lng: DEFAULT_LOCATION.lng };
     document.getElementById('new-event-lat').value = lat ?? center.lat;
     document.getElementById('new-event-lng').value = lng ?? center.lng;
-    if (!sessionStorage.getItem('pax_creator_id')) {
-        sessionStorage.setItem('pax_creator_id', 'user_' + Date.now());
-    }
-    document.getElementById('new-event-creator-id').value = sessionStorage.getItem('pax_creator_id');
+    // creator_id backend'de JWT'den override ediliyor — placeholder yeterli
+    const creatorId = localStorage.getItem('auth_user_id') || '';
+    document.getElementById('new-event-creator-id').value = creatorId;
     document.getElementById('form-add-event').reset();
-    document.getElementById('new-event-creator-id').value = sessionStorage.getItem('pax_creator_id');
+    document.getElementById('new-event-creator-id').value = creatorId;
     document.getElementById('modal-add-event').classList.remove('hidden');
     lucide?.createIcons();
     _attachModalScroll('modal-add-event');
@@ -803,8 +802,9 @@ export async function handleAddEvent(e) {
         event_date:       formData.get('event_date'),
         max_participants: parseInt(formData.get('max_participants'))   || 10,
         event_type:       formData.get('event_type')                  || 'social',
-        creator_id:       formData.get('creator_id')                  || sessionStorage.getItem('pax_creator_id') || ('anon_' + Date.now()),
-        creator_name:     formData.get('creator_name')                || null,
+        // Backend creator_id / creator_name'i JWT'den alıyor; burada göndereceğimiz değer yoksayılır.
+        creator_id:       localStorage.getItem('auth_user_id') || '',
+        creator_name:     localStorage.getItem('auth_username') || formData.get('creator_name') || null,
         address:          formData.get('address')                     || null,
     };
 
@@ -904,7 +904,7 @@ function selectEvent(event) {
         locCell.classList.add('hidden');
     }
 
-    const myId      = sessionStorage.getItem('pax_creator_id') || '';
+    const myId      = localStorage.getItem('auth_user_id') || sessionStorage.getItem('pax_creator_id') || '';
     const isCreator = !!(myId && myId === event.creator_id);
 
     document.getElementById('evd-join-section').classList.toggle('hidden', isCreator);
@@ -953,8 +953,8 @@ export async function handleJoinEvent() {
     const eventId = sendBtn?.dataset.eventId;
     if (!eventId) return;
 
-    const userId = sessionStorage.getItem('pax_creator_id') || ('user_' + Date.now());
-    sessionStorage.setItem('pax_creator_id', userId);
+    // user_id backend'de JWT'den override ediliyor — body'de sadece placeholder
+    const userId = localStorage.getItem('auth_user_id') || '';
 
     const message = document.getElementById('join-message-text')?.value?.trim() || null;
 

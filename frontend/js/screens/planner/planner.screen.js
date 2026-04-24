@@ -627,11 +627,22 @@ export async function sendChatMessage() {
     input.value        = '';
     input.style.height = 'auto';
 
-    const { error } = await sendChatMsg(_chatEventId, { user_id: uid, user_name: name, text });
+    const { error, status } = await sendChatMsg(_chatEventId, { user_id: uid, user_name: name, text });
     if (error) {
-        showToast('Mesaj gönderilemedi', 'error');
+        console.error('[Chat] Gönderim hatası:', { status, error, eventId: _chatEventId, uid });
+        const msg = status === 403 ? 'Sohbete erişim yetkin yok — katılımın henüz onaylanmamış olabilir.'
+                  : status === 401 ? 'Oturum süresi doldu, tekrar giriş yap.'
+                  : status === 429 ? 'Çok hızlı mesaj gönderdin, biraz bekle.'
+                  : status === 400 ? 'Geçersiz mesaj ya da etkinlik ID\'si.'
+                  : status === 422 ? 'Mesaj formatı hatalı.'
+                  : `Mesaj gönderilemedi${status ? ` (HTTP ${status})` : ''}.`;
+        showToast(msg, 'error');
         input.value = text;
+        return;
     }
+
+    // Başarılı — hemen yeni mesajları çek ki gönderilen görünsün
+    _loadChatMessages();
 }
 
 // ── Wishlist Modal ─────────────────────────────────────────────────────────

@@ -2161,11 +2161,11 @@
 
 
     <!-- ========== EVENT GROUP CHAT SCREEN ========== -->
-    <div id="modal-event-chat" class="hidden fixed inset-0 z-[10000]" style="font-family:'Plus Jakarta Sans',sans-serif;">
-        <div style="max-width:480px; margin:0 auto; height:100%; display:flex; flex-direction:column; background:#fff; overflow:hidden; position:relative;">
+    <div id="modal-event-chat" class="hidden fixed inset-0 z-[10000]" style="font-family:'Plus Jakarta Sans',sans-serif; overscroll-behavior:contain;">
+        <div style="max-width:480px; margin:0 auto; height:100%; display:flex; flex-direction:column; background:#fff; overflow:hidden; position:relative; overscroll-behavior:contain;">
 
             <!-- Header -->
-            <div style="display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid #f3f4f6; flex-shrink:0; background:#fff;">
+            <div style="display:flex; align-items:center; gap:12px; padding: calc(var(--safe-area-top) + 12px) 16px 12px; border-bottom:1px solid #f3f4f6; flex-shrink:0; background:#fff;">
                 <button onclick="closeEventChat()" style="width:36px;height:36px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;">
                     <i data-lucide="arrow-left" class="w-5 h-5 text-[#1a1a1a]"></i>
                 </button>
@@ -2190,7 +2190,7 @@
             </div>
 
             <!-- Input -->
-            <div style="flex-shrink:0;padding:12px 16px;border-top:1px solid #f3f4f6;display:flex;align-items:flex-end;gap:8px;background:#fff;">
+            <div style="flex-shrink:0;padding:12px 16px calc(var(--safe-area-bottom) + 12px);border-top:1px solid #f3f4f6;display:flex;align-items:flex-end;gap:8px;background:#fff;">
                 <textarea id="chat-input" rows="1"
                     placeholder="Mesajınızı yazın..."
                     style="flex:1;resize:none;border-radius:20px;border:1.5px solid #e5e7eb;padding:10px 16px;font-size:13px;font-family:inherit;color:#1a1a1a;outline:none;max-height:96px;line-height:1.4;transition:border-color 0.15s;"
@@ -2209,7 +2209,7 @@
             <!-- Katılımcılar Paneli (sağdan açılır) -->
             <div id="chat-participants-panel" style="position:absolute;top:0;right:0;bottom:0;width:260px;background:#fff;box-shadow:-4px 0 20px rgba(0,0,0,0.12);transform:translateX(100%);transition:transform 0.25s ease;z-index:10;display:flex;flex-direction:column;">
                 <!-- Panel Header -->
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid #f3f4f6;flex-shrink:0;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding: calc(var(--safe-area-top) + 16px) 16px 16px;border-bottom:1px solid #f3f4f6;flex-shrink:0;">
                     <div>
                         <p style="font-weight:700;font-size:14px;color:#1a1a1a;margin:0;">Katılımcılar</p>
                         <p id="participants-panel-count" style="font-size:11px;color:#9ca3af;margin:2px 0 0;"></p>
