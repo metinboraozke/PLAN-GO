@@ -265,27 +265,6 @@ export function renderProfile(passport = {}) {
 
     // 10. Recent Trips
     renderRecentTrips(passport.recent_trips);
-
-    // 11. Money Saved — Σ(plan.budget - plan.total_cost) over confirmed plans
-    _renderTotalSaved();
-}
-
-async function _renderTotalSaved() {
-    const savedEl = document.getElementById('profile-saved');
-    if (!savedEl) return;
-    try {
-        const { data: wishlists = [] } = await getWishlists();
-        const totalSaved = (wishlists || []).reduce((sum, w) => {
-            const cost = Number(w.total_cost ?? 0);
-            if (!cost) return sum; // fiyat verisi olmayan planları atla (sadece bütçe sayılmasın)
-            const budget = Number(w.budget ?? w.target_price ?? 0);
-            const diff   = budget - cost;
-            return sum + (diff > 0 ? diff : 0);
-        }, 0);
-        savedEl.textContent = `₺${totalSaved.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}`;
-    } catch {
-        savedEl.textContent = '₺0';
-    }
 }
 
 /**
